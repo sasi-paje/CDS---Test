@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="indigo" data-style="enterprise">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="../../src/whitelabel/tokens.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font-sans); background: var(--bg-app); color: var(--fg-default); }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+      background: var(--bg-app);
+    }
+
+    .dashboard-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+
+    .dashboard-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-5);
+      padding: var(--space-5) var(--space-7);
+      background: var(--bg-canvas);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .dashboard-topbar h1 {
+      margin: 0;
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      color: var(--fg-strong);
+    }
+
+    .dashboard-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .dashboard-content {
+      flex: 1;
+      padding: var(--space-7);
+      overflow: auto;
+    }
+
+    .dashboard-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-5);
+      margin-bottom: var(--space-7);
+    }
+
+    .stat-card {
+      padding: var(--space-5);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .stat-label {
+      font-size: var(--text-sm);
+      color: var(--fg-muted);
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      color: var(--fg-strong);
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--bg-brand-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--fg-brand);
+      margin-bottom: var(--space-2);
+    }
+
+    .dashboard-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .dashboard-section-header {
+      padding: var(--space-5);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+    }
+
+    .dashboard-section-header h2 {
+      margin: 0;
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--fg-strong);
+    }
+
+    .dashboard-section-content {
+      padding: var(--space-5);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      bottom: var(--space-5);
+      right: var(--space-5);
+      z-index: 1000;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      transition: all var(--dur-base) var(--ease-out);
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-muted);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-group label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--fg-strong);
+      margin-bottom: var(--space-2);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: var(--space-3);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      color: var(--fg-default);
+      font-family: inherit;
+      font-size: var(--text-sm);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: var(--ring-focus);
+    }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+      padding-top: var(--space-5);
+      border-top: 1px solid var(--border-subtle);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="../../src/whitelabel/Primitives.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Sidebar.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Display.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Overlays.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Complex.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const SAMPLE_USERS = [
+      { id: 1, name: "Alice Johnson", email: "alice@example.com", role: "Admin", status: "active", joinDate: "2024-01-15" },
+      { id: 2, name: "Bob Smith", email: "bob@example.com", role: "Editor", status: "active", joinDate: "2024-02-20" },
+      { id: 3, name: "Carol White", email: "carol@example.com", role: "Viewer", status: "inactive", joinDate: "2024-01-10" },
+      { id: 4, name: "David Brown", email: "david@example.com", role: "Editor", status: "active", joinDate: "2024-03-05" },
+      { id: 5, name: "Eve Davis", email: "eve@example.com", role: "Admin", status: "active", joinDate: "2024-02-01" },
+      { id: 6, name: "Frank Miller", email: "frank@example.com", role: "Viewer", status: "active", joinDate: "2024-03-10" },
+      { id: 7, name: "Grace Lee", email: "grace@example.com", role: "Editor", status: "inactive", joinDate: "2023-12-20" },
+      { id: 8, name: "Henry Wilson", email: "henry@example.com", role: "Admin", status: "active", joinDate: "2024-01-25" },
+    ];
+
+    function DashboardApp() {
+      const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+      const [currentPage, setCurrentPage] = useState("users");
+      const [theme, setTheme] = useState("light");
+      const [users, setUsers] = useState(SAMPLE_USERS);
+      const [editingUser, setEditingUser] = useState(null);
+      const [showCreateDialog, setShowCreateDialog] = useState(false);
+      const [deleteUserId, setDeleteUserId] = useState(null);
+      const [formData, setFormData] = useState({ name: "", email: "", role: "Viewer", status: "active" });
+
+      const handleThemeToggle = () => {
+        const newTheme = theme === "light" ? "dark" : "light";
+        setTheme(newTheme);
+        document.documentElement.dataset.theme = newTheme;
+      };
+
+      const handleCreateClick = () => {
+        setFormData({ name: "", email: "", role: "Viewer", status: "active" });
+        setEditingUser(null);
+        setShowCreateDialog(true);
+      };
+
+      const handleEditClick = (user) => {
+        setFormData({ name: user.name, email: user.email, role: user.role, status: user.status });
+        setEditingUser(user.id);
+        setShowCreateDialog(true);
+      };
+
+      const handleSaveUser = () => {
+        if (editingUser) {
+          setUsers(users.map(u => u.id === editingUser ? { ...u, ...formData } : u));
+          window.toast?.success?.("User updated");
+        } else {
+          const newUser = { id: Math.max(...users.map(u => u.id)) + 1, ...formData, joinDate: new Date().toISOString().split('T')[0] };
+          setUsers([...users, newUser]);
+          window.toast?.success?.("User created");
+        }
+        setShowCreateDialog(false);
+      };
+
+      const handleDeleteUser = () => {
+        setUsers(users.filter(u => u.id !== deleteUserId));
+        setDeleteUserId(null);
+        window.toast?.success?.("User deleted");
+      };
+
+      const { Sidebar, Button, Badge, Input, DataTable, Dialog, AlertDialog, Icon, Toaster } = window;
+
+      const sidebarItems = [
+        { group: "Main" },
+        { id: "users", label: "Users", icon: "users" },
+        { id: "settings", label: "Settings", icon: "settings" },
+        { id: "reports", label: "Reports", icon: "bar-chart-2" },
+      ];
+
+      const getStatusVariant = (status) => status === "active" ? "success" : "warning";
+      const getRoleVariant = (role) => role === "Admin" ? "danger" : role === "Editor" ? "info" : "neutral";
+
+      const tableColumns = [
+        { key: "name", label: "Name", width: "25%", sortable: true },
+        { key: "email", label: "Email", width: "25%", sortable: true },
+        { key: "role", label: "Role", width: "15%", render: (row) => <Badge variant={getRoleVariant(row.role)}>{row.role}</Badge> },
+        { key: "status", label: "Status", width: "15%", render: (row) => <Badge variant={getStatusVariant(row.status)}>{row.status.charAt(0).toUpperCase() + row.status.slice(1)}</Badge> },
+        { key: "joinDate", label: "Joined", width: "15%", render: (row) => new Date(row.joinDate).toLocaleDateString() },
+        {
+          key: "actions", label: "", width: "5%",
+          render: (row) => (
+            <div style={{ display: "flex", gap: 4 }}>
+              <Button size="sm" variant="ghost" iconOnly leading="edit-2" ariaLabel="Edit" onClick={() => handleEditClick(row)} />
+              <Button size="sm" variant="ghost" iconOnly leading="trash-2" ariaLabel="Delete" onClick={() => setDeleteUserId(row.id)} />
+            </div>
+          )
+        },
+      ];
+
+      return (
+        <div className="dashboard">
+          <Sidebar
+            brand="Dashboard"
+            items={sidebarItems}
+            active={currentPage}
+            onSelect={(id) => setCurrentPage(id)}
+            collapsed={sidebarCollapsed}
+            onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+            width={280}
+            collapsedWidth={64}
+          />
+
+          <div className="dashboard-main">
+            <div className="dashboard-topbar">
+              <h1>Users & Access</h1>
+              <div className="dashboard-topbar-actions">
+                <Button variant="primary" leading="plus" onClick={handleCreateClick}>Add User</Button>
+              </div>
+            </div>
+
+            <div className="dashboard-content">
+              <div className="dashboard-stats">
+                {[
+                  { icon: "users", label: "Total Users", value: users.length },
+                  { icon: "check-circle", label: "Active", value: users.filter(u => u.status === "active").length },
+                  { icon: "lock", label: "Admins", value: users.filter(u => u.role === "Admin").length },
+                  { icon: "calendar", label: "This Month", value: users.filter(u => new Date(u.joinDate).getMonth() === new Date().getMonth()).length },
+                ].map((stat, i) => (
+                  <div key={i} className="stat-card">
+                    <div className="stat-icon"><Icon name={stat.icon} size={20} /></div>
+                    <div className="stat-label">{stat.label}</div>
+                    <div className="stat-value">{stat.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="dashboard-section">
+                <div className="dashboard-section-header">
+                  <h2>All Users</h2>
+                  <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>{users.length} users</span>
+                </div>
+                <div className="dashboard-section-content">
+                  <DataTable
+                    data={users}
+                    columns={tableColumns}
+                    searchable={true}
+                    searchPlaceholder="Search users by name or email..."
+                    pageSize={10}
+                    emptyText="No users found"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {showCreateDialog && (
+            <Dialog
+              open={true}
+              onClose={() => setShowCreateDialog(false)}
+              title={editingUser ? "Edit User" : "Create New User"}
+              size="md"
+            >
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="john@example.com"
+                />
+              </div>
+              <div className="form-group">
+                <label>Role</label>
+                <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })}>
+                  <option value="Viewer">Viewer</option>
+                  <option value="Editor">Editor</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Status</label>
+                <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div className="dialog-footer">
+                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+                <Button variant="primary" onClick={handleSaveUser}>Save User</Button>
+              </div>
+            </Dialog>
+          )}
+
+          {deleteUserId && (
+            <AlertDialog
+              open={true}
+              onCancel={() => setDeleteUserId(null)}
+              onConfirm={handleDeleteUser}
+              title="Delete user?"
+              description="This action cannot be undone. The user will be permanently removed."
+              confirmLabel="Delete"
+              variant="danger"
+            />
+          )}
+
+          <button className="theme-toggle" onClick={handleThemeToggle}>
+            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+          </button>
+
+          <Toaster position="bottom-right" />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<DashboardApp />);
+  </script>
+</body>
+</html>

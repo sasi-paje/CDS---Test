@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="emerald" data-style="enterprise">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inbox — Task Management</title>
+
+  <!-- Design system tokens -->
+  <link rel="stylesheet" href="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/tokens.css" />
+
+  <!-- React & Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+    integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+    crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+    integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+    crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+    integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+    crossorigin="anonymous"></script>
+
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+      background: var(--bg-app);
+    }
+
+    .sidebar {
+      background: var(--bg-canvas);
+      border-right: 1px solid var(--border-subtle);
+      padding: var(--space-5);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: var(--space-2);
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neutral-0);
+      font-weight: 700;
+      font-size: var(--text-sm);
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: var(--text-sm);
+      color: var(--fg-strong);
+      margin: 0;
+    }
+
+    .nav-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .nav-section-label {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--fg-subtle);
+      padding: 0 var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    .nav-item {
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      transition: background-color var(--dur-base) var(--ease-out);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--fg-muted);
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background-color: var(--bg-muted);
+      color: var(--fg-default);
+    }
+
+    .nav-item.active {
+      background-color: var(--bg-brand-subtle);
+      color: var(--fg-brand);
+      font-weight: 500;
+    }
+
+    .nav-count {
+      margin-left: auto;
+      font-size: var(--text-xs);
+      padding: 2px var(--space-2);
+      background: var(--bg-muted);
+      border-radius: var(--radius-pill);
+      color: var(--fg-muted);
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-canvas);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      flex: 1;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .content {
+      flex: 1;
+      padding: var(--space-5);
+      overflow: auto;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-5);
+    }
+
+    .header-row h1 {
+      margin: 0;
+      font-size: var(--text-3xl);
+      color: var(--fg-strong);
+    }
+
+    .search-wrapper {
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .status-badge-active {
+      background: var(--bg-success-subtle);
+      color: var(--fg-success);
+    }
+
+    .status-badge-in-progress {
+      background: var(--bg-info-subtle);
+      color: var(--fg-info);
+    }
+
+    .status-badge-done {
+      background: var(--bg-muted);
+      color: var(--fg-muted);
+    }
+
+    .priority-high {
+      color: var(--fg-danger);
+    }
+
+    .priority-medium {
+      color: var(--fg-warning);
+    }
+
+    .priority-low {
+      color: var(--fg-muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    thead {
+      background: var(--bg-muted);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    th {
+      padding: var(--space-3) var(--space-4);
+      text-align: left;
+      font-weight: 600;
+      color: var(--fg-strong);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background-color var(--dur-base) var(--ease-out);
+    }
+
+    tbody tr:hover {
+      background: var(--bg-muted);
+    }
+
+    tbody tr.selected {
+      background: color-mix(in oklab, var(--brand-500) 8%, var(--bg-app));
+    }
+
+    td {
+      padding: var(--space-3) var(--space-4);
+      color: var(--fg-default);
+    }
+
+    td.muted {
+      color: var(--fg-muted);
+      font-size: var(--text-xs);
+    }
+
+    td.mono {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+    }
+
+    .assignee-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      background: var(--brand-500);
+      color: var(--neutral-0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-xs);
+      flex-shrink: 0;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: var(--radius-md);
+      color: var(--fg-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--dur-base) var(--ease-out);
+    }
+
+    .icon-btn:hover {
+      color: var(--fg-default);
+      background: var(--bg-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-12);
+      color: var(--fg-muted);
+    }
+
+    .empty-state h3 {
+      margin-top: 0;
+      color: var(--fg-strong);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-canvas);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      min-width: 400px;
+      box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.18);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      color: var(--fg-strong);
+    }
+
+    .modal p {
+      color: var(--fg-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: var(--space-3);
+      justify-content: flex-end;
+      margin-top: var(--space-5);
+    }
+
+    .modal-footer button {
+      padding: var(--ctl-px-md) var(--ctl-px-lg);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      transition: all var(--dur-base) var(--ease-out);
+    }
+
+    .modal-footer button.primary {
+      background: var(--bg-danger);
+      color: var(--fg-inverse);
+      border-color: var(--bg-danger);
+    }
+
+    .modal-footer button.primary:hover {
+      background: var(--brand-700);
+    }
+
+    .modal-footer button.secondary {
+      background: var(--bg-surface);
+      color: var(--fg-default);
+    }
+
+    .modal-footer button.secondary:hover {
+      background: var(--bg-muted);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border-subtle);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: var(--fg-default);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      transition: all var(--dur-base) var(--ease-out);
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-muted);
+      border-color: var(--border-default);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Components -->
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Primitives.jsx"></script>
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Display.jsx"></script>
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Overlays.jsx"></script>
+
+  <script type="text/babel">
+    const { Button, Input, Badge, Spinner, Toaster } = window;
+
+    // Sample task data
+    const SAMPLE_TASKS = [
+      { id: 1, title: "Fix login button mobile responsive", status: "in-progress", priority: "high", assignee: "Alice", dueDate: "2026-05-30", unread: true },
+      { id: 2, title: "Update API documentation", status: "open", priority: "medium", assignee: "Bob", dueDate: "2026-06-02", unread: false },
+      { id: 3, title: "Design new dashboard layout", status: "open", priority: "high", assignee: "Carol", dueDate: "2026-05-31", unread: true },
+      { id: 4, title: "Refactor database queries", status: "in-progress", priority: "medium", assignee: "Alice", dueDate: "2026-06-05", unread: false },
+      { id: 5, title: "Write unit tests for auth module", status: "open", priority: "low", assignee: "David", dueDate: "2026-06-10", unread: false },
+      { id: 6, title: "Review PR #234", status: "open", priority: "high", assignee: "You", dueDate: "2026-05-29", unread: true },
+      { id: 7, title: "Prepare Q2 roadmap presentation", status: "done", priority: "medium", assignee: "Carol", dueDate: "2026-05-25", unread: false },
+      { id: 8, title: "Update team onboarding docs", status: "in-progress", priority: "low", assignee: "Bob", dueDate: "2026-06-01", unread: false },
+    ];
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      if (date.toDateString() === today.toDateString()) return "Today";
+      if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+
+      const diff = Math.ceil((date - today) / (1000 * 60 * 60 * 24));
+      if (diff < 0) return "Overdue";
+      if (diff === 0) return "Today";
+      if (diff <= 7) return `${diff}d`;
+
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+
+    function InboxApp() {
+      const [tasks, setTasks] = React.useState(SAMPLE_TASKS);
+      const [filter, setFilter] = React.useState("all"); // all or my
+      const [search, setSearch] = React.useState("");
+      const [theme, setTheme] = React.useState("light");
+      const [deleteId, setDeleteId] = React.useState(null);
+      const [selectedId, setSelectedId] = React.useState(null);
+
+      // Filter tasks
+      const filteredTasks = tasks.filter(task => {
+        const matchesFilter = filter === "all" || (filter === "my" && task.assignee === "You");
+        const matchesSearch = search === "" ||
+          task.title.toLowerCase().includes(search.toLowerCase()) ||
+          task.assignee.toLowerCase().includes(search.toLowerCase());
+        return matchesFilter && matchesSearch;
+      });
+
+      const inboxCount = tasks.filter(t => t.status !== "done").length;
+      const myTasksCount = tasks.filter(t => t.assignee === "You" && t.status !== "done").length;
+
+      const handleDelete = () => {
+        setTasks(tasks.filter(t => t.id !== deleteId));
+        setDeleteId(null);
+        window.toast?.success?.("Task deleted");
+      };
+
+      const handleStatusChange = (id, newStatus) => {
+        setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
+        const statusText = newStatus === "done" ? "Marked as done" : `Status changed to ${newStatus}`;
+        window.toast?.success?.(statusText);
+      };
+
+      const handleThemeToggle = () => {
+        const newTheme = theme === "light" ? "dark" : "light";
+        setTheme(newTheme);
+        document.documentElement.dataset.theme = newTheme;
+      };
+
+      const getStatusBadgeClass = (status) => {
+        switch(status) {
+          case "open": return "status-badge-active";
+          case "in-progress": return "status-badge-in-progress";
+          case "done": return "status-badge-done";
+          default: return "";
+        }
+      };
+
+      const getPriorityClass = (priority) => {
+        switch(priority) {
+          case "high": return "priority-high";
+          case "medium": return "priority-medium";
+          case "low": return "priority-low";
+          default: return "";
+        }
+      };
+
+      const getInitials = (name) => name.split(" ").map(w => w[0]).join("");
+
+      return (
+        <div className="app">
+          {/* Sidebar */}
+          <aside className="sidebar">
+            <div className="brand">
+              <div className="brand-mark">@</div>
+              <p className="brand-name">Inbox</p>
+            </div>
+
+            <nav className="nav-section">
+              <div className="nav-section-label">Views</div>
+              <div
+                className={`nav-item ${filter === "all" ? "active" : ""}`}
+                onClick={() => setFilter("all")}
+              >
+                <span>📥</span>
+                <span>All Tasks</span>
+                <span className="nav-count">{inboxCount}</span>
+              </div>
+              <div
+                className={`nav-item ${filter === "my" ? "active" : ""}`}
+                onClick={() => setFilter("my")}
+              >
+                <span>👤</span>
+                <span>My Tasks</span>
+                <span className="nav-count">{myTasksCount}</span>
+              </div>
+            </nav>
+          </aside>
+
+          {/* Main Content */}
+          <div className="main-content">
+            {/* Top Bar */}
+            <div className="topbar">
+              <div className="topbar-left">
+                <h2 style={{ margin: 0, fontSize: "var(--text-lg)", color: "var(--fg-strong)" }}>
+                  {filter === "all" ? "All Tasks" : "My Tasks"}
+                </h2>
+                <div className="search-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Search tasks..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "var(--ctl-px-md) var(--ctl-px-lg)",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: "var(--radius-md)",
+                      fontSize: "var(--text-sm)",
+                      background: "var(--bg-surface)",
+                      color: "var(--fg-default)"
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="topbar-right">
+                <button className="theme-toggle" onClick={handleThemeToggle}>
+                  {theme === "light" ? "🌙" : "☀️"}
+                  <span style={{ fontSize: "var(--text-xs)", color: "var(--fg-muted)" }}>
+                    {theme === "light" ? "Dark" : "Light"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="content">
+              {filteredTasks.length === 0 ? (
+                <div className="empty-state">
+                  <h3>No tasks found</h3>
+                  <p>
+                    {search
+                      ? "Try adjusting your search"
+                      : filter === "my"
+                      ? "You don't have any assigned tasks"
+                      : "All done! 🎉"
+                    }
+                  </p>
+                </div>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      <th style={{ width: "40%" }}>Task</th>
+                      <th style={{ width: "12%" }}>Status</th>
+                      <th style={{ width: "10%" }}>Priority</th>
+                      <th style={{ width: "18%" }}>Assignee</th>
+                      <th style={{ width: "12%" }}>Due</th>
+                      <th style={{ width: "8%" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTasks.map((task) => (
+                      <tr
+                        key={task.id}
+                        className={selectedId === task.id ? "selected" : ""}
+                        onClick={() => setSelectedId(task.id)}
+                      >
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                            {task.unread && (
+                              <div style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                background: "var(--brand-500)",
+                                flexShrink: 0
+                              }} />
+                            )}
+                            <span>{task.title}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <select
+                            value={task.status}
+                            onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              padding: "var(--space-1) var(--space-2)",
+                              borderRadius: "var(--radius-md)",
+                              border: "1px solid var(--border-subtle)",
+                              background: "var(--bg-surface)",
+                              color: "var(--fg-default)",
+                              fontSize: "var(--text-xs)",
+                              cursor: "pointer"
+                            }}
+                          >
+                            <option value="open">Open</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="done">Done</option>
+                          </select>
+                        </td>
+                        <td>
+                          <span className={getPriorityClass(task.priority)} style={{ fontWeight: 600 }}>
+                            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="assignee-cell">
+                            <div className="avatar" style={{ background: "var(--brand-500)" }}>
+                              {getInitials(task.assignee)}
+                            </div>
+                            <span style={{ fontSize: "var(--text-sm)" }}>{task.assignee}</span>
+                          </div>
+                        </td>
+                        <td className="muted">{formatDate(task.dueDate)}</td>
+                        <td>
+                          <button
+                            className="icon-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteId(task.id);
+                            }}
+                            title="Delete"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function AppWithToaster() {
+      return (
+        <>
+          <InboxApp />
+          <div id="delete-modal" className="modal-overlay" onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              const deleteId = document.querySelector(".modal-overlay.open")?.dataset?.deleteId;
+              if (deleteId) document.querySelector(".modal-overlay").classList.remove("open");
+            }
+          }}>
+            <div className="modal">
+              <h2>Delete task?</h2>
+              <p>This action cannot be undone. The task will be permanently removed from your inbox.</p>
+              <div className="modal-footer">
+                <button className="secondary" onClick={() => document.querySelector(".modal-overlay").classList.remove("open")}>
+                  Cancel
+                </button>
+                <button className="primary" onClick={() => {
+                  // Handled by React state
+                }}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+          <Toaster position="bottom-right" />
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<InboxApp />);
+  </script>
+</body>
+</html>

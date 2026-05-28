@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="emerald" data-style="enterprise">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inbox — Task Management</title>
+  <link rel="stylesheet" href="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/tokens.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    .app-wrapper { display: flex; min-height: 100vh; background: var(--bg-app); }
+    .topbar { background: var(--bg-canvas); border-bottom: 1px solid var(--border-subtle); padding: var(--space-5); display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); position: sticky; top: 0; z-index: 100; }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: auto; }
+    .content-area { flex: 1; padding: var(--space-5); overflow: auto; }
+    .theme-toggle { position: fixed; top: var(--space-4); right: var(--space-4); z-index: 1000; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); background: var(--bg-canvas); border-radius: var(--radius-md); cursor: pointer; font-size: var(--text-sm); font-family: inherit; transition: all var(--dur-base) var(--ease-out); }
+    .theme-toggle:hover { background: var(--bg-muted); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- LOAD COMPONENTS: Primitives FIRST, then others in order -->
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Primitives.jsx"></script>
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Sidebar.jsx"></script>
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Display.jsx"></script>
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Complex.jsx"></script>
+  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Overlays.jsx"></script>
+
+  <script type="text/babel">
+    const SAMPLE_TASKS = [
+      { id: 1, title: "Fix login button mobile responsive", status: "in-progress", priority: "high", assignee: "Alice", dueDate: "2026-05-30" },
+      { id: 2, title: "Update API documentation", status: "open", priority: "medium", assignee: "Bob", dueDate: "2026-06-02" },
+      { id: 3, title: "Design new dashboard layout", status: "open", priority: "high", assignee: "Carol", dueDate: "2026-05-31" },
+      { id: 4, title: "Refactor database queries", status: "in-progress", priority: "medium", assignee: "Alice", dueDate: "2026-06-05" },
+      { id: 5, title: "Write unit tests for auth module", status: "open", priority: "low", assignee: "David", dueDate: "2026-06-10" },
+      { id: 6, title: "Review PR #234", status: "open", priority: "high", assignee: "You", dueDate: "2026-05-29" },
+      { id: 7, title: "Prepare Q2 roadmap presentation", status: "done", priority: "medium", assignee: "Carol", dueDate: "2026-05-25" },
+      { id: 8, title: "Update team onboarding docs", status: "in-progress", priority: "low", assignee: "Bob", dueDate: "2026-06-01" },
+    ];
+
+    const { Sidebar, Input, Badge, Button, DataTable, AlertDialog, Toaster } = window;
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      if (date.toDateString() === today.toDateString()) return "Today";
+      if (date.toDateString() === tomorrow.toDateString()) return "Tomorrow";
+      if (date < today) return "Overdue";
+
+      const diff = Math.ceil((date - today) / (1000 * 60 * 60 * 24));
+      if (diff <= 7) return `${diff}d`;
+
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+
+    function getInitials(name) {
+      return name.split(" ").map(w => w[0]).join("");
+    }
+
+    function getStatusVariant(status) {
+      switch(status) {
+        case "done": return "success";
+        case "in-progress": return "info";
+        case "open": return "warning";
+        default: return "neutral";
+      }
+    }
+
+    function getPriorityVariant(priority) {
+      switch(priority) {
+        case "high": return "danger";
+        case "medium": return "warning";
+        case "low": return "neutral";
+        default: return "neutral";
+      }
+    }
+
+    function InboxApp() {
+      const [tasks, setTasks] = React.useState(SAMPLE_TASKS);
+      const [filter, setFilter] = React.useState("all");
+      const [deleteId, setDeleteId] = React.useState(null);
+      const [theme, setTheme] = React.useState("light");
+
+      const filteredTasks = filter === "all"
+        ? tasks
+        : tasks.filter(t => t.assignee === "You");
+
+      const inboxCount = tasks.filter(t => t.status !== "done").length;
+      const myTasksCount = tasks.filter(t => t.assignee === "You" && t.status !== "done").length;
+
+      const handleDelete = () => {
+        setTasks(tasks.filter(t => t.id !== deleteId));
+        setDeleteId(null);
+        window.toast?.success?.("Task deleted");
+      };
+
+      const handleThemeToggle = () => {
+        const newTheme = theme === "light" ? "dark" : "light";
+        setTheme(newTheme);
+        document.documentElement.dataset.theme = newTheme;
+      };
+
+      const sidebarItems = [
+        { group: "Views" },
+        { id: "all", label: "All Tasks", icon: "inbox", badge: inboxCount.toString() },
+        { id: "my", label: "My Tasks", icon: "user-check", badge: myTasksCount.toString() },
+      ];
+
+      const tableColumns = [
+        {
+          key: "title",
+          label: "Task",
+          sortable: true,
+          width: "40%",
+        },
+        {
+          key: "status",
+          label: "Status",
+          width: "15%",
+          render: (row) => (
+            <Badge variant={getStatusVariant(row.status)}>
+              {row.status.charAt(0).toUpperCase() + row.status.slice(1)}
+            </Badge>
+          ),
+        },
+        {
+          key: "priority",
+          label: "Priority",
+          width: "12%",
+          render: (row) => (
+            <Badge variant={getPriorityVariant(row.priority)}>
+              {row.priority.charAt(0).toUpperCase() + row.priority.slice(1)}
+            </Badge>
+          ),
+        },
+        {
+          key: "assignee",
+          label: "Assignee",
+          width: "18%",
+          render: (row) => (
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+              <div style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "var(--radius-pill)",
+                background: "var(--brand-500)",
+                color: "var(--neutral-0)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "600",
+                fontSize: "var(--text-xs)",
+                flexShrink: 0,
+              }}>
+                {getInitials(row.assignee)}
+              </div>
+              <span>{row.assignee}</span>
+            </div>
+          ),
+        },
+        {
+          key: "dueDate",
+          label: "Due",
+          width: "12%",
+          render: (row) => (
+            <span style={{ fontSize: "var(--text-sm)", color: "var(--fg-muted)" }}>
+              {formatDate(row.dueDate)}
+            </span>
+          ),
+        },
+        {
+          key: "actions",
+          label: "",
+          width: "3%",
+          render: (row) => (
+            <Button
+              size="sm"
+              variant="ghost"
+              iconOnly
+              icon="trash-2"
+              ariaLabel="Delete task"
+              onClick={() => setDeleteId(row.id)}
+            />
+          ),
+        },
+      ];
+
+      return (
+        <div className="app-wrapper">
+          {/* Sidebar */}
+          <Sidebar
+            brand="Inbox"
+            items={sidebarItems}
+            active={filter}
+            onSelect={(id) => setFilter(id)}
+          />
+
+          {/* Main Content */}
+          <div className="main-content">
+            {/* Top Bar */}
+            <div className="topbar">
+              <h1 style={{ margin: 0, fontSize: "var(--text-2xl)", color: "var(--fg-strong)" }}>
+                {filter === "all" ? "All Tasks" : "My Tasks"}
+              </h1>
+            </div>
+
+            {/* Content Area with DataTable */}
+            <div className="content-area">
+              <DataTable
+                data={filteredTasks}
+                columns={tableColumns}
+                searchable={true}
+                searchPlaceholder="Search tasks..."
+                pageSize={10}
+                emptyText="No tasks found"
+              />
+            </div>
+          </div>
+
+          {/* Delete Confirmation Dialog */}
+          {deleteId && (
+            <AlertDialog
+              open={!!deleteId}
+              onCancel={() => setDeleteId(null)}
+              onConfirm={handleDelete}
+              title="Delete task?"
+              description="This action cannot be undone. The task will be permanently removed from your inbox."
+              confirmLabel="Delete"
+              variant="danger"
+            />
+          )}
+
+          {/* Theme Toggle */}
+          <button className="theme-toggle" onClick={handleThemeToggle}>
+            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+          </button>
+
+          {/* Toaster */}
+          <Toaster position="bottom-right" />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<InboxApp />);
+  </script>
+</body>
+</html>

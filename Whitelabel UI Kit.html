@@ -1,0 +1,1178 @@
+<!-- @dsCard group="Components" subtitle="Brand-agnostic primitives, foundations, semantic tokens, dark mode" -->
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="indigo" data-style="standard">
+<head>
+  <meta charset="utf-8" />
+  <title>White-label UI Kit</title>
+  <link rel="stylesheet" href="src/whitelabel/tokens.css" />
+
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <rect width="240" height="240" rx="32" fill="#0F172A"/>
+      <g transform="translate(40 60)">
+        <rect width="32" height="32" rx="8" fill="#6366F1"/>
+        <rect x="40"  width="32" height="32" rx="8" fill="#10B981"/>
+        <rect x="80"  width="32" height="32" rx="8" fill="#F59E0B"/>
+        <rect x="120" width="32" height="32" rx="8" fill="#F43F5E"/>
+        <g transform="translate(0 50)" fill="#F1F5F9">
+          <rect width="32" height="8" rx="4"/>
+          <rect y="14" width="160" height="8" rx="4"/>
+          <rect y="28" width="120" height="8" rx="4"/>
+          <rect y="50" width="160" height="32" rx="8" fill="#1E293B"/>
+        </g>
+      </g>
+    </svg>
+  </template>
+
+  <style>
+    /* ── App shell ───────────────────────────────────────────────────────── */
+    body { background: var(--bg-app); }
+    .app { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: 100vh; background: var(--bg-app); }
+
+    /* Sidebar nav */
+    .nav {
+      position: sticky; top: 0; align-self: start;
+      height: 100vh; overflow: auto;
+      background: var(--bg-canvas);
+      border-right: 1px solid var(--border-subtle);
+      padding: 20px 16px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
+      color: var(--fg-strong); padding: 0 8px 16px;
+      border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px;
+    }
+    .nav-brand-mark {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--neutral-0); font-weight: 700;
+    }
+    .nav-group { font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--fg-subtle); padding: 16px 8px 6px; }
+    .nav a {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: 6px;
+      font-size: 13.5px; color: var(--fg-muted); text-decoration: none;
+    }
+    .nav a:hover { background: var(--bg-muted); color: var(--fg-default); text-decoration: none; }
+    .nav a.active { background: var(--bg-brand-subtle); color: var(--fg-brand); }
+
+    /* Top bar */
+    .topbar {
+      position: sticky; top: 0; z-index: var(--z-sticky);
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 32px; background: var(--bg-canvas);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .topbar h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    .topbar .grow { flex: 1; }
+    .seg {
+      display: inline-flex; padding: 3px; background: var(--bg-muted);
+      border-radius: 8px; gap: 0;
+    }
+    .seg button {
+      appearance: none; border: 0; background: transparent;
+      cursor: pointer; padding: 5px 10px; font-size: 12.5px; font-weight: 500;
+      color: var(--fg-muted); border-radius: 6px; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .seg button[aria-pressed="true"] {
+      background: var(--bg-surface); color: var(--fg-default);
+      box-shadow: var(--shadow-xs);
+    }
+    .swatch-pick { display: inline-flex; gap: 4px; padding: 3px; background: var(--bg-muted); border-radius: 8px; }
+    .swatch-pick button {
+      appearance: none; border: 2px solid transparent;
+      width: 22px; height: 22px; border-radius: 6px;
+      cursor: pointer; padding: 0;
+    }
+    .swatch-pick button[aria-pressed="true"] { border-color: var(--fg-default); }
+
+    /* Main content */
+    main { padding: 32px 32px 96px; max-width: 1280px; }
+    .sect { padding-top: 32px; margin-top: 32px; border-top: 1px solid var(--border-subtle); }
+    .sect:first-child { padding-top: 0; margin-top: 0; border-top: 0; }
+    .sect > header h2 { margin: 0 0 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.015em; color: var(--fg-strong); }
+    .sect > header p { margin: 0 0 24px; color: var(--fg-muted); font-size: 14px; max-width: 70ch; }
+
+    /* Color palettes */
+    .pal-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .pal-head { display: flex; align-items: baseline; gap: 12px; }
+    .pal-name { font-size: 14px; font-weight: 600; }
+    .pal-mono { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-muted); }
+    .pal-grid {
+      display: grid; grid-template-columns: repeat(11, minmax(0, 1fr));
+      border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    .pal-tile { padding: 12px 10px 10px; min-height: 76px;
+      display: flex; flex-direction: column; justify-content: flex-end; gap: 2px;
+      font-family: var(--font-mono); font-size: 10.5px; }
+    .pal-tile .step { font-weight: 600; }
+    .pal-tile .hex  { opacity: 0.75; font-size: 10px; }
+
+    /* Semantic token table */
+    .semtbl {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px; overflow: hidden;
+    }
+    .semtbl > div { padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); }
+    .semtbl > div:nth-child(3n) { border-right: 0; }
+    .semtbl > div:nth-last-child(-n+3) { border-bottom: 0; }
+    .semchip {
+      width: 36px; height: 24px; border-radius: 5px; flex-shrink: 0;
+      border: 1px solid var(--border-subtle);
+    }
+    .semtbl code { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-default); padding: 0; background: transparent; }
+    .semtbl small { display: block; color: var(--fg-muted); font-size: 11px; }
+
+    /* Contrast matrix */
+    .ctbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ctbl th, .ctbl td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-subtle); }
+    .ctbl th { font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+    .ctbl td { font-family: var(--font-mono); font-size: 12.5px; }
+    .ctbl tbody tr:hover { background: var(--bg-muted); }
+    .ratio-cell { display: inline-flex; align-items: center; gap: 8px; }
+    .ratio-num { font-weight: 600; font-family: var(--font-mono); }
+    .ratio-tag {
+      font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 9999px;
+      letter-spacing: 0.04em; font-family: var(--font-sans);
+    }
+    .ratio-AAA  { background: var(--bg-success-subtle); color: var(--fg-success); }
+    .ratio-AA   { background: var(--bg-info-subtle);    color: var(--fg-info); }
+    .ratio-AAL  { background: var(--bg-warning-subtle); color: var(--fg-warning); }
+    .ratio-FAIL { background: var(--bg-danger-subtle);  color: var(--fg-danger); }
+
+    .ctbl .swatch { width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--border-subtle); display: inline-block; vertical-align: middle; margin-right: 8px; }
+
+    /* Type specimens */
+    .type-row { display: grid; grid-template-columns: 140px 1fr; gap: 16px;
+      padding: 14px 0; border-top: 1px solid var(--border-subtle); align-items: baseline; }
+    .type-row:first-of-type { border-top: 0; }
+    .type-row .meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-muted); }
+
+    /* Spacing & radius tiles */
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    .tile {
+      background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px;
+      padding: 14px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .tile .vis { height: 56px; display: flex; align-items: center; justify-content: center; }
+    .tile .bar    { background: var(--bg-brand); height: 14px; border-radius: 2px; }
+    .tile .square { background: var(--bg-brand); width: 44px; height: 44px; }
+    .tile .lbl { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11.5px; }
+    .tile .lbl b { color: var(--fg-default); font-weight: 500; }
+    .tile .lbl span { color: var(--fg-muted); }
+
+    /* Shadow tiles */
+    .sh-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; }
+    .sh-tile { background: var(--bg-surface); border-radius: 10px; padding: 22px; text-align: center; }
+    .sh-tile .name { font-weight: 600; font-size: 13.5px; }
+    .sh-tile .mono { font-family: var(--font-mono); font-size: 11px; color: var(--fg-muted); margin-top: 6px; }
+
+    /* Motion tokens table */
+    .mot-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .mot-tbl th, .mot-tbl td { padding: 9px 10px; text-align: left; border-top: 1px solid var(--border-subtle); }
+    .mot-tbl th { font-size: 11px; color: var(--fg-subtle); text-transform: uppercase; letter-spacing: 0.06em; border-top: 0; }
+    .mot-tbl td code { background: var(--bg-muted); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 12px; color: var(--fg-default); }
+    .mot-demo { width: 24px; height: 24px; border-radius: 6px; background: var(--bg-brand); display: inline-block; }
+
+    /* Spec card (shared with catalog) */
+    .spec {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      margin: 16px 0 28px;
+      overflow: hidden;
+    }
+    .spec-head {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-muted) 100%);
+    }
+    .spec-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .spec-name { margin: 0; font-size: 16px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.01em; }
+    .spec-file { font-family: var(--font-mono); font-size: 11px; color: var(--fg-muted); padding: 0; background: transparent; }
+    .spec-btn {
+      appearance: none; cursor: pointer; padding: 5px 9px; border-radius: 5px;
+      background: var(--bg-surface); border: 1px solid var(--border-default);
+      color: var(--fg-default); font-size: 12px; font-weight: 500; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .spec-btn:hover { background: var(--bg-muted); }
+    .spec-summary { margin: 12px 18px 0; color: var(--fg-muted); font-size: 13.5px; max-width: 84ch; line-height: 1.55; }
+    .spec-stage { padding: 18px; display: flex; flex-direction: column; gap: 22px; }
+    .spec-source {
+      margin: 0; padding: 16px 18px;
+      background: var(--neutral-900); color: #E2E8F0;
+      font-family: var(--font-mono); font-size: 12px; line-height: 1.6;
+      border-top: 1px solid var(--border-default);
+      overflow-x: auto; white-space: pre;
+    }
+    .spec-tabs {
+      display: flex; gap: 0;
+      background: var(--neutral-1000);
+      border-top: 1px solid var(--border-default);
+      padding: 0 18px;
+    }
+    .spec-tab {
+      appearance: none; border: 0; cursor: pointer;
+      background: transparent; color: var(--neutral-500);
+      padding: 8px 14px; font-family: inherit; font-size: 12px; font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: color var(--dur-fast), border-color var(--dur-fast);
+    }
+    .spec-tab:hover { color: var(--neutral-300); }
+    .spec-tab.active { color: var(--neutral-0); border-bottom-color: var(--brand-400); }
+    .spec-tabs + .spec-source { border-top: 0; }
+    .vgroup { display: flex; flex-direction: column; gap: 8px; }
+    .vgroup-label {
+      font-size: 11px; font-weight: 700; color: var(--fg-subtle);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border-subtle);
+    }
+    .vgroup-items { padding: 6px 0; display: flex; flex-direction: column; gap: 8px; }
+    .cap { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-muted); }
+
+    /* Matrix table (catalog) */
+    .matrix-wrap { overflow-x: auto; }
+    table.matrix { border-collapse: collapse; width: 100%; }
+    table.matrix th, table.matrix td {
+      padding: 10px 12px; text-align: left; border-bottom: 1px dashed var(--border-subtle);
+    }
+    table.matrix thead th { font-size: 10.5px; color: var(--fg-subtle); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-bottom-style: solid; }
+    table.matrix tbody th { font-size: 12px; color: var(--fg-muted); font-weight: 500; text-transform: capitalize; }
+    table.matrix tbody tr:last-child td, table.matrix tbody tr:last-child th { border-bottom: 0; }
+
+    .dsx-sect { padding-top: 16px; }
+
+    /* Quickstart code */
+    pre.quick {
+      margin: 0; padding: 16px 18px;
+      background: var(--neutral-900); color: #E2E8F0;
+      font-family: var(--font-mono); font-size: 12px; line-height: 1.6;
+      border-radius: 8px; border: 1px solid var(--neutral-800);
+      overflow-x: auto;
+    }
+
+    /* How-to block */
+    .howto {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 1100px) { .howto { grid-template-columns: 1fr; } }
+    .howto-card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      position: relative;
+    }
+    .howto-card.howto-claude {
+      background: linear-gradient(180deg, var(--bg-brand-subtle) 0%, var(--bg-raised) 60%);
+      border-color: color-mix(in oklab, var(--brand-500) 28%, var(--border-subtle));
+    }
+    .howto-eyebrow { margin-bottom: 8px; }
+    .howto-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: var(--radius-pill);
+      background: var(--bg-muted); color: var(--fg-muted);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .howto-badge-llm {
+      background: var(--bg-brand-subtle); color: var(--fg-brand);
+    }
+    .howto-card h3 {
+      margin: 4px 0 12px; font-size: 18px; font-weight: 700;
+      color: var(--fg-strong); letter-spacing: -0.01em;
+    }
+    .howto-card ol, .howto-card ul {
+      margin: 0; padding-left: 1.2em;
+      display: flex; flex-direction: column; gap: 9px;
+      font-size: 13.5px; line-height: 1.55; color: var(--fg-default);
+    }
+    .howto-card ol li::marker { color: var(--fg-subtle); font-weight: 600; }
+    .howto-card .howto-list { list-style: none; padding-left: 0; }
+    .howto-card .howto-list li { position: relative; padding-left: 20px; }
+    .howto-card .howto-list li::before {
+      content: ""; position: absolute; left: 4px; top: 9px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--bg-brand);
+    }
+    .howto-card code {
+      font-family: var(--font-mono); font-size: 12px;
+      background: var(--bg-muted); color: var(--fg-default);
+      padding: 1px 5px; border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+    .howto-card.howto-claude code {
+      background: color-mix(in oklab, var(--brand-500) 12%, var(--bg-raised));
+      border-color: color-mix(in oklab, var(--brand-500) 25%, var(--border-subtle));
+    }
+    .howto-card b { color: var(--fg-strong); font-weight: 600; }
+
+    /* Styles section — 5 preset preview cards */
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .style-card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      font-family: var(--font-sans);
+    }
+    .style-card > header { display: flex; flex-direction: column; gap: 8px; }
+    .style-tag {
+      font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-subtle);
+      letter-spacing: 0.02em;
+    }
+    .style-card h3 {
+      margin: 0; font-size: 22px; font-weight: var(--fw-bold);
+      letter-spacing: var(--tracking-tight);
+      color: var(--fg-strong); font-family: var(--font-display);
+    }
+    .style-card > header p {
+      margin: 0; font-size: 13px; line-height: 1.5; color: var(--fg-muted);
+    }
+    .style-preview {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      padding: 16px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+    .style-preview .sp-h {
+      font-family: var(--font-display);
+      font-size: 24px; font-weight: var(--fw-bold);
+      letter-spacing: var(--tracking-tight);
+      color: var(--fg-strong);
+      margin-right: 4px; line-height: 1;
+    }
+    .style-preview .sp-btn {
+      appearance: none; cursor: pointer; font-family: var(--font-sans);
+      background: var(--bg-brand); color: var(--fg-on-brand);
+      border: 0;
+      height: var(--ctl-h-sm);
+      padding: 0 var(--ctl-px-sm);
+      border-radius: var(--radius-md);
+      font-size: var(--ctl-fs-sm); font-weight: var(--ctl-fw);
+      box-shadow: var(--button-shadow);
+      transition: box-shadow var(--dur-default) var(--ease-default);
+    }
+    .style-preview .sp-btn:hover { box-shadow: var(--button-shadow-hover); }
+    .style-preview .sp-input {
+      flex: 1; min-width: 0;
+      height: var(--ctl-h-sm);
+      display: inline-flex; align-items: center;
+      padding: 0 var(--ctl-px-sm);
+      background: var(--bg-surface);
+      border: var(--input-bw) solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--ctl-fs-sm); color: var(--fg-subtle);
+      box-shadow: var(--input-shadow);
+    }
+    .style-preview .sp-badge {
+      padding: 3px 8px;
+      background: var(--bg-success-subtle);
+      color: var(--fg-success);
+      border: 1px solid var(--border-success);
+      border-radius: var(--radius-pill);
+      font-size: 11px; font-weight: var(--fw-semibold);
+    }
+    .style-card > footer {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .style-card[data-style="standard"]   { --c-accent: #6366F1; }
+    .style-card[data-style="enterprise"] { --c-accent: #0369A1; }
+    .style-card[data-style="friendly"]   { --c-accent: #D97706; }
+    .style-card[data-style="refined"]    { --c-accent: #1F2937; }
+    .style-card[data-style="data-dense"] { --c-accent: #059669; }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="nav">
+      <div class="nav-brand">
+        <span class="nav-brand-mark">W</span>
+        White-label UI Kit
+      </div>
+      <a href="#start" class="active">Getting started</a>
+      <a href="#styles">Styles</a>
+      <div class="nav-group">Foundations</div>
+      <a href="#colors">Color palettes</a>
+      <a href="#semantic">Semantic tokens</a>
+      <a href="#contrast">Contrast (WCAG)</a>
+      <a href="#type">Typography</a>
+      <a href="#space">Spacing</a>
+      <a href="#radius">Radius</a>
+      <a href="#shadows">Shadows</a>
+      <a href="#motion">Motion</a>
+      <div class="nav-group">Components</div>
+      <a href="#comp-button">Button</a>
+      <a href="#comp-input">Input</a>
+      <a href="#comp-textarea">Textarea</a>
+      <a href="#comp-select">Select</a>
+      <a href="#comp-choice">Checkbox / Radio / Switch</a>
+      <a href="#comp-badge">Badge</a>
+      <a href="#comp-avatar">Avatar</a>
+      <a href="#comp-card">Card</a>
+      <a href="#comp-spinner">Spinner</a>
+      <a href="#comp-alert">Alert</a>
+      <a href="#comp-tooltip">Tooltip</a>
+      <a href="#comp-progress">Progress</a>
+      <a href="#comp-tabs">Tabs</a>
+      <a href="#comp-misc">Breadcrumbs / Kbd</a>
+      <a href="#comp-icon">Icon</a>
+      <div class="nav-group">Overlays</div>
+      <a href="#comp-dialog">Dialog</a>
+      <a href="#comp-sheet">Sheet / Drawer</a>
+      <a href="#comp-popover">Popover</a>
+      <a href="#comp-dropdown">DropdownMenu</a>
+      <a href="#comp-toast">Toast</a>
+      <div class="nav-group">Data &amp; Display</div>
+      <a href="#comp-table">Table</a>
+      <a href="#comp-pagination">Pagination</a>
+      <a href="#comp-skeleton">Skeleton</a>
+      <a href="#comp-separator">Separator</a>
+      <a href="#comp-empty">Empty state</a>
+      <div class="nav-group">Layout</div>
+      <a href="#comp-sidebar">Sidebar</a>
+      <div class="nav-group">More inputs</div>
+      <a href="#comp-slider">Slider</a>
+      <a href="#comp-toggle">ToggleGroup</a>
+      <a href="#comp-combobox">Combobox</a>
+      <a href="#comp-accordion">Accordion</a>
+      <div class="nav-group">Form primitives</div>
+      <a href="#comp-label">Label</a>
+      <a href="#comp-field">Field</a>
+      <a href="#comp-input-group">Input group</a>
+      <a href="#comp-inputotp">InputOTP</a>
+      <a href="#comp-toggle-single">Toggle</a>
+      <a href="#comp-button-group">Button group</a>
+      <a href="#comp-datepicker">DatePicker</a>
+      <a href="#comp-calendar">Calendar</a>
+      <div class="nav-group">Layout helpers</div>
+      <a href="#comp-aspect">Aspect ratio</a>
+      <a href="#comp-collapsible">Collapsible</a>
+      <a href="#comp-scrollarea">Scroll area</a>
+      <a href="#comp-resizable">Resizable</a>
+      <a href="#comp-item">Item</a>
+      <div class="nav-group">More overlays</div>
+      <a href="#comp-alert-dialog">Alert dialog</a>
+      <a href="#comp-hovercard">Hover card</a>
+      <a href="#comp-contextmenu">Context menu</a>
+      <a href="#comp-drawer">Drawer</a>
+      <a href="#comp-menubar">Menubar</a>
+      <a href="#comp-navmenu">Navigation menu</a>
+      <a href="#comp-command">Command (⌘K)</a>
+      <div class="nav-group">Media &amp; data</div>
+      <a href="#comp-carousel">Carousel</a>
+      <a href="#comp-chart">Chart</a>
+      <a href="#comp-datatable">DataTable</a>
+    </aside>
+
+    <div>
+      <header class="topbar">
+        <h1>White-label UI Kit</h1>
+        <span class="grow"></span>
+        <div class="seg" role="group" aria-label="Style" id="style-pick">
+          <button data-style="standard"   aria-pressed="true">Standard</button>
+          <button data-style="enterprise" aria-pressed="false">Enterprise</button>
+          <button data-style="friendly"   aria-pressed="false">Friendly</button>
+          <button data-style="refined"    aria-pressed="false">Refined</button>
+          <button data-style="data-dense" aria-pressed="false">Data‑dense</button>
+        </div>
+        <div class="seg" role="group" aria-label="Theme">
+          <button id="theme-light" aria-pressed="true">☀ Light</button>
+          <button id="theme-dark"  aria-pressed="false">☾ Dark</button>
+        </div>
+        <div class="swatch-pick" role="group" aria-label="Brand hue">
+          <button data-brand="indigo"  style="background:#6366F1" aria-pressed="true" title="Indigo"></button>
+          <button data-brand="violet"  style="background:#8B5CF6" title="Violet"></button>
+          <button data-brand="emerald" style="background:#10B981" title="Emerald"></button>
+          <button data-brand="rose"    style="background:#F43F5E" title="Rose"></button>
+          <button data-brand="amber"   style="background:#F59E0B" title="Amber"></button>
+          <button data-brand="slate"   style="background:#64748B" title="Slate"></button>
+        </div>
+      </header>
+
+      <main>
+
+        <section class="sect" id="start">
+          <header>
+            <h2>Getting started</h2>
+            <p>A brand-agnostic design system built from semantic tokens. Switch the theme or brand hue above — every component reflows. Drop the CSS into your project and import the React primitives.</p>
+          </header>
+
+          <div class="howto">
+            <div class="howto-card">
+              <div class="howto-eyebrow">
+                <span class="howto-badge">For designers &amp; engineers</span>
+              </div>
+              <h3>How to design with this kit</h3>
+              <ol>
+                <li><b>Never use raw values.</b> No hard-coded hex, px, or ms. Always reach for a token — <code>var(--fg-default)</code>, <code>var(--space-5)</code>, <code>var(--radius-md)</code>. If a token doesn&rsquo;t exist for what you need, add one to <code>tokens.css</code> rather than inlining.</li>
+                <li><b>Consume the semantic layer, not the scale.</b> Use <code>--fg-muted</code>, not <code>--neutral-500</code>. Use <code>--bg-brand</code>, not <code>--indigo-600</code>. Only the tokens.css file should reference primitive scales.</li>
+                <li><b>One brand, one accent.</b> The brand hue is set on <code>&lt;html data-brand="..."&gt;</code> and re-aliases the entire <code>--brand-*</code> scale. Don&rsquo;t introduce a second accent color — pick a variant (Badge, Alert) that already uses success/warning/danger/info if you need a second hue.</li>
+                <li><b>Pick the right variant for the right action.</b> Primary = single most important action per surface. Secondary = supporting. Outline / Ghost = tertiary. Danger = destructive only. Link = inline in text.</li>
+                <li><b>Match size to context.</b> <code>xs</code>/<code>sm</code> for table rows and toolbars; <code>md</code> for forms and page actions (the default); <code>lg</code> for landing CTAs and empty states.</li>
+                <li><b>Respect spacing rhythm.</b> Most layouts only need 4 / 8 / 12 / 16 / 24 / 32. Avoid breaking the 4-point grid.</li>
+                <li><b>Check contrast.</b> Any text pair must hit at least <b>AA</b> (4.5:1) — see the Contrast section. Tinted backgrounds (<code>--bg-*-subtle</code>) are paired with their matching <code>--fg-*</code> for AA-safe combinations.</li>
+                <li><b>Light + dark are equal citizens.</b> Test every screen in both. Components do this automatically because they consume semantic tokens, but custom CSS you add must do the same.</li>
+              </ol>
+            </div>
+
+            <div class="howto-card howto-claude">
+              <div class="howto-eyebrow">
+                <span class="howto-badge howto-badge-llm">For Claude &amp; other LLMs</span>
+              </div>
+              <h3>How to build with this kit</h3>
+              <p style="margin:0 0 12px;color:var(--fg-muted);font-size:13.5px;line-height:1.55">When generating UI for this project, follow these rules verbatim. They keep output consistent with the system and avoid the most common mistakes.</p>
+              <ul class="howto-list">
+                <li><b>Always import tokens first:</b> <code>&lt;link rel="stylesheet" href="src/whitelabel/tokens.css" /&gt;</code> and set <code>&lt;html data-theme="light" data-brand="indigo"&gt;</code>.</li>
+                <li><b>Always import Primitives before any custom component:</b> <code>&lt;script type="text/babel" src="src/whitelabel/Primitives.jsx"&gt;&lt;/script&gt;</code>. Available globals: <code>Button, IconButton, Input, Textarea, Select, Checkbox, Radio, Switch, Badge, Avatar, AvatarGroup, Card, Spinner, Alert, Tooltip, Progress, Tabs, Breadcrumbs, Kbd, Icon</code>.</li>
+                <li><b>Use semantic tokens only.</b> Forbidden inline values: hex codes, named colors, raw px for spacing/radius. Allowed: <code>var(--fg-*)</code>, <code>var(--bg-*)</code>, <code>var(--border-*)</code>, <code>var(--space-*)</code>, <code>var(--radius-*)</code>, <code>var(--shadow-*)</code>, <code>var(--text-*)</code>, <code>var(--dur-*)</code>, <code>var(--ease-*)</code>.</li>
+                <li><b>Map intent → variant:</b><br>
+                  &nbsp;&nbsp;• Confirm/save/submit → <code>Button variant="primary"</code><br>
+                  &nbsp;&nbsp;• Cancel/back/secondary action → <code>Button variant="secondary"</code> or <code>"outline"</code><br>
+                  &nbsp;&nbsp;• In-table or icon-bar actions → <code>Button variant="ghost"</code> + <code>iconOnly</code><br>
+                  &nbsp;&nbsp;• Delete/destroy → <code>Button variant="danger"</code> with a confirmation step<br>
+                  &nbsp;&nbsp;• Inline in copy → <code>Button variant="link"</code></li>
+                <li><b>Map intent → status:</b> success / warning / danger / info — never invent a 5th. <code>Badge</code>, <code>Alert</code>, <code>Progress</code> all share this taxonomy.</li>
+                <li><b>Form fields:</b> always set <code>label</code> and either <code>placeholder</code> or <code>hint</code>. Errors must use <code>error</code> + <code>hint</code> together. Required fields get <code>required</code>.</li>
+                <li><b>Accessibility minimums:</b><br>
+                  &nbsp;&nbsp;• Any <code>iconOnly</code> button needs <code>ariaLabel</code><br>
+                  &nbsp;&nbsp;• Status communicated by color must also use an icon or text<br>
+                  &nbsp;&nbsp;• Touch targets ≥ 32px (use size <code>md</code> by default)<br>
+                  &nbsp;&nbsp;• Verify pair contrast against the Contrast section</li>
+                <li><b>Layout primitives:</b> <code>Card</code> for grouping content; <code>Tabs</code> (underline) for top-level views, <code>Tabs</code> (pill) for inline scoping; <code>Breadcrumbs</code> for nav location; <code>Tooltip</code> for icon-only buttons.</li>
+                <li><b>When in doubt:</b> open the spec card for the component in this kit and copy the source. Every spec has a working JSX example.</li>
+              </ul>
+            </div>
+          </div>
+
+          <h3 style="font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--fg-strong)">Quickstart</h3>
+          <pre class="quick"><code>&lt;!-- 1. Include tokens --&gt;
+&lt;link rel="stylesheet" href="src/whitelabel/tokens.css" /&gt;
+
+&lt;!-- 2. Theme &amp; brand on &lt;html&gt; --&gt;
+&lt;html data-theme="light" data-brand="indigo"&gt;
+
+&lt;!-- 3. Use semantic tokens in your CSS --&gt;
+.my-card {
+  background: var(--bg-raised);
+  color:      var(--fg-default);
+  border:     1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  padding:    var(--space-6);
+  border-radius: var(--radius-lg);
+}
+
+&lt;!-- 4. Or use the React primitives --&gt;
+&lt;Button variant="primary" leading="plus"&gt;Create&lt;/Button&gt;
+&lt;Input label="Email" leading="mail" required /&gt;
+&lt;Alert variant="success" title="Saved"&gt;Your changes were synced.&lt;/Alert&gt;</code></pre>
+        </section>
+
+        <section class="sect" id="styles">
+          <header>
+            <h2>Styles</h2>
+            <p>Five presets that swap fonts, radii, shadows, and type metrics. Set <code>&lt;html data-style="..."&gt;</code>. Orthogonal to brand hue and theme — every style works in all 6 hues × light/dark. Components don't change because they consume the same semantic tokens.</p>
+          </header>
+
+          <div class="style-grid">
+            <article class="style-card" data-style="standard">
+              <header>
+                <span class="style-tag">data-style="standard"</span>
+                <h3>Standard</h3>
+                <p>Modern web baseline. Inter throughout, balanced radii, neutral elevation. Safe default when there's no strong brand direction yet.</p>
+              </header>
+              <div class="style-preview">
+                <span class="sp-h">Aa</span>
+                <button class="sp-btn">Save changes</button>
+                <span class="sp-input">Search…</span>
+                <span class="sp-badge">Active</span>
+              </div>
+              <footer>
+                <span class="cap">Inter · JetBrains Mono · radius 6/8 · soft shadows</span>
+                <button class="spec-btn" data-style-activate="standard">Activate</button>
+              </footer>
+            </article>
+
+            <article class="style-card" data-style="enterprise">
+              <header>
+                <span class="style-tag">data-style="enterprise"</span>
+                <h3>Enterprise</h3>
+                <p>Formal B2B. Tight radii, hairline borders carrying elevation instead of shadows, dense type. For conservative buyers and table-heavy workflows.</p>
+              </header>
+              <div class="style-preview">
+                <span class="sp-h">Aa</span>
+                <button class="sp-btn">Save changes</button>
+                <span class="sp-input">Search…</span>
+                <span class="sp-badge">Active</span>
+              </div>
+              <footer>
+                <span class="cap">IBM Plex Sans · Plex Mono · radius 3/4 · hairline borders</span>
+                <button class="spec-btn" data-style-activate="enterprise">Activate</button>
+              </footer>
+            </article>
+
+            <article class="style-card" data-style="friendly">
+              <header>
+                <span class="style-tag">data-style="friendly"</span>
+                <h3>Friendly</h3>
+                <p>Soft, generous, warm. Large radii, diffuse shadows, beige-tinted neutrals. For consumer SaaS, SMB tools, onboarding-heavy products.</p>
+              </header>
+              <div class="style-preview">
+                <span class="sp-h">Aa</span>
+                <button class="sp-btn">Save changes</button>
+                <span class="sp-input">Search…</span>
+                <span class="sp-badge">Active</span>
+              </div>
+              <footer>
+                <span class="cap">DM Sans · DM Mono · radius 12/16 · diffuse shadows</span>
+                <button class="spec-btn" data-style-activate="friendly">Activate</button>
+              </footer>
+            </article>
+
+            <article class="style-card" data-style="refined">
+              <header>
+                <span class="style-tag">data-style="refined"</span>
+                <h3>Refined</h3>
+                <p>Composed and premium. Subtle radii, very low elevation, sharper type. For products where craft and considered detail matter — Stripe Dashboard, Cursor, Arc territory.</p>
+              </header>
+              <div class="style-preview">
+                <span class="sp-h">Aa</span>
+                <button class="sp-btn">Save changes</button>
+                <span class="sp-input">Search…</span>
+                <span class="sp-badge">Active</span>
+              </div>
+              <footer>
+                <span class="cap">Geist · Geist Mono · radius 4/6 · low elevation</span>
+                <button class="spec-btn" data-style-activate="refined">Activate</button>
+              </footer>
+            </article>
+
+            <article class="style-card" data-style="data-dense">
+              <header>
+                <span class="style-tag">data-style="data-dense"</span>
+                <h3>Data-dense</h3>
+                <p>Power-user tooling. Tighter rhythm, tabular numerals everywhere, minimal shadows. For analytics, observability, and finance dashboards where the screen is the data.</p>
+              </header>
+              <div class="style-preview">
+                <span class="sp-h">Aa</span>
+                <button class="sp-btn">Save changes</button>
+                <span class="sp-input">12,340.56</span>
+                <span class="sp-badge">+2.4%</span>
+              </div>
+              <footer>
+                <span class="cap">Inter (tabular) · JetBrains Mono · radius 4/6 · compact rhythm</span>
+                <button class="spec-btn" data-style-activate="data-dense">Activate</button>
+              </footer>
+            </article>
+          </div>
+        </section>
+
+        <section class="sect" id="colors">
+          <header>
+            <h2>Color palettes</h2>
+            <p>11-step scales tuned for accessibility. <b>brand-*</b> is an alias that re-points to one of the hue families based on <code>[data-brand]</code> — pick a swatch above to swap.</p>
+          </header>
+          <div id="palettes"></div>
+        </section>
+
+        <section class="sect" id="semantic">
+          <header>
+            <h2>Semantic tokens</h2>
+            <p>The layer you actually consume. Backgrounds, foregrounds, borders and status colors. Every value changes automatically between light and dark themes.</p>
+          </header>
+          <div id="semantic"></div>
+        </section>
+
+        <section class="sect" id="contrast">
+          <header>
+            <h2>Contrast (WCAG AA / AAA)</h2>
+            <p>Computed contrast ratios for common foreground/background pairs in the current theme. <b>AAA</b> ≥ 7:1, <b>AA</b> ≥ 4.5:1 (normal text), <b>AA-L</b> ≥ 3:1 (large text), <b>FAIL</b> &lt; 3:1.</p>
+          </header>
+          <div id="contrast"></div>
+        </section>
+
+        <section class="sect" id="type">
+          <header>
+            <h2>Typography</h2>
+            <p>Single family (Inter) covers headings + UI. 10-step scale and a small set of semantic classes.</p>
+          </header>
+          <div id="type-specimens"></div>
+        </section>
+
+        <section class="sect" id="space">
+          <header>
+            <h2>Spacing</h2>
+            <p>4-point base, 8-point harmony. Use named tokens — never raw pixels.</p>
+          </header>
+          <div id="spacing" class="tile-grid"></div>
+        </section>
+
+        <section class="sect" id="radius">
+          <header>
+            <h2>Radius</h2>
+            <p>Default to <code>--radius-md</code> (6px) for buttons and inputs; <code>--radius-lg</code> (8px) for cards.</p>
+          </header>
+          <div id="radii" class="tile-grid"></div>
+        </section>
+
+        <section class="sect" id="shadows">
+          <header>
+            <h2>Shadows</h2>
+            <p>Five-step elevation, plus an inner shadow for pressed/inset surfaces.</p>
+          </header>
+          <div id="shadows-grid" class="sh-grid"></div>
+        </section>
+
+        <section class="sect" id="motion">
+          <header>
+            <h2>Motion</h2>
+            <p>Three durations and four easings. Hover over the demo squares to see them.</p>
+          </header>
+          <table class="mot-tbl">
+            <thead><tr><th>Token</th><th>Value</th><th>Use</th><th>Preview</th></tr></thead>
+            <tbody id="motion-rows"></tbody>
+          </table>
+        </section>
+
+        <section class="sect">
+          <header>
+            <h2>Components</h2>
+            <p>Every primitive. Each spec card has all variants/states inline; click <b>View source</b> or <b>Copy</b> for the JSX.</p>
+          </header>
+          <div id="catalog-root"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- =====================  Foundations (vanilla JS)  ===================== -->
+  <script>
+    /* ── Theme + brand switcher ── */
+    const root = document.documentElement;
+    function setTheme(t) {
+      root.dataset.theme = t;
+      document.getElementById("theme-light").setAttribute("aria-pressed", t === "light");
+      document.getElementById("theme-dark").setAttribute("aria-pressed", t === "dark");
+      renderSemantic(); renderContrast();
+    }
+    function setBrand(b) {
+      root.dataset.brand = b;
+      document.querySelectorAll(".swatch-pick button").forEach(btn =>
+        btn.setAttribute("aria-pressed", btn.dataset.brand === b));
+      renderPalettes(); renderSemantic(); renderContrast();
+    }
+    function setStyle(s) {
+      root.dataset.style = s;
+      document.querySelectorAll("#style-pick button").forEach(btn =>
+        btn.setAttribute("aria-pressed", btn.dataset.style === s));
+      renderSpacing(); renderRadii(); renderShadows();
+    }
+    document.getElementById("theme-light").onclick = () => setTheme("light");
+    document.getElementById("theme-dark").onclick  = () => setTheme("dark");
+    document.querySelectorAll(".swatch-pick button").forEach(b =>
+      b.onclick = () => setBrand(b.dataset.brand));
+    document.querySelectorAll("#style-pick button").forEach(b =>
+      b.onclick = () => setStyle(b.dataset.style));
+    document.querySelectorAll("[data-style-activate]").forEach(b =>
+      b.onclick = () => setStyle(b.dataset.styleActivate));
+
+    /* ── Helpers ── */
+    const cs = () => getComputedStyle(document.documentElement);
+    const cssVar = (n) => cs().getPropertyValue(n).trim();
+    function hexToRgb(hex) {
+      hex = hex.replace("#", "");
+      if (hex.length === 3) hex = hex.split("").map(c => c+c).join("");
+      const n = parseInt(hex, 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+    // Parse the result of getComputedStyle — could be a #hex or rgb()
+    function toRgb(c) {
+      c = c.trim();
+      if (c.startsWith("#")) return hexToRgb(c);
+      const m = c.match(/rgba?\(([^)]+)\)/);
+      if (m) return m[1].split(",").slice(0,3).map(s => parseFloat(s.trim()));
+      // Fallback: render into a probe div and read computed bg color
+      const probe = document.createElement("span");
+      probe.style.color = c; document.body.appendChild(probe);
+      const out = getComputedStyle(probe).color;
+      probe.remove();
+      const m2 = out.match(/rgba?\(([^)]+)\)/);
+      return m2 ? m2[1].split(",").slice(0,3).map(s => parseFloat(s.trim())) : [0,0,0];
+    }
+    function relLum([r,g,b]) {
+      const toLin = (c) => { c /= 255; return c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); };
+      return 0.2126*toLin(r) + 0.7152*toLin(g) + 0.0722*toLin(b);
+    }
+    function contrast(c1, c2) {
+      const l1 = relLum(toRgb(c1)), l2 = relLum(toRgb(c2));
+      const [hi, lo] = l1 > l2 ? [l1, l2] : [l2, l1];
+      return (hi + 0.05) / (lo + 0.05);
+    }
+    function rgbToHex([r,g,b]) {
+      return "#" + [r,g,b].map(v => Math.round(v).toString(16).padStart(2, "0")).join("").toUpperCase();
+    }
+
+    /* ── Palettes ── */
+    const HUE_FAMILIES = [
+      { name: "Neutral", prefix: "neutral", steps: [0,50,100,200,300,400,500,600,700,800,900,1000] },
+      { name: "Brand (current)", prefix: "brand", steps: [50,100,200,300,400,500,600,700,800,900] },
+      { name: "Indigo",  prefix: "indigo",  steps: [50,100,200,300,400,500,600,700,800,900] },
+      { name: "Violet",  prefix: "violet",  steps: [50,100,200,300,400,500,600,700,800,900] },
+      { name: "Emerald", prefix: "emerald", steps: [50,100,200,300,400,500,600,700,800,900] },
+      { name: "Rose",    prefix: "rose",    steps: [50,100,200,300,400,500,600,700,800,900] },
+      { name: "Amber",   prefix: "amber",   steps: [50,100,200,300,400,500,600,700,800,900] },
+      { name: "Sky",     prefix: "sky",     steps: [50,100,200,300,400,500,600,700,800,900] },
+      { name: "Slate",   prefix: "slate",   steps: [50,100,200,300,400,500,600,700,800,900] },
+    ];
+    function renderPalettes() {
+      const root = document.getElementById("palettes");
+      root.innerHTML = "";
+      HUE_FAMILIES.forEach(p => {
+        const row = document.createElement("div");
+        row.className = "pal-row";
+        row.innerHTML = `<div class="pal-head"><span class="pal-name">${p.name}</span><span class="pal-mono">--${p.prefix}-*</span></div>`;
+        const grid = document.createElement("div");
+        grid.className = "pal-grid";
+        grid.style.gridTemplateColumns = `repeat(${p.steps.length}, minmax(0,1fr))`;
+        p.steps.forEach(s => {
+          const hex = cssVar(`--${p.prefix}-${s}`) || "—";
+          const isLight = (s === 0 || s <= 300);
+          const tile = document.createElement("div");
+          tile.className = "pal-tile";
+          tile.style.background = hex;
+          tile.style.color = isLight ? "#0F172A" : "#FFFFFF";
+          tile.innerHTML = `<div class="step">${s}</div><div class="hex">${(hex||"").toUpperCase()}</div>`;
+          grid.appendChild(tile);
+        });
+        row.appendChild(grid);
+        root.appendChild(row);
+      });
+    }
+
+    /* ── Semantic tokens ── */
+    const SEMANTIC_GROUPS = [
+      { name: "Backgrounds", tokens: [
+        { tok: "--bg-app",       desc: "Page outermost" },
+        { tok: "--bg-canvas",    desc: "Default surface" },
+        { tok: "--bg-surface",   desc: "Cards, inputs" },
+        { tok: "--bg-raised",    desc: "Elevated cards" },
+        { tok: "--bg-muted",     desc: "Toolbar / strip" },
+        { tok: "--bg-subtle",    desc: "Hover tint" },
+        { tok: "--bg-inverse",   desc: "Tooltips, popovers" },
+        { tok: "--bg-overlay",   desc: "Modal scrim" },
+      ]},
+      { name: "Foregrounds", tokens: [
+        { tok: "--fg-default",   desc: "Primary text" },
+        { tok: "--fg-strong",    desc: "Headings" },
+        { tok: "--fg-muted",     desc: "Secondary" },
+        { tok: "--fg-subtle",    desc: "Tertiary" },
+        { tok: "--fg-disabled",  desc: "Disabled" },
+        { tok: "--fg-inverse",   desc: "On dark fills" },
+        { tok: "--fg-link",      desc: "Links" },
+        { tok: "--fg-on-brand",  desc: "On brand fills" },
+      ]},
+      { name: "Borders", tokens: [
+        { tok: "--border-subtle",  desc: "Card edges" },
+        { tok: "--border-default", desc: "Inputs, dividers" },
+        { tok: "--border-strong",  desc: "Pressed inputs" },
+        { tok: "--border-inverse", desc: "On dark surface" },
+        { tok: "--border-focus",   desc: "Focus ring" },
+      ]},
+      { name: "Brand & status fills", tokens: [
+        { tok: "--bg-brand",          desc: "Primary buttons" },
+        { tok: "--bg-brand-hover",    desc: "Hover" },
+        { tok: "--bg-brand-subtle",   desc: "Brand tinted bg" },
+        { tok: "--bg-success",        desc: "Success solid" },
+        { tok: "--bg-success-subtle", desc: "Success tinted bg" },
+        { tok: "--bg-warning",        desc: "Warning solid" },
+        { tok: "--bg-warning-subtle", desc: "Warning tinted bg" },
+        { tok: "--bg-danger",         desc: "Danger solid" },
+        { tok: "--bg-danger-subtle",  desc: "Danger tinted bg" },
+        { tok: "--bg-info",           desc: "Info solid" },
+        { tok: "--bg-info-subtle",    desc: "Info tinted bg" },
+      ]},
+    ];
+    function renderSemantic() {
+      const root = document.getElementById("semantic");
+      root.innerHTML = "";
+      SEMANTIC_GROUPS.forEach(g => {
+        const head = document.createElement("h3");
+        head.style.cssText = "font-size:13px;font-weight:600;margin:20px 0 8px;color:var(--fg-strong)";
+        head.textContent = g.name;
+        root.appendChild(head);
+        const tbl = document.createElement("div");
+        tbl.className = "semtbl";
+        g.tokens.forEach(t => {
+          const v = cssVar(t.tok);
+          const cell = document.createElement("div");
+          cell.innerHTML = `
+            <span class="semchip" style="background:var(${t.tok})"></span>
+            <div style="min-width:0">
+              <code>${t.tok}</code>
+              <small>${t.desc} · <span style="font-family:var(--font-mono)">${(v||"").toString().slice(0,28)}</span></small>
+            </div>`;
+          tbl.appendChild(cell);
+        });
+        root.appendChild(tbl);
+      });
+    }
+
+    /* ── Contrast matrix ── */
+    const CONTRAST_PAIRS = [
+      { fg: "--fg-strong",   bg: "--bg-canvas",  use: "Headings on canvas" },
+      { fg: "--fg-default",  bg: "--bg-canvas",  use: "Body text on canvas" },
+      { fg: "--fg-default",  bg: "--bg-surface", use: "Body on card" },
+      { fg: "--fg-muted",    bg: "--bg-canvas",  use: "Secondary text" },
+      { fg: "--fg-subtle",   bg: "--bg-canvas",  use: "Tertiary / meta" },
+      { fg: "--fg-disabled", bg: "--bg-canvas",  use: "Disabled text" },
+      { fg: "--fg-link",     bg: "--bg-canvas",  use: "Links" },
+      { fg: "--fg-on-brand", bg: "--bg-brand",   use: "Text on primary button" },
+      { fg: "--fg-inverse",  bg: "--bg-inverse", use: "Tooltips" },
+      { fg: "--fg-brand",    bg: "--bg-brand-subtle",   use: "Brand pill" },
+      { fg: "--fg-success",  bg: "--bg-success-subtle", use: "Success pill" },
+      { fg: "--fg-warning",  bg: "--bg-warning-subtle", use: "Warning pill" },
+      { fg: "--fg-danger",   bg: "--bg-danger-subtle",  use: "Danger pill" },
+      { fg: "--fg-info",     bg: "--bg-info-subtle",    use: "Info pill" },
+    ];
+    function rateRatio(r) {
+      if (r >= 7)   return ["AAA",  "ratio-AAA"];
+      if (r >= 4.5) return ["AA",   "ratio-AA"];
+      if (r >= 3)   return ["AA-L", "ratio-AAL"];
+      return         ["FAIL", "ratio-FAIL"];
+    }
+    function renderContrast() {
+      const root = document.getElementById("contrast");
+      root.innerHTML = "";
+      const tbl = document.createElement("table");
+      tbl.className = "ctbl";
+      tbl.innerHTML = `<thead><tr>
+        <th style="width:34%">Use</th>
+        <th>Foreground</th>
+        <th>Background</th>
+        <th>Ratio</th>
+      </tr></thead><tbody></tbody>`;
+      const tbody = tbl.querySelector("tbody");
+      CONTRAST_PAIRS.forEach(p => {
+        const fgVal = cssVar(p.fg), bgVal = cssVar(p.bg);
+        // Resolve nested var() refs by reading computed style on a probe
+        const probe = document.createElement("span");
+        probe.style.color = `var(${p.fg})`;
+        probe.style.background = `var(${p.bg})`;
+        document.body.appendChild(probe);
+        const cFg = getComputedStyle(probe).color;
+        const cBg = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+
+        const ratio = contrast(cFg, cBg);
+        const [tag, cls] = rateRatio(ratio);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td style="font-family:var(--font-sans);font-size:13px;color:var(--fg-default)">
+            ${p.use}
+            <div style="margin-top:4px;display:flex;gap:4px;align-items:center">
+              <span style="background:${cBg};color:${cFg};padding:2px 8px;border-radius:4px;font-size:11px;border:1px solid var(--border-subtle)">Sample text</span>
+            </div>
+          </td>
+          <td><span class="swatch" style="background:${cFg}"></span> ${p.fg}</td>
+          <td><span class="swatch" style="background:${cBg}"></span> ${p.bg}</td>
+          <td>
+            <span class="ratio-cell">
+              <span class="ratio-num">${ratio.toFixed(2)}:1</span>
+              <span class="ratio-tag ${cls}">${tag}</span>
+            </span>
+          </td>`;
+        tbody.appendChild(row);
+      });
+      root.appendChild(tbl);
+      const legend = document.createElement("div");
+      legend.style.cssText = "margin-top:14px;font-size:12px;color:var(--fg-muted);line-height:1.6";
+      legend.innerHTML = `
+        <b>AAA</b> ≥ 7:1 (normal text) · <b>AA</b> ≥ 4.5:1 (normal text) ·
+        <b>AA-L</b> ≥ 3:1 (large/bold ≥ 18.66px or bold ≥ 14px) · <b>FAIL</b> &lt; 3:1.
+        Switch the theme above to see how each pair behaves in light vs dark.`;
+      root.appendChild(legend);
+    }
+
+    /* ── Type ── */
+    function renderType() {
+      const T = [
+        { c: "t-display", l: "display",  s: "The quick brown fox",                m: "60 / tight / -2%" },
+        { c: "t-h1",      l: "h1",       s: "Section heading",                    m: "48 / tight / -2%" },
+        { c: "t-h2",      l: "h2",       s: "Subsection heading",                 m: "36 / tight / -1%" },
+        { c: "t-h3",      l: "h3",       s: "Card or panel heading",              m: "30 / snug" },
+        { c: "t-h4",      l: "h4",       s: "Small heading",                      m: "24 / snug" },
+        { c: "t-h5",      l: "h5",       s: "Group label",                        m: "20 / snug" },
+        { c: "t-h6",      l: "h6",       s: "Inline heading",                     m: "18 / snug" },
+        { c: "t-body-lg", l: "body-lg",  s: "Larger body for marketing or intros.", m: "18 / relaxed" },
+        { c: "t-body",    l: "body",     s: "Default body. Use for paragraphs and long-form content.", m: "16 / normal" },
+        { c: "t-body-sm", l: "body-sm",  s: "Smaller body — table cells, secondary UI.", m: "14 / normal" },
+        { c: "t-label",   l: "label",    s: "Form label / button text",           m: "14 / snug / 500" },
+        { c: "t-caption", l: "caption",  s: "Captions, helper text, meta",        m: "12 / normal" },
+        { c: "t-overline",l: "overline", s: "Section overline",                   m: "12 / 600 / +8%" },
+        { c: "t-mono",    l: "mono",     s: "const value = compute(input);",      m: "JetBrains Mono" },
+      ];
+      const root = document.getElementById("type-specimens");
+      T.forEach(t => {
+        const row = document.createElement("div");
+        row.className = "type-row";
+        row.innerHTML = `
+          <div>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-default)">${t.l}</div>
+            <div class="meta">${t.m}</div>
+          </div>
+          <div class="${t.c}">${t.s}</div>`;
+        root.appendChild(row);
+      });
+    }
+
+    /* ── Spacing & Radius tiles ── */
+    function renderSpacing() {
+      const SP = [["--space-1",2],["--space-2",4],["--space-3",8],["--space-4",12],["--space-5",16],["--space-6",20],["--space-7",24],["--space-8",32],["--space-9",40],["--space-10",48],["--space-11",64],["--space-12",96]];
+      const root = document.getElementById("spacing");
+      SP.forEach(([tok, px]) => {
+        const t = document.createElement("div");
+        t.className = "tile";
+        t.innerHTML = `
+          <div class="vis"><div class="bar" style="width:${px}px"></div></div>
+          <div class="lbl"><b>${tok}</b><span>${px}px</span></div>`;
+        root.appendChild(t);
+      });
+    }
+    function renderRadii() {
+      const R = [["--radius-none",0,"0"],["--radius-xs",2,"2px"],["--radius-sm",4,"4px"],["--radius-md",6,"6px"],["--radius-lg",8,"8px"],["--radius-xl",12,"12px"],["--radius-2xl",16,"16px"],["--radius-3xl",24,"24px"],["--radius-pill",9999,"pill"]];
+      const root = document.getElementById("radii");
+      R.forEach(([tok, px, lbl]) => {
+        const t = document.createElement("div");
+        t.className = "tile";
+        t.innerHTML = `
+          <div class="vis"><div class="square" style="border-radius:${px}px"></div></div>
+          <div class="lbl"><b>${tok}</b><span>${lbl}</span></div>`;
+        root.appendChild(t);
+      });
+    }
+
+    /* ── Shadow tiles ── */
+    function renderShadows() {
+      const S = [
+        { t: "--shadow-xs",   l: "xs",     u: "subtle card" },
+        { t: "--shadow-sm",   l: "sm",     u: "card / button hover" },
+        { t: "--shadow-md",   l: "md",     u: "dropdown / popover" },
+        { t: "--shadow-lg",   l: "lg",     u: "menu / drawer" },
+        { t: "--shadow-xl",   l: "xl",     u: "modal / overlay" },
+        { t: "--shadow-inner",l: "inner",  u: "inset surfaces" },
+      ];
+      const root = document.getElementById("shadows-grid");
+      S.forEach(s => {
+        const t = document.createElement("div");
+        t.className = "sh-tile";
+        t.style.boxShadow = `var(${s.t})`;
+        t.style.border = s.l === "inner" ? "1px solid var(--border-subtle)" : "0";
+        t.innerHTML = `<div class="name">${s.l}</div><div class="mono">${s.t}</div><div style="font-size:11px;color:var(--fg-subtle);margin-top:6px">${s.u}</div>`;
+        root.appendChild(t);
+      });
+    }
+
+    /* ── Motion ── */
+    function renderMotion() {
+      const M = [
+        { tok: "--ease-out",     val: "cubic-bezier(0.2, 0.8, 0.2, 1)", use: "Entering UI, hover", dur: 320 },
+        { tok: "--ease-in",      val: "cubic-bezier(0.4, 0, 1, 1)",     use: "Exit / dismiss",     dur: 320 },
+        { tok: "--ease-in-out",  val: "cubic-bezier(0.4, 0, 0.2, 1)",   use: "Crossfade, neutral", dur: 320 },
+        { tok: "--ease-spring",  val: "cubic-bezier(0.34, 1.56, 0.64, 1)", use: "Playful overshoot", dur: 500 },
+        { tok: "--dur-fast",     val: "150ms",                          use: "Hover / focus", ease: "var(--ease-out)" },
+        { tok: "--dur-base",     val: "200ms",                          use: "Most transitions", ease: "var(--ease-out)" },
+        { tok: "--dur-slow",     val: "320ms",                          use: "Modal enter, drawer", ease: "var(--ease-out)" },
+      ];
+      const root = document.getElementById("motion-rows");
+      M.forEach((m, i) => {
+        const tr = document.createElement("tr");
+        const id = `mot${i}`;
+        tr.innerHTML = `
+          <td><code>${m.tok}</code></td>
+          <td><code>${m.val}</code></td>
+          <td>${m.use}</td>
+          <td><span class="mot-demo" id="${id}"></span></td>`;
+        root.appendChild(tr);
+        const el = tr.querySelector("." + "mot-demo");
+        const isEase = m.tok.startsWith("--ease");
+        el.style.transition = isEase
+          ? `transform ${m.dur}ms var(${m.tok})`
+          : `transform var(${m.tok}) ${m.ease}`;
+        tr.addEventListener("mouseenter", () => el.style.transform = "translateX(60px)");
+        tr.addEventListener("mouseleave", () => el.style.transform = "translateX(0)");
+      });
+    }
+
+    renderPalettes();
+    renderSemantic();
+    renderContrast();
+    renderType();
+    renderSpacing();
+    renderRadii();
+    renderShadows();
+    renderMotion();
+
+    /* ── Sidebar active-link highlighting ── */
+    const links = document.querySelectorAll(".nav a");
+    function activateLink() {
+      let current = "start";
+      document.querySelectorAll(".sect[id]").forEach(sec => {
+        const top = sec.getBoundingClientRect().top;
+        if (top < 100) current = sec.id;
+      });
+      document.querySelectorAll("[id^='comp-']").forEach(sec => {
+        const top = sec.getBoundingClientRect().top;
+        if (top < 100) current = sec.id;
+      });
+      links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + current));
+    }
+    document.addEventListener("scroll", activateLink, { passive: true });
+  </script>
+
+  <!-- =====================  Components (React)  ===================== -->
+  <script type="text/babel" src="src/whitelabel/Primitives.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Overlays.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Display.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Sidebar.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/MoreInputs.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Small.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Medium.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Complex.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Catalog.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Catalog2.jsx"></script>
+  <script type="text/babel" src="src/whitelabel/Catalog3.jsx"></script>
+  <script type="text/babel">
+    ReactDOM.createRoot(document.getElementById("catalog-root")).render(
+      <><Catalog /><Catalog2 /><Catalog3 /><Toaster position="bottom-right" /></>
+    );
+  </script>
+</body>
+</html>

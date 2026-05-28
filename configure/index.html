@@ -571,6 +571,39 @@ ${scriptTags}
         URL.revokeObjectURL(url);
       };
 
+      const handleShareWithClaude = () => {
+        const prompt = `You are building a web interface using the Custom Design System (whitelabel UI kit).
+
+**Project Settings:**
+- Name: ${projectName || 'Untitled Project'}
+- Client Type: ${clientType}
+- Style Preset: ${style}
+- Brand Hue: ${brand}
+- Theme: ${theme}
+
+**Interface Description:**
+${description}
+
+**Detected Components to Use:**
+${Array.from(detected).join(', ') || 'None detected yet'}
+
+**Instructions:**
+1. Create a production-ready HTML file using the Custom Design System components
+2. Load components from: ../src/whitelabel/[ComponentFile].jsx
+3. Use only design system components (${Array.from(detected).join(', ')})
+4. Apply the design tokens: data-theme="${theme}" data-brand="${brand}" data-style="${style}"
+5. Make it self-contained (works via http.server or similar)
+6. Use semantic tokens for all styling (CSS variables)
+7. Include light/dark theme toggle
+8. Test in both themes
+
+Start building now.`;
+
+        navigator.clipboard.writeText(prompt).then(() => {
+          window.toast?.success?.('Claude prompt copied! Paste it in a conversation.');
+        });
+      };
+
       const { scripts: finalScripts } = getScriptsAndComponents(detected);
 
       return (
@@ -701,6 +734,12 @@ ${scriptTags}
                   ))}
                 </div>
               )}
+
+              {description.trim() && projectName.trim() && (
+                <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-4)' }}>
+                  <Button variant="outline" size="sm" onClick={handleShareWithClaude}>📋 Share Settings with Claude</Button>
+                </div>
+              )}
             </div>
 
             {/* STEP 4 */}
@@ -736,6 +775,7 @@ ${scriptTags}
                         const url = URL.createObjectURL(blob);
                         window.open(url);
                       }}>Open Preview</Button>
+                      <Button size="sm" variant="primary" onClick={handleShareWithClaude} style={{background: 'linear-gradient(135deg, var(--brand-500), var(--brand-700))'}}>Share with Claude</Button>
                     </div>
                   </div>
                 )}

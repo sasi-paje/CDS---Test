@@ -27,16 +27,23 @@ A brand-agnostic, white-label UI kit built on semantic design tokens. Swap brand
 
 ## Quick Start
 
-### Use the Interactive Showcase
+### 📖 Interactive Documentation
 
-Open `Whitelabel UI Kit.html` in a browser to:
-- Preview all components
-- Swap theme, brand, and style
-- Copy any component's JSX source
+Open the **[Whitelabel Design System Docs](docs/index.html)** in your browser:
 
 ```bash
-open "Whitelabel UI Kit.html"
+open docs/index.html
 ```
+
+The docs include:
+- **Tokens reference** — All colors, spacing, typography
+- **Component library** — Every component with examples
+- **Style presets** — Switch between 5 design systems
+- **Brand hues** — Try all 6 color families
+- **Usage guidelines** — 10 core rules + accessibility checklist
+- **Real-world examples** — Full-page templates
+
+**Interactive controls let you switch theme, brand, and style in real-time.**
 
 ### Use in Your Project
 
@@ -73,6 +80,13 @@ Copy the CSS tokens and React components into your app:
 
 ```
 .
+├── docs/
+│   ├── index.html               # 📖 Interactive documentation site
+│   └── README.md                # Docs quickstart
+├── examples/
+│   ├── inbox/
+│   │   └── inbox.html          # 📋 Task management example
+│   └── README.md                # How to build examples
 ├── src/whitelabel/
 │   ├── tokens.css               # Design token definitions
 │   ├── Primitives.jsx           # Button, Input, Card, Badge, etc.
@@ -82,11 +96,9 @@ Copy the CSS tokens and React components into your app:
 │   ├── Small.jsx                # Label, DatePicker, Calendar
 │   ├── Medium.jsx               # AspectRatio, Collapsible, ScrollArea
 │   ├── MoreInputs.jsx           # Slider, ToggleGroup, Combobox, Accordion
-│   ├── Complex.jsx              # Carousel, Chart, DataTable
-│   └── Catalog*.jsx             # Documentation & examples
-├── Whitelabel UI Kit.html       # Interactive showcase
+│   └── Complex.jsx              # Carousel, Chart, DataTable
 ├── CLAUDE.md                    # Detailed architecture & rules
-└── package.json
+└── README.md                    # You are here
 ```
 
 ## How to Switch Themes
@@ -138,16 +150,16 @@ See `src/whitelabel/tokens.css` for the complete token system.
 
 ## When in Doubt
 
-Open `Whitelabel UI Kit.html` → find the component → every spec card has a working JSX example. Copy that.
+1. **Open [docs/index.html](docs/index.html)** → find the component → every section has working examples
+2. **See [examples/inbox/](examples/inbox/inbox.html)** for a complete working interface
+3. **Read [CLAUDE.md](CLAUDE.md)** for detailed rules and architectural decisions
 
-## Documentation
+## Complete Documentation
 
-See `CLAUDE.md` for:
-- Complete style preset comparison
-- Multi-client decision matrix
-- Component variant guidelines
-- Status taxonomy rules
-- Contrast requirements
+- **[📖 docs/index.html](docs/index.html)** — Interactive reference with all tokens, components, styles, brands, rules, and examples
+- **[📋 examples/inbox/inbox.html](examples/inbox/inbox.html)** — Production-ready task management page
+- **[📚 CLAUDE.md](CLAUDE.md)** — Architecture, rules, style preset comparison, multi-client decision matrix
+- **[📖 docs/README.md](docs/README.md)** — Documentation site guide
 
 ## License
 

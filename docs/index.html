@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="indigo" data-style="standard">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Whitelabel Design System — Documentation</title>
+  <link rel="stylesheet" href="../src/whitelabel/tokens.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font-sans); background: var(--bg-app); color: var(--fg-default); }
+
+    .doc-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .doc-nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--bg-canvas);
+      border-right: 1px solid var(--border-subtle);
+      padding: 24px 16px;
+    }
+
+    .doc-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--fg-strong);
+      padding: 0 8px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 24px;
+    }
+
+    .doc-nav-brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neutral-0);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .doc-nav-section {
+      margin-bottom: 20px;
+    }
+
+    .doc-nav-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--fg-subtle);
+      letter-spacing: 0.08em;
+      padding: 12px 8px 8px;
+      margin-bottom: 4px;
+    }
+
+    .doc-nav-link {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      color: var(--fg-muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      text-align: left;
+      width: 100%;
+      transition: all var(--dur-fast);
+    }
+
+    .doc-nav-link:hover {
+      background: var(--bg-muted);
+      color: var(--fg-default);
+    }
+
+    .doc-nav-link.active {
+      background: var(--bg-brand-subtle);
+      color: var(--fg-brand);
+      font-weight: 600;
+    }
+
+    .doc-main {
+      overflow-y: auto;
+      padding: 48px 64px;
+      max-width: 1400px;
+    }
+
+    .doc-header {
+      margin-bottom: 48px;
+    }
+
+    .doc-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--fg-strong);
+    }
+
+    .doc-header p {
+      font-size: 16px;
+      color: var(--fg-muted);
+      max-width: 70ch;
+      line-height: 1.6;
+    }
+
+    .doc-section {
+      margin-bottom: 64px;
+    }
+
+    .doc-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--fg-strong);
+    }
+
+    .doc-section p {
+      color: var(--fg-muted);
+      margin-bottom: 24px;
+      max-width: 70ch;
+      line-height: 1.6;
+    }
+
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .doc-swatch {
+      padding: 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--dur-fast);
+    }
+
+    .doc-swatch:hover {
+      border-color: var(--border-default);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .doc-color-square {
+      width: 100%;
+      height: 80px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .doc-color-name {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: var(--fg-default);
+    }
+
+    .doc-color-value {
+      font-size: 11px;
+      color: var(--fg-muted);
+      font-family: var(--font-mono);
+    }
+
+    .doc-controls {
+      display: flex;
+      gap: 12px;
+      padding: 16px 24px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .doc-control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .doc-control-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .doc-control-buttons {
+      display: flex;
+      gap: 4px;
+      padding: 3px;
+      background: var(--bg-muted);
+      border-radius: 6px;
+    }
+
+    .doc-control-button {
+      padding: 5px 10px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--fg-muted);
+      transition: all var(--dur-fast);
+    }
+
+    .doc-control-button.active {
+      background: var(--bg-surface);
+      color: var(--fg-default);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .doc-component {
+      padding: 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      margin-bottom: 24px;
+    }
+
+    .doc-component-preview {
+      padding: 32px;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .doc-component-code {
+      padding: 12px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-muted);
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .doc-rule {
+      padding: 16px;
+      background: var(--bg-info-subtle);
+      border: 1px solid var(--border-info);
+      border-left: 3px solid var(--border-info);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      font-size: 13.5px;
+      color: var(--fg-default);
+      line-height: 1.6;
+    }
+
+    .doc-rule strong {
+      color: var(--fg-strong);
+    }
+
+    .doc-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .doc-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="../src/whitelabel/Primitives.jsx"></script>
+  <script type="text/babel" src="../src/whitelabel/Sidebar.jsx"></script>
+  <script type="text/babel" src="../src/whitelabel/Display.jsx"></script>
+  <script type="text/babel" src="../src/whitelabel/Overlays.jsx"></script>
+  <script type="text/babel" src="../src/whitelabel/Complex.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function DocsApp() {
+      const [section, setSection] = useState("overview");
+      const [theme, setTheme] = useState("light");
+      const [brand, setBrand] = useState("indigo");
+      const [style, setStyle] = useState("standard");
+
+      const handleThemeChange = (newTheme) => {
+        setTheme(newTheme);
+        document.documentElement.dataset.theme = newTheme;
+      };
+
+      const handleBrandChange = (newBrand) => {
+        setBrand(newBrand);
+        document.documentElement.dataset.brand = newBrand;
+      };
+
+      const handleStyleChange = (newStyle) => {
+        setStyle(newStyle);
+        document.documentElement.dataset.style = newStyle;
+      };
+
+      const sections = {
+        overview: {
+          title: "Whitelabel Design System",
+          subtitle: "A brand-agnostic UI kit built on semantic tokens. Swap brand hue, theme, and style on the <html> element — every component reflows automatically.",
+          render: () => (
+            <div>
+              <div className="doc-section">
+                <h2>What's Included</h2>
+                <p>A complete, production-ready design system with:</p>
+                <ul style={{ marginLeft: 24, lineHeight: 1.8, color: "var(--fg-default)" }}>
+                  <li><strong>6 brand hues</strong> — Indigo, Violet, Emerald, Rose, Amber, Slate</li>
+                  <li><strong>Light + Dark themes</strong> — Automatically applied via CSS variables</li>
+                  <li><strong>5 style presets</strong> — Standard, Enterprise, Friendly, Refined, Data-dense</li>
+                  <li><strong>50+ components</strong> — Button, Input, Badge, Dialog, DataTable, Sidebar, and more</li>
+                  <li><strong>Semantic tokens</strong> — Colors, spacing, typography, shadows, motion, z-index</li>
+                  <li><strong>Accessibility first</strong> — WCAG AA contrast, proper ARIA, keyboard navigation</li>
+                </ul>
+              </div>
+
+              <div className="doc-section">
+                <h2>Quick Start</h2>
+                <div className="doc-component">
+                  <div className="doc-component-code" style={{ marginBottom: 12 }}>
+{`<!doctype html>
+<html lang="en" data-theme="light" data-brand="indigo" data-style="standard">
+<head>
+  <link rel="stylesheet" href="src/whitelabel/tokens.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="src/whitelabel/Primitives.jsx"></script>
+  <script type="text/babel">
+    const { Button, Card } = window;
+    function App() {
+      return <Card><Button variant="primary">Click me</Button></Card>;
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>`}
+                  </div>
+                  <p style={{ fontSize: 13, color: "var(--fg-muted)" }}>That's it. No build, no npm install. Just HTML + React in the browser.</p>
+                </div>
+              </div>
+
+              <div className="doc-section">
+                <h2>Core Principles</h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
+                  {[
+                    { icon: "palette", title: "Token-driven", desc: "All styling via CSS variables. Change colors, not code." },
+                    { icon: "zap", title: "No build required", desc: "Works in any browser with React, Babel, and Lucide." },
+                    { icon: "layers", title: "Composable", desc: "Mix and match components. Simple primitives, complex layouts." },
+                    { icon: "shield", title: "Accessible", desc: "WCAG AA contrast, proper ARIA, keyboard support built-in." },
+                  ].map((p, i) => (
+                    <div key={i} style={{ padding: 16, background: "var(--bg-muted)", borderRadius: "var(--radius-md)" }}>
+                      <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                        <Icon name={p.icon} size={20} color="var(--brand-500)" />
+                        <strong style={{ color: "var(--fg-strong)" }}>{p.title}</strong>
+                      </div>
+                      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0, lineHeight: 1.5 }}>{p.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ),
+        },
+
+        tokens: {
+          title: "Design Tokens",
+          subtitle: "The semantic layer that powers every component.",
+          render: () => (
+            <div>
+              <div className="doc-section">
+                <h2>Color Palette</h2>
+                <p>The system uses 6 brand hues, each with an 11-step scale. Consume via semantic aliases like <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--brand-*</code>, <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--fg-*</code>, <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--bg-*</code>.</p>
+                <div className="doc-grid">
+                  {[
+                    { name: "Brand Primary", var: "--brand-500" },
+                    { name: "Success", var: "--success-500" },
+                    { name: "Warning", var: "--warning-500" },
+                    { name: "Danger", var: "--danger-500" },
+                    { name: "Info", var: "--info-500" },
+                    { name: "Neutral", var: "--neutral-500" },
+                  ].map((c, i) => (
+                    <div key={i} className="doc-swatch">
+                      <div className="doc-color-square" style={{ backgroundColor: `var(${c.var})` }} />
+                      <div className="doc-color-name">{c.name}</div>
+                      <div className="doc-color-value">{c.var}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="doc-section">
+                <h2>Semantic Layer</h2>
+                <p>Never reference raw colors. Use semantic tokens instead:</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginTop: 24 }}>
+                  {[
+                    { title: "Text Colors", tokens: ["--fg-strong", "--fg-default", "--fg-muted", "--fg-subtle", "--fg-disabled"] },
+                    { title: "Background Colors", tokens: ["--bg-raised", "--bg-surface", "--bg-app", "--bg-subtle", "--bg-muted"] },
+                    { title: "Border Colors", tokens: ["--border-strong", "--border-default", "--border-subtle"] },
+                    { title: "Spacing", tokens: ["--space-1 (4px)", "--space-2 (8px)", "--space-3 (12px)", "--space-4 (16px)", "--space-5 (24px)"] },
+                  ].map((g, i) => (
+                    <div key={i}>
+                      <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: "var(--fg-strong)" }}>{g.title}</h3>
+                      <ul style={{ listStyle: "none" }}>
+                        {g.tokens.map((t, j) => (
+                          <li key={j} style={{ padding: "6px 0", fontSize: 13, color: "var(--fg-default)", borderBottom: "1px solid var(--border-subtle)" }}>
+                            <code style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{t}</code>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ),
+        },
+
+        components: {
+          title: "Component Library",
+          subtitle: "Every component with examples and usage patterns.",
+          render: () => {
+            const { Button, Badge, Input, Checkbox, Card, Spinner, Alert } = window;
+            return (
+              <div>
+                <div className="doc-section">
+                  <h2>Buttons</h2>
+                  <p>The primary action component. Use variants to indicate intent.</p>
+                  <div className="doc-component">
+                    <div className="doc-component-preview">
+                      <Button variant="primary">Primary</Button>
+                      <Button variant="secondary">Secondary</Button>
+                      <Button variant="outline">Outline</Button>
+                      <Button variant="ghost">Ghost</Button>
+                      <Button variant="danger">Danger</Button>
+                    </div>
+                    <div className="doc-component-code">{`<Button variant="primary">Click me</Button>
+<Button variant="outline" size="sm">Small</Button>
+<Button iconOnly leading="trash-2" ariaLabel="Delete" />`}</div>
+                  </div>
+                </div>
+
+                <div className="doc-section">
+                  <h2>Badges</h2>
+                  <p>Inline status indicators with semantic colors.</p>
+                  <div className="doc-component">
+                    <div className="doc-component-preview">
+                      <Badge variant="success">Success</Badge>
+                      <Badge variant="warning">Warning</Badge>
+                      <Badge variant="danger">Danger</Badge>
+                      <Badge variant="info">Info</Badge>
+                      <Badge variant="neutral">Neutral</Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="doc-section">
+                  <h2>Form Fields</h2>
+                  <p>Always include labels. Use hints for help text, error for validation.</p>
+                  <div className="doc-component">
+                    <div className="doc-component-preview" style={{ flexDirection: "column", alignItems: "flex-start", minHeight: 200 }}>
+                      <Input label="Email" placeholder="you@example.com" leading="mail" fullWidth={false} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="doc-section">
+                  <h2>Alerts</h2>
+                  <p>Inline alerts with semantic variants.</p>
+                  <div className="doc-component">
+                    <Alert variant="info" title="Info">Check your settings for updates.</Alert>
+                    <div style={{ marginTop: 8 }} />
+                    <Alert variant="success" title="Success">Your changes were saved.</Alert>
+                    <div style={{ marginTop: 8 }} />
+                    <Alert variant="warning" title="Warning">This action may have side effects.</Alert>
+                    <div style={{ marginTop: 8 }} />
+                    <Alert variant="danger" title="Error">Something went wrong. Try again.</Alert>
+                  </div>
+                </div>
+              </div>
+            );
+          },
+        },
+
+        styles: {
+          title: "Style Presets",
+          subtitle: "Five design systems for different contexts.",
+          render: () => (
+            <div>
+              <div className="doc-section">
+                <h2>Choose a Style</h2>
+                <p>Each preset changes fonts, border radii, shadows, and type metrics. Pick the one that matches your product.</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginTop: 24 }}>
+                  {[
+                    { style: "standard", label: "Standard", desc: "Modern, clean. Safest for new products." },
+                    { style: "enterprise", label: "Enterprise", desc: "Dense, formal. Dense tables, compliance." },
+                    { style: "friendly", label: "Friendly", desc: "Warm, approachable. Consumer SaaS." },
+                    { style: "refined", label: "Refined", desc: "Premium feel. Design-led brands." },
+                    { style: "data-dense", label: "Data-dense", desc: "Compact, data-focused. Analytics." },
+                  ].map((s, i) => (
+                    <button key={i}
+                      onClick={() => handleStyleChange(s.style)}
+                      style={{
+                        padding: 16,
+                        background: style === s.style ? "var(--bg-brand-subtle)" : "var(--bg-muted)",
+                        border: style === s.style ? "2px solid var(--brand-500)" : "1px solid var(--border-subtle)",
+                        borderRadius: "var(--radius-md)",
+                        cursor: "pointer",
+                        transition: "all var(--dur-fast)",
+                      }}>
+                      <div style={{ fontWeight: 600, color: "var(--fg-strong)", marginBottom: 4, fontSize: 14 }}>{s.label}</div>
+                      <div style={{ fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.4 }}>{s.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ),
+        },
+
+        brands: {
+          title: "Brand Hues",
+          subtitle: "Six color hues. Switch any time.",
+          render: () => (
+            <div>
+              <div className="doc-section">
+                <h2>Available Brands</h2>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginTop: 24 }}>
+                  {["indigo", "violet", "emerald", "rose", "amber", "slate"].map((b, i) => (
+                    <button key={i}
+                      onClick={() => handleBrandChange(b)}
+                      style={{
+                        padding: 16,
+                        background: "var(--bg-muted)",
+                        border: brand === b ? "2px solid var(--brand-500)" : "1px solid var(--border-subtle)",
+                        borderRadius: "var(--radius-md)",
+                        cursor: "pointer",
+                        transition: "all var(--dur-fast)",
+                        textAlign: "center",
+                      }}>
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 8,
+                        background: "linear-gradient(135deg, var(--brand-500), var(--brand-700))",
+                        margin: "0 auto 8px",
+                      }} />
+                      <div style={{ fontWeight: 600, color: "var(--fg-strong)", fontSize: 13, textTransform: "capitalize" }}>{b}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ),
+        },
+
+        rules: {
+          title: "Usage Guidelines",
+          subtitle: "Rules to follow when building with this system.",
+          render: () => (
+            <div>
+              <div className="doc-section">
+                <h2>10 Core Rules</h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[
+                    { num: "1", rule: "Never inline raw values", desc: "No hex colors, no px values for spacing. Always use CSS variables: var(--fg-default), var(--space-4)." },
+                    { num: "2", rule: "Consume semantic tokens", desc: "Use --fg-muted not --neutral-500. Use --bg-brand not --indigo-600. Semantic layer only." },
+                    { num: "3", rule: "One brand, one accent", desc: "Don't introduce a second hue alongside --brand-*. Use status taxonomy instead: success, warning, danger, info." },
+                    { num: "4", rule: "Match variant to intent", desc: "primary = most important action. secondary/outline = supporting. ghost = toolbar. danger = destructive." },
+                    { num: "5", rule: "Match size to context", desc: "xs/sm for tables. md for forms. lg for landing CTAs." },
+                    { num: "6", rule: "Status taxonomy is closed", desc: "Only: success, warning, danger, info. Never invent a fifth." },
+                    { num: "7", rule: "Light + dark are equal", desc: "Test every screen in both themes. Components handle this via tokens." },
+                    { num: "8", rule: "Accessibility floor: AA", desc: "4.5:1 contrast on text. 32px+ touch targets. iconOnly buttons need ariaLabel. Status ≠ color only." },
+                    { num: "9", rule: "Form fields need labels", desc: "Always set label. Use placeholder or hint. Errors = error + hint together. Mark required fields." },
+                    { num: "10", rule: "Respect spacing rhythm", desc: "Stick to --space-2, 3, 4, 5, 7, 8 (4px, 8px, 12px, 16px, 24px, 32px). Maintain 4-point grid." },
+                  ].map((r, i) => (
+                    <div key={i} className="doc-rule">
+                      <strong style={{ color: "var(--brand-500)" }}>Rule {r.num}: </strong>
+                      <strong>{r.rule}</strong>
+                      <div style={{ marginTop: 6, color: "var(--fg-muted)" }}>{r.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="doc-section">
+                <h2>Accessibility Checklist</h2>
+                <ul style={{ marginLeft: 24, lineHeight: 2, color: "var(--fg-default)" }}>
+                  <li>Text contrast ≥ 4.5:1 (AA) or 7:1 (AAA)</li>
+                  <li>Touch targets ≥ 32×32px (or size="md" Button)</li>
+                  <li>iconOnly buttons have ariaLabel</li>
+                  <li>Form fields have label</li>
+                  <li>Status conveyed by icon or text, not color alone</li>
+                  <li>Keyboard navigation works (Tab, Enter, Escape)</li>
+                  <li>Focus rings visible in all themes</li>
+                  <li>Error messages associated via aria-describedby</li>
+                </ul>
+              </div>
+            </div>
+          ),
+        },
+
+        examples: {
+          title: "Real-world Examples",
+          subtitle: "Full page layouts built with the system.",
+          render: () => (
+            <div>
+              <div className="doc-section">
+                <h2>Inbox Page</h2>
+                <p>A task management interface with sidebar, data table, search, and delete dialogs.</p>
+                <div className="doc-component">
+                  <Button variant="primary" onClick={() => window.open("../examples/inbox/inbox.html", "_blank")}>
+                    View Live Demo →
+                  </Button>
+                  <div style={{ marginTop: 16, fontSize: 13, color: "var(--fg-muted)" }}>
+                    Demonstrates: Sidebar, DataTable, Badge, Input, Button, AlertDialog, Toaster
+                  </div>
+                </div>
+              </div>
+
+              <div className="doc-section">
+                <h2>File Structure</h2>
+                <p>All examples follow this pattern:</p>
+                <div className="doc-component">
+                  <div className="doc-component-code">{`examples/
+├── inbox/
+│   └── inbox.html          ← Self-contained example
+├── dashboard/
+│   └── dashboard.html
+└── README.md               ← Docs for examples`}</div>
+                </div>
+              </div>
+
+              <div className="doc-section">
+                <h2>Building Your Own Example</h2>
+                <ol style={{ marginLeft: 24, lineHeight: 2, color: "var(--fg-default)" }}>
+                  <li>Create a folder: <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>examples/my-page/</code></li>
+                  <li>Copy the HTML boilerplate from Quick Start</li>
+                  <li>Use actual design system components only</li>
+                  <li>Test in light + dark themes</li>
+                  <li>Push to Git when production-ready</li>
+                </ol>
+              </div>
+            </div>
+          ),
+        },
+      };
+
+      const currentSection = sections[section] || sections.overview;
+
+      return (
+        <div className="doc-shell">
+          <nav className="doc-nav">
+            <div className="doc-nav-brand">
+              <div className="doc-nav-brand-mark">W</div>
+              <span>Whitelabel</span>
+            </div>
+            <div className="doc-nav-section">
+              <div className="doc-nav-label">Getting Started</div>
+              {["overview", "tokens", "components"].map((s, i) => (
+                <button key={i}
+                  className={`doc-nav-link ${section === s ? "active" : ""}`}
+                  onClick={() => setSection(s)}>
+                  {sections[s].title.split(" ")[0]}
+                </button>
+              ))}
+            </div>
+            <div className="doc-nav-section">
+              <div className="doc-nav-label">Reference</div>
+              {["styles", "brands", "rules", "examples"].map((s, i) => (
+                <button key={i}
+                  className={`doc-nav-link ${section === s ? "active" : ""}`}
+                  onClick={() => setSection(s)}>
+                  {sections[s].title.split(" ")[0]}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          <main className="doc-main">
+            <div className="doc-controls">
+              <div className="doc-control-group">
+                <span className="doc-control-label">Theme</span>
+                <div className="doc-control-buttons">
+                  <button className={`doc-control-button ${theme === "light" ? "active" : ""}`} onClick={() => handleThemeChange("light")}>Light</button>
+                  <button className={`doc-control-button ${theme === "dark" ? "active" : ""}`} onClick={() => handleThemeChange("dark")}>Dark</button>
+                </div>
+              </div>
+              <div className="doc-control-group">
+                <span className="doc-control-label">Brand</span>
+                <div className="doc-control-buttons">
+                  {["indigo", "emerald", "rose"].map((b, i) => (
+                    <button key={i} className={`doc-control-button ${brand === b ? "active" : ""}`} onClick={() => handleBrandChange(b)} style={{ textTransform: "capitalize" }}>{b}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="doc-header">
+              <h1>{currentSection.title}</h1>
+              <p>{currentSection.subtitle}</p>
+            </div>
+
+            {currentSection.render()}
+
+            <div style={{ paddingTop: 48, borderTop: "1px solid var(--border-subtle)", marginTop: 64 }}>
+              <p style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+                Built with the Whitelabel Design System. <a href="https://github.com/eduardosicsu-Viber/Custom-Design-system" style={{ color: "var(--fg-brand)", textDecoration: "none" }}>View on GitHub →</a>
+              </p>
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<DocsApp />);
+  </script>
+</body>
+</html>

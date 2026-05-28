@@ -5,31 +5,707 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inbox — Task Management</title>
   <link rel="stylesheet" href="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/tokens.css" />
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { margin: 0; padding: 0; }
-    .app-wrapper { display: flex; min-height: 100vh; background: var(--bg-app); }
-    .topbar { background: var(--bg-canvas); border-bottom: 1px solid var(--border-subtle); padding: var(--space-5); display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); position: sticky; top: 0; z-index: 100; }
-    .main-content { flex: 1; display: flex; flex-direction: column; overflow: auto; }
-    .content-area { flex: 1; padding: var(--space-5); overflow: auto; }
-    .theme-toggle { position: fixed; top: var(--space-4); right: var(--space-4); z-index: 1000; padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); background: var(--bg-canvas); border-radius: var(--radius-md); cursor: pointer; font-size: var(--text-sm); font-family: inherit; transition: all var(--dur-base) var(--ease-out); }
-    .theme-toggle:hover { background: var(--bg-muted); }
+    .theme-toggle {
+      position: fixed;
+      top: var(--space-4);
+      right: var(--space-4);
+      z-index: 1000;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      transition: all var(--dur-base) var(--ease-out);
+    }
+    .theme-toggle:hover {
+      background: var(--bg-muted);
+    }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- LOAD COMPONENTS: Primitives FIRST, then others in order -->
-  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Primitives.jsx"></script>
-  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Sidebar.jsx"></script>
-  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Display.jsx"></script>
-  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Complex.jsx"></script>
-  <script type="text/babel" src="https://raw.githubusercontent.com/eduardosicsu-Viber/Custom-Design-system/main/src/whitelabel/Overlays.jsx"></script>
-
   <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo, useLayoutEffect } = React;
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       PRIMITIVES
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    function Icon({ name, size = 16, color = "currentColor", strokeWidth = 2, style, className }) {
+      const pascal = String(name).replace(/(^|-)([a-z0-9])/g, (_, __, c) => c.toUpperCase());
+      const def = window.lucide?.icons?.[pascal] || window.lucide?.icons?.[name];
+      const isCssVar = typeof size === "string";
+      const svgSize = isCssVar ? 16 : size;
+      const sizeStyle = isCssVar ? { width: size, height: size } : null;
+      if (!def) return <span aria-hidden style={{ width: svgSize, height: svgSize, display: "inline-block", ...sizeStyle, ...style }} />;
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" width={svgSize} height={svgSize} viewBox="0 0 24 24"
+          fill="none" stroke={color} strokeWidth={strokeWidth}
+          strokeLinecap="round" strokeLinejoin="round"
+          className={className || `lc lc-${name}`}
+          style={{ display: "inline-block", flexShrink: 0, ...sizeStyle, ...style }}>
+          {def.map((n, i) => React.createElement(n[0], { key: i, ...n[1] }))}
+        </svg>
+      );
+    }
+
+    function Spinner({ size = 16, color = "currentColor" }) {
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-label="Loading"
+          style={{ animation: "wl-spin 0.8s linear infinite" }}>
+          <circle cx="12" cy="12" r="10" stroke={color} strokeOpacity="0.2" strokeWidth="3" />
+          <path d="M22 12a10 10 0 0 1-10 10" stroke={color} strokeWidth="3" strokeLinecap="round" />
+          <style>{`@keyframes wl-spin{to{transform:rotate(360deg)}}`}</style>
+        </svg>
+      );
+    }
+
+    function Button({
+      variant = "primary", size = "md",
+      leading, trailing, loading, disabled,
+      iconOnly, fullWidth, type = "button",
+      children, onClick, style, className, ariaLabel,
+    }) {
+      const sizeMap = {
+        xs: { h: "var(--ctl-h-xs)", px: "var(--ctl-px-xs)", fs: "var(--ctl-fs-xs)", ix: "var(--ctl-ic-xs)", gap: "var(--ctl-gap-xs)" },
+        sm: { h: "var(--ctl-h-sm)", px: "var(--ctl-px-sm)", fs: "var(--ctl-fs-sm)", ix: "var(--ctl-ic-sm)", gap: "var(--ctl-gap-sm)" },
+        md: { h: "var(--ctl-h-md)", px: "var(--ctl-px-md)", fs: "var(--ctl-fs-md)", ix: "var(--ctl-ic-md)", gap: "var(--ctl-gap-md)" },
+        lg: { h: "var(--ctl-h-lg)", px: "var(--ctl-px-lg)", fs: "var(--ctl-fs-lg)", ix: "var(--ctl-ic-lg)", gap: "var(--ctl-gap-lg)" },
+      };
+      const s = sizeMap[size];
+      const base = {
+        appearance: "none", border: 0, cursor: disabled || loading ? "not-allowed" : "pointer",
+        display: "inline-flex", alignItems: "center", justifyContent: "center", gap: s.gap,
+        height: s.h, padding: iconOnly ? 0 : `0 ${s.px}`,
+        width: iconOnly ? s.h : (fullWidth ? "100%" : undefined),
+        fontFamily: "var(--font-sans)", fontWeight: "var(--ctl-fw)", fontSize: s.fs, lineHeight: 1,
+        borderRadius: "var(--radius-md)",
+        transition: "background-color var(--dur-default) var(--ease-default), color var(--dur-default) var(--ease-default), box-shadow var(--dur-default) var(--ease-default), border-color var(--dur-default) var(--ease-default)",
+        opacity: disabled ? 0.5 : 1,
+        whiteSpace: "nowrap", userSelect: "none",
+      };
+      const variants = {
+        primary:   { bg: "var(--bg-brand)",       fg: "var(--fg-on-brand)", bd: "transparent", hov: "var(--bg-brand-hover)", act: "var(--bg-brand-active)" },
+        secondary: { bg: "var(--bg-muted)",       fg: "var(--fg-default)",  bd: "transparent", hov: "var(--neutral-200)",    act: "var(--neutral-300)" },
+        outline:   { bg: "var(--bg-surface)",     fg: "var(--fg-default)",  bd: "var(--border-default)", hov: "var(--bg-muted)", act: "var(--neutral-200)" },
+        ghost:     { bg: "transparent",           fg: "var(--fg-default)",  bd: "transparent", hov: "var(--bg-muted)", act: "var(--neutral-200)" },
+        danger:    { bg: "var(--bg-danger)",      fg: "var(--fg-on-brand)", bd: "transparent", hov: "color-mix(in oklab, var(--rose-700) 100%, transparent)", act: "var(--rose-800)" },
+      };
+      const v = variants[variant];
+      const [hover, setHover] = useState(false);
+      const [press, setPress] = useState(false);
+      const [focus, setFocus] = useState(false);
+      const bg = press ? v.act : hover && !disabled ? v.hov : v.bg;
+      const fg = v.fg;
+      return (
+        <button
+          type={type} onClick={disabled || loading ? undefined : onClick}
+          aria-label={ariaLabel} aria-disabled={disabled || loading || undefined}
+          aria-busy={loading || undefined}
+          onMouseEnter={() => setHover(true)} onMouseLeave={() => { setHover(false); setPress(false); }}
+          onMouseDown={() => setPress(true)} onMouseUp={() => setPress(false)}
+          onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
+          className={className}
+          style={{
+            ...base, background: bg, color: fg,
+            border: `var(--ctl-bw) solid ${v.bd}`,
+            boxShadow: focus
+              ? "var(--ring-focus)"
+              : (hover && !disabled ? "var(--button-shadow-hover)" : "var(--button-shadow)"),
+            ...style,
+          }}>
+          {loading ? <Spinner size={s.ix} /> : leading && <Icon name={leading} size={s.ix} />}
+          {!iconOnly && children}
+          {trailing && !loading && <Icon name={trailing} size={s.ix} />}
+        </button>
+      );
+    }
+
+    function Input({
+      label, hint, error, required,
+      value, defaultValue, onChange, onBlur, onFocus,
+      placeholder, type = "text", disabled, readOnly,
+      leading, trailing, size = "md", id,
+      fullWidth = true,
+    }) {
+      const [focus, setFocus] = useState(false);
+      const autoId = useRef(id || "in_" + Math.random().toString(36).slice(2, 9));
+      const sizeMap = {
+        sm: { h: "var(--ctl-h-sm)", fs: "var(--ctl-fs-sm)", px: "var(--ctl-px-sm)", ic: "var(--ctl-ic-sm)" },
+        md: { h: "var(--ctl-h-md)", fs: "var(--ctl-fs-md)", px: "var(--ctl-px-md)", ic: "var(--ctl-ic-md)" },
+        lg: { h: "var(--ctl-h-lg)", fs: "var(--ctl-fs-lg)", px: "var(--ctl-px-lg)", ic: "var(--ctl-ic-lg)" },
+      };
+      const sz = sizeMap[size];
+      const borderColor = error ? "var(--border-danger)"
+        : focus ? "var(--border-focus)" : "var(--border-default)";
+      return (
+        <label htmlFor={autoId.current} style={{
+          display: "flex", flexDirection: "column", gap: 6,
+          width: fullWidth ? "100%" : undefined,
+        }}>
+          {label && (
+            <span style={{
+              fontSize: 13, fontWeight: 500, color: "var(--fg-default)", lineHeight: 1.3,
+            }}>
+              {label}
+              {required && <span style={{ color: "var(--fg-danger)", marginLeft: 2 }}>*</span>}
+            </span>
+          )}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            height: sz.h, padding: `0 ${sz.px}`,
+            background: disabled ? "var(--bg-muted)" : "var(--bg-surface)",
+            border: `var(--input-bw) solid ${borderColor}`,
+            borderRadius: "var(--radius-md)",
+            boxShadow: focus
+              ? (error ? "var(--ring-danger)" : "var(--ring-focus)")
+              : "var(--input-shadow)",
+            transition: "border-color var(--dur-default) var(--ease-default), box-shadow var(--dur-default) var(--ease-default)",
+          }}>
+            {leading && <Icon name={leading} size={sz.ic} color="var(--fg-muted)" />}
+            <input
+              id={autoId.current} type={type}
+              value={value} defaultValue={defaultValue}
+              onChange={e => onChange && onChange(e.target.value, e)}
+              placeholder={placeholder}
+              disabled={disabled} readOnly={readOnly} required={required}
+              aria-invalid={error || undefined}
+              aria-describedby={hint ? autoId.current + "_hint" : undefined}
+              onFocus={(e) => { setFocus(true); onFocus && onFocus(e); }}
+              onBlur={(e) => { setFocus(false); onBlur && onBlur(e); }}
+              style={{
+                flex: 1, minWidth: 0, border: 0, outline: 0, background: "transparent",
+                fontFamily: "inherit", fontSize: sz.fs, color: "var(--fg-default)",
+              }}
+            />
+            {trailing && <Icon name={trailing} size={sz.ic} color="var(--fg-muted)" />}
+          </div>
+          {hint && (
+            <span id={autoId.current + "_hint"} style={{
+              fontSize: 12, lineHeight: 1.4,
+              color: error ? "var(--fg-danger)" : "var(--fg-muted)",
+            }}>{hint}</span>
+          )}
+        </label>
+      );
+    }
+
+    function Badge({ variant = "neutral", size = "md", dot, leading, children, style }) {
+      const sizes = { sm: { fs: 11, px: 6, py: 2 }, md: { fs: 12, px: 8, py: 3 }, lg: { fs: 13, px: 10, py: 4 } };
+      const s = sizes[size];
+      const variants = {
+        neutral: { bg: "var(--bg-muted)",       fg: "var(--fg-default)",  bd: "var(--border-subtle)" },
+        brand:   { bg: "var(--bg-brand-subtle)",fg: "var(--fg-brand)",    bd: "transparent" },
+        success: { bg: "var(--bg-success-subtle)", fg: "var(--fg-success)", bd: "var(--border-success)" },
+        warning: { bg: "var(--bg-warning-subtle)", fg: "var(--fg-warning)", bd: "var(--border-warning)" },
+        danger:  { bg: "var(--bg-danger-subtle)",  fg: "var(--fg-danger)",  bd: "var(--border-danger)" },
+        info:    { bg: "var(--bg-info-subtle)",    fg: "var(--fg-info)",    bd: "var(--border-info)" },
+      };
+      const v = variants[variant];
+      return (
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 4,
+          padding: `${s.py}px ${s.px}px`, fontSize: s.fs, fontWeight: 500, lineHeight: 1.2,
+          background: v.bg, color: v.fg, border: `1px solid ${v.bd}`,
+          borderRadius: "var(--radius-pill)", whiteSpace: "nowrap",
+          ...style,
+        }}>
+          {dot && <span style={{ width: 6, height: 6, borderRadius: 9999, background: "currentColor", flexShrink: 0 }} />}
+          {leading && <Icon name={leading} size={s.fs - 1} />}
+          {children}
+        </span>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       SIDEBAR
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    function Sidebar({
+      items, active, onSelect, collapsed, onToggle,
+      brand = "App", footer,
+      width = 248, collapsedWidth = 64, height = "100vh",
+    }) {
+      const W = collapsed ? collapsedWidth : width;
+      return (
+        <aside style={{
+          width: W, flexShrink: 0, height,
+          background: "var(--bg-canvas)",
+          borderRight: "1px solid var(--border-subtle)",
+          display: "flex", flexDirection: "column",
+          transition: "width var(--dur-base) var(--ease-out)",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            padding: collapsed ? "16px 12px" : "16px 18px",
+            display: "flex", alignItems: "center",
+            gap: 10, justifyContent: "space-between",
+            borderBottom: "1px solid var(--border-subtle)", minHeight: 60,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+              <span style={{
+                width: 28, height: 28, borderRadius: 7,
+                background: "linear-gradient(135deg, var(--brand-500), var(--brand-700))",
+                color: "var(--neutral-0)",
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                fontWeight: 700, fontSize: 14, flexShrink: 0,
+              }}>{(brand || "?").trim().charAt(0).toUpperCase()}</span>
+              {!collapsed && (
+                <span style={{
+                  fontSize: 14, fontWeight: 600, color: "var(--fg-strong)", letterSpacing: "-0.01em",
+                  whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                }}>{brand}</span>
+              )}
+            </div>
+          </div>
+
+          <nav style={{ flex: 1, padding: "10px 8px", overflow: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
+            {items.map((it, i) => {
+              if (it.group) return (
+                !collapsed && (
+                  <div key={i} style={{
+                    padding: "12px 10px 4px", fontSize: 10.5, fontWeight: 700,
+                    color: "var(--fg-subtle)", textTransform: "uppercase", letterSpacing: "0.08em",
+                  }}>{it.group}</div>
+                )
+              );
+              const isActive = it.id === active;
+              const [hover, setHover] = useState(false);
+              return (
+                <button key={it.id || i}
+                  onClick={() => it.id && onSelect && onSelect(it.id)}
+                  onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+                  disabled={it.disabled}
+                  style={{
+                    appearance: "none", border: 0, cursor: it.disabled ? "not-allowed" : "pointer",
+                    background: isActive ? "var(--bg-brand-subtle)" : hover && !it.disabled ? "var(--bg-muted)" : "transparent",
+                    color: it.disabled ? "var(--fg-disabled)" : isActive ? "var(--fg-brand)" : "var(--fg-default)",
+                    fontFamily: "inherit",
+                    padding: collapsed ? "9px 0" : "8px 10px", borderRadius: "var(--radius-sm)",
+                    display: "flex", alignItems: "center", gap: 10,
+                    justifyContent: collapsed ? "center" : "flex-start",
+                    fontSize: 13.5, fontWeight: isActive ? 600 : 500,
+                    textAlign: "left", width: "100%",
+                    transition: "background var(--dur-fast)",
+                    position: "relative",
+                  }}>
+                  {it.icon && <Icon name={it.icon} size={17} />}
+                  {!collapsed && <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.label}</span>}
+                  {!collapsed && it.badge != null && (
+                    <Badge size="sm" variant={isActive ? "brand" : "neutral"}>{it.badge}</Badge>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {footer && (
+            <div style={{ borderTop: "1px solid var(--border-subtle)", padding: collapsed ? "10px 12px" : "10px 14px" }}>
+              {footer}
+            </div>
+          )}
+        </aside>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       DISPLAY (Table, DataTable, Pagination)
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    function Table({ children, dense, style }) {
+      return (
+        <div style={{ overflowX: "auto", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}>
+          <table style={{
+            width: "100%", borderCollapse: "separate", borderSpacing: 0,
+            fontSize: 13.5, color: "var(--fg-default)", "--tbl-py": dense ? "8px" : "12px",
+            ...style,
+          }}>{children}</table>
+        </div>
+      );
+    }
+    function TableHeader({ children }) {
+      return <thead style={{ background: "var(--bg-subtle)" }}>{children}</thead>;
+    }
+    function TableBody({ children }) { return <tbody>{children}</tbody>; }
+    function TableRow({ children, selected, onClick, hoverable = true }) {
+      const [hover, setH] = useState(false);
+      return (
+        <tr onClick={onClick}
+          onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+          style={{
+            background: selected ? "var(--bg-brand-subtle)" : hover && hoverable ? "var(--bg-subtle)" : "transparent",
+            cursor: onClick ? "pointer" : "default",
+            transition: "background var(--dur-fast)",
+          }}>{children}</tr>
+      );
+    }
+    function TableHead({ children, align = "left", width, sortable, sorted, onSort }) {
+      return (
+        <th onClick={sortable ? onSort : undefined}
+          style={{
+            padding: "10px 14px", textAlign: align, width,
+            fontSize: 11.5, color: "var(--fg-subtle)", fontWeight: 600,
+            letterSpacing: "0.04em", textTransform: "uppercase",
+            borderBottom: "1px solid var(--border-subtle)",
+            cursor: sortable ? "pointer" : "default", userSelect: "none",
+            whiteSpace: "nowrap",
+          }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+            {children}
+            {sortable && <Icon name={sorted === "asc" ? "chevron-up" : sorted === "desc" ? "chevron-down" : "chevrons-up-down"} size={12} color="var(--fg-subtle)" />}
+          </span>
+        </th>
+      );
+    }
+    function TableCell({ children, align = "left", muted, mono, width }) {
+      return (
+        <td style={{
+          padding: "var(--tbl-py, 12px) 14px", textAlign: align, width,
+          fontSize: 13.5, color: muted ? "var(--fg-muted)" : "var(--fg-default)",
+          fontFamily: mono ? "var(--font-mono)" : "inherit",
+          fontVariantNumeric: mono ? "tabular-nums" : "normal",
+          borderTop: "1px solid var(--border-subtle)", verticalAlign: "middle",
+        }}>{children}</td>
+      );
+    }
+
+    function Pagination({ page = 1, total = 0, pageSize = 20, onPage, siblings = 1, showSummary = true }) {
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      const pageList = (page, total, sib = 1) => {
+        const range = (a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(i); return r; };
+        if (total <= 7) return range(1, total);
+        const left = Math.max(2, page - sib);
+        const right = Math.min(total - 1, page + sib);
+        const out = [1];
+        if (left > 2) out.push("…");
+        for (let i = left; i <= right; i++) out.push(i);
+        if (right < total - 1) out.push("…");
+        out.push(total);
+        return out;
+      };
+      const pages = pageList(page, totalPages, siblings);
+      const start = (page - 1) * pageSize + 1;
+      const end = Math.min(total, page * pageSize);
+      const goto = (p) => () => onPage && onPage(Math.max(1, Math.min(totalPages, p)));
+      return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          {showSummary && (
+            <span style={{ fontSize: 13, color: "var(--fg-muted)" }}>
+              Showing <b style={{ color: "var(--fg-default)" }}>{start}–{end}</b> of <b style={{ color: "var(--fg-default)" }}>{total.toLocaleString()}</b>
+            </span>
+          )}
+          <nav role="navigation" aria-label="Pagination" style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <Button variant="outline" size="sm" iconOnly leading="chevrons-left"  ariaLabel="First"    disabled={page <= 1} onClick={goto(1)} />
+            <Button variant="outline" size="sm" iconOnly leading="chevron-left"   ariaLabel="Previous" disabled={page <= 1} onClick={goto(page - 1)} />
+            {pages.map((p, i) => p === "…"
+              ? <span key={i} style={{ width: 32, textAlign: "center", color: "var(--fg-subtle)" }}>…</span>
+              : <Button key={i} variant={p === page ? "primary" : "outline"} size="sm"
+                  onClick={goto(p)} style={{ minWidth: 32, padding: "0 8px" }}>{p}</Button>
+            )}
+            <Button variant="outline" size="sm" iconOnly leading="chevron-right"  ariaLabel="Next" disabled={page >= totalPages} onClick={goto(page + 1)} />
+            <Button variant="outline" size="sm" iconOnly leading="chevrons-right" ariaLabel="Last" disabled={page >= totalPages} onClick={goto(totalPages)} />
+          </nav>
+        </div>
+      );
+    }
+
+    function DataTable({
+      data, columns,
+      searchable, searchKey, searchPlaceholder = "Search…",
+      selectable, onSelectionChange,
+      pageSize = 10, showPagination = true,
+      emptyText = "No data", caption,
+    }) {
+      const [q, setQ] = useState("");
+      const [sortKey, setSortKey] = useState(null);
+      const [sortDir, setSortDir] = useState("asc");
+      const [page, setPage] = useState(1);
+      const [selected, setSelected] = useState(new Set());
+
+      useEffect(() => { setPage(1); }, [q, sortKey, sortDir]);
+
+      const filtered = useMemo(() => {
+        let arr = data;
+        if (searchable && q) {
+          const Q = q.toLowerCase();
+          const keys = searchKey ? (Array.isArray(searchKey) ? searchKey : [searchKey])
+            : columns.map(c => c.key);
+          arr = arr.filter(row => keys.some(k => String(row[k] ?? "").toLowerCase().includes(Q)));
+        }
+        if (sortKey) {
+          arr = [...arr].sort((a, b) => {
+            const x = a[sortKey], y = b[sortKey];
+            if (typeof x === "number" && typeof y === "number") return sortDir === "asc" ? x - y : y - x;
+            return sortDir === "asc" ? String(x).localeCompare(String(y)) : String(y).localeCompare(String(x));
+          });
+        }
+        return arr;
+      }, [data, q, sortKey, sortDir, searchable, searchKey, columns]);
+
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      const slice = showPagination ? filtered.slice((page - 1) * pageSize, page * pageSize) : filtered;
+
+      const onSort = (key) => () => {
+        if (sortKey === key) setSortDir(d => d === "asc" ? "desc" : "asc");
+        else { setSortKey(key); setSortDir("asc"); }
+      };
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
+          {searchable && (
+            <Input size="sm" placeholder={searchPlaceholder} value={q} onChange={setQ} leading="search" fullWidth={false} />
+          )}
+          <Table>
+            {caption && <caption style={{ captionSide: "bottom", padding: 12, fontSize: 12, color: "var(--fg-muted)", textAlign: "left" }}>{caption}</caption>}
+            <TableHeader>
+              <TableRow hoverable={false}>
+                {columns.map(c => (
+                  <TableHead key={c.key} align={c.align} width={c.width}
+                    sortable={c.sortable} sorted={sortKey === c.key ? sortDir : null}
+                    onSort={c.sortable ? onSort(c.key) : undefined}>
+                    {c.label}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {slice.length === 0 && (
+                <TableRow hoverable={false}>
+                  <TableCell align="center" >
+                    <div style={{ color: "var(--fg-muted)", padding: "32px 0" }}>{emptyText}</div>
+                  </TableCell>
+                </TableRow>
+              )}
+              {slice.map((row, i) => {
+                const realIdx = (page - 1) * pageSize + i;
+                return (
+                  <TableRow key={i}>
+                    {columns.map(c => (
+                      <TableCell key={c.key} align={c.align} mono={c.mono}>
+                        {c.render ? c.render(row, realIdx) : row[c.key]}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+          {showPagination && filtered.length > pageSize && (
+            <Pagination page={page} total={filtered.length} pageSize={pageSize} onPage={setPage} />
+          )}
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       OVERLAYS (Portal, Dialog, AlertDialog, Toaster)
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    function Portal({ children }) {
+      const [el] = useState(() => {
+        if (typeof document === "undefined") return null;
+        const d = document.createElement("div");
+        d.dataset.portal = "wl";
+        return d;
+      });
+      useEffect(() => {
+        if (!el) return;
+        document.body.appendChild(el);
+        return () => { document.body.removeChild(el); };
+      }, [el]);
+      return el ? ReactDOM.createPortal(children, el) : null;
+    }
+
+    function useEscape(open, onClose) {
+      useEffect(() => {
+        if (!open) return;
+        const fn = (e) => { if (e.key === "Escape") onClose && onClose(); };
+        window.addEventListener("keydown", fn);
+        return () => window.removeEventListener("keydown", fn);
+      }, [open, onClose]);
+    }
+
+    function Dialog({
+      open, onClose, title, description,
+      children, footer, size = "md",
+      closeOnBackdrop = true, hideClose = false,
+    }) {
+      useEscape(open, onClose);
+      if (!open) return null;
+      const widths = { sm: 360, md: 480, lg: 640, xl: 820, full: "calc(100vw - 32px)" };
+      return (
+        <Portal>
+          <div role="dialog" aria-modal="true" aria-labelledby={title ? "dlg-title" : undefined}
+            style={{
+              position: "fixed", inset: 0, zIndex: "var(--z-modal)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 16, animation: "wlFade 160ms var(--ease-out)",
+            }}>
+            <div onClick={closeOnBackdrop ? onClose : undefined}
+              style={{ position: "absolute", inset: 0, background: "var(--bg-overlay)" }} />
+            <div style={{
+              position: "relative", width: widths[size], maxWidth: "100%", maxHeight: "calc(100vh - 32px)",
+              background: "var(--bg-raised)", border: "1px solid var(--border-subtle)",
+              borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-xl)",
+              display: "flex", flexDirection: "column", overflow: "hidden",
+              animation: "wlScale 200ms var(--ease-out)",
+            }}>
+              {(title || !hideClose) && (
+                <div style={{
+                  padding: "18px 20px 12px", display: "flex", alignItems: "flex-start", gap: 12,
+                  borderBottom: description ? "0" : (children ? "1px solid var(--border-subtle)" : "0"),
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {title && <h2 id="dlg-title" style={{ margin: 0, fontSize: 17, fontWeight: 600, color: "var(--fg-strong)", letterSpacing: "-0.01em" }}>{title}</h2>}
+                    {description && <p style={{ margin: "4px 0 0", fontSize: 13.5, color: "var(--fg-muted)", lineHeight: 1.5 }}>{description}</p>}
+                  </div>
+                  {!hideClose && (
+                    <button onClick={onClose} aria-label="Close" style={{
+                      appearance: "none", border: 0, background: "transparent",
+                      cursor: "pointer", color: "var(--fg-muted)", padding: 4,
+                      borderRadius: 5, lineHeight: 0,
+                    }}><Icon name="x" size={18} /></button>
+                  )}
+                </div>
+              )}
+              {children != null && (
+                <div style={{
+                  padding: title ? "8px 20px 20px" : "20px",
+                  overflow: "auto", color: "var(--fg-default)", fontSize: 14, lineHeight: 1.55,
+                }}>{children}</div>
+              )}
+              {footer && (
+                <div style={{
+                  display: "flex", justifyContent: "flex-end", gap: 8,
+                  padding: "12px 20px", borderTop: "1px solid var(--border-subtle)",
+                  background: "var(--bg-subtle)",
+                }}>{footer}</div>
+              )}
+            </div>
+            <style>{`
+              @keyframes wlFade  { from{opacity:0} to{opacity:1} }
+              @keyframes wlScale { from{opacity:0; transform: translateY(8px) scale(.98)} to{opacity:1; transform:none} }
+            `}</style>
+          </div>
+        </Portal>
+      );
+    }
+
+    function AlertDialog({
+      open, onCancel, onConfirm,
+      title, description,
+      confirmLabel = "Confirm", cancelLabel = "Cancel",
+      variant = "info",
+    }) {
+      const variantStyles = {
+        info:    { bg: "var(--bg-info-subtle)",    fg: "var(--fg-info)" },
+        success: { bg: "var(--bg-success-subtle)", fg: "var(--fg-success)" },
+        warning: { bg: "var(--bg-warning-subtle)", fg: "var(--fg-warning)" },
+        danger:  { bg: "var(--bg-danger-subtle)",  fg: "var(--fg-danger)" },
+      }[variant];
+      const icons = { info: "info", success: "check-circle", warning: "alert-triangle", danger: "alert-octagon" };
+
+      return (
+        <Dialog open={open} onClose={onCancel} title={title} size="sm" closeOnBackdrop={false} hideClose={true}>
+          <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: "50%",
+              background: variantStyles.bg,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <Icon name={icons[variant]} size={22} color={variantStyles.fg} />
+            </div>
+            <div style={{ flex: 1 }}>
+              {description && <p style={{ margin: 0, fontSize: 14, color: "var(--fg-default)", lineHeight: 1.5 }}>{description}</p>}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <Button variant="outline" onClick={onCancel}>{cancelLabel}</Button>
+            <Button variant={variant} onClick={onConfirm}>{confirmLabel}</Button>
+          </div>
+        </Dialog>
+      );
+    }
+
+    const _toastBus = { listeners: new Set(), id: 0 };
+    function emitToast(toast) {
+      const item = { id: ++_toastBus.id, ts: Date.now(), ...toast };
+      _toastBus.listeners.forEach(fn => fn(item));
+      return item.id;
+    }
+
+    function Toaster({ position = "bottom-right", max = 4 }) {
+      const [items, setItems] = useState([]);
+      useEffect(() => {
+        const fn = (item) => {
+          if (item._dismiss) return setItems(arr => arr.filter(x => x.id !== item.id));
+          setItems(arr => [...arr, item].slice(-max));
+          const dur = item.duration ?? 4500;
+          if (dur > 0) setTimeout(() => setItems(arr => arr.filter(x => x.id !== item.id)), dur);
+        };
+        _toastBus.listeners.add(fn);
+        return () => { _toastBus.listeners.delete(fn); };
+      }, [max]);
+      const [vside, hside] = position.split("-");
+      const wrap = {
+        position: "fixed", zIndex: "var(--z-toast)",
+        display: "flex", flexDirection: vside === "top" ? "column-reverse" : "column", gap: 8,
+        pointerEvents: "none", padding: 24,
+        [vside]: 0,
+        [hside]: 0,
+        ...(hside === "center" ? { left: "50%", transform: "translateX(-50%)", right: "auto" } : {}),
+      };
+      return (
+        <Portal>
+          <div style={wrap}>
+            {items.map(it => (
+              <div key={it.id} role="status" style={{
+                pointerEvents: "auto",
+                background: "var(--bg-raised)", color: "var(--fg-default)",
+                border: `1px solid var(--border-subtle)`, borderRadius: "var(--radius-md)",
+                boxShadow: "var(--shadow-lg)",
+                padding: "12px 14px", minWidth: 280, maxWidth: 400,
+                display: "flex", alignItems: "flex-start", gap: 10,
+                animation: "wlScale 200ms var(--ease-out)",
+              }}>
+                {it.variant && (
+                  <Icon name={it.variant === "success" ? "check-circle" : it.variant === "danger" ? "alert-octagon" : it.variant === "warning" ? "alert-triangle" : "info"}
+                    size={18} color="var(--fg-muted)" style={{ marginTop: 1, flexShrink: 0 }} />
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {it.title && <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.3 }}>{it.title}</div>}
+                  {it.description && <div style={{ fontSize: 13, color: "var(--fg-muted)", marginTop: it.title ? 2 : 0, lineHeight: 1.45 }}>{it.description}</div>}
+                </div>
+                <button onClick={() => setItems(arr => arr.filter(x => x.id !== it.id))} aria-label="Dismiss" style={{ appearance: "none", border: 0, background: "transparent", cursor: "pointer", color: "var(--fg-muted)", padding: 2, marginTop: -2 }}>
+                  <Icon name="x" size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </Portal>
+      );
+    }
+
+    if (typeof window !== "undefined") {
+      window.toast = (opts) => emitToast(typeof opts === "string" ? { title: opts } : opts);
+      window.toast.success = (title, rest) => emitToast({ title, variant: "success", ...rest });
+      window.toast.error   = (title, rest) => emitToast({ title, variant: "danger",  ...rest });
+      window.toast.warning = (title, rest) => emitToast({ title, variant: "warning", ...rest });
+      window.toast.info    = (title, rest) => emitToast({ title, variant: "info",    ...rest });
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       INBOX APP
+       ═══════════════════════════════════════════════════════════════════════ */
+
     const SAMPLE_TASKS = [
       { id: 1, title: "Fix login button mobile responsive", status: "in-progress", priority: "high", assignee: "Alice", dueDate: "2026-05-30" },
       { id: 2, title: "Update API documentation", status: "open", priority: "medium", assignee: "Bob", dueDate: "2026-06-02" },
@@ -40,8 +716,6 @@
       { id: 7, title: "Prepare Q2 roadmap presentation", status: "done", priority: "medium", assignee: "Carol", dueDate: "2026-05-25" },
       { id: 8, title: "Update team onboarding docs", status: "in-progress", priority: "low", assignee: "Bob", dueDate: "2026-06-01" },
     ];
-
-    const { Sidebar, Input, Badge, Button, DataTable, AlertDialog, Toaster } = window;
 
     function formatDate(dateStr) {
       const date = new Date(dateStr);
@@ -82,10 +756,10 @@
     }
 
     function InboxApp() {
-      const [tasks, setTasks] = React.useState(SAMPLE_TASKS);
-      const [filter, setFilter] = React.useState("all");
-      const [deleteId, setDeleteId] = React.useState(null);
-      const [theme, setTheme] = React.useState("light");
+      const [tasks, setTasks] = useState(SAMPLE_TASKS);
+      const [filter, setFilter] = useState("all");
+      const [deleteId, setDeleteId] = useState(null);
+      const [theme, setTheme] = useState("light");
 
       const filteredTasks = filter === "all"
         ? tasks
@@ -109,7 +783,7 @@
       const sidebarItems = [
         { group: "Views" },
         { id: "all", label: "All Tasks", icon: "inbox", badge: inboxCount.toString() },
-        { id: "my", label: "My Tasks", icon: "user-check", badge: myTasksCount.toString() },
+        { id: "my", label: "My Tasks", icon: "check-square", badge: myTasksCount.toString() },
       ];
 
       const tableColumns = [
@@ -117,7 +791,7 @@
           key: "title",
           label: "Task",
           sortable: true,
-          width: "40%",
+          width: "35%",
         },
         {
           key: "status",
@@ -177,13 +851,13 @@
         {
           key: "actions",
           label: "",
-          width: "3%",
+          width: "8%",
           render: (row) => (
             <Button
               size="sm"
               variant="ghost"
               iconOnly
-              icon="trash-2"
+              leading="trash-2"
               ariaLabel="Delete task"
               onClick={() => setDeleteId(row.id)}
             />
@@ -192,8 +866,7 @@
       ];
 
       return (
-        <div className="app-wrapper">
-          {/* Sidebar */}
+        <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg-app)" }}>
           <Sidebar
             brand="Inbox"
             items={sidebarItems}
@@ -201,17 +874,25 @@
             onSelect={(id) => setFilter(id)}
           />
 
-          {/* Main Content */}
-          <div className="main-content">
-            {/* Top Bar */}
-            <div className="topbar">
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
+            <div style={{
+              padding: "var(--space-5)",
+              background: "var(--bg-canvas)",
+              borderBottom: "1px solid var(--border-subtle)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "var(--space-4)",
+              position: "sticky",
+              top: 0,
+              zIndex: 100
+            }}>
               <h1 style={{ margin: 0, fontSize: "var(--text-2xl)", color: "var(--fg-strong)" }}>
                 {filter === "all" ? "All Tasks" : "My Tasks"}
               </h1>
             </div>
 
-            {/* Content Area with DataTable */}
-            <div className="content-area">
+            <div style={{ flex: 1, padding: "var(--space-5)", overflow: "auto" }}>
               <DataTable
                 data={filteredTasks}
                 columns={tableColumns}
@@ -223,7 +904,6 @@
             </div>
           </div>
 
-          {/* Delete Confirmation Dialog */}
           {deleteId && (
             <AlertDialog
               open={!!deleteId}
@@ -236,12 +916,10 @@
             />
           )}
 
-          {/* Theme Toggle */}
           <button className="theme-toggle" onClick={handleThemeToggle}>
             {theme === "light" ? "🌙 Dark" : "☀️ Light"}
           </button>
 
-          {/* Toaster */}
           <Toaster position="bottom-right" />
         </div>
       );

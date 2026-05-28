@@ -111,10 +111,17 @@
 
     .brand-swatch-color {
       width: 100%;
-      height: 48px;
+      height: 60px;
       border-radius: var(--radius-sm);
-      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+      background: linear-gradient(135deg, var(--indigo-500), var(--indigo-700));
       margin-bottom: var(--space-2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all var(--dur-base);
+    }
+
+    .brand-swatch:hover .brand-swatch-color {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      transform: translateY(-2px);
     }
 
     .brand-swatch-label {
@@ -498,9 +505,14 @@ ${scriptTags}
 
       const handleClientTypeChange = (type) => {
         setClientType(type);
-        if (type === 'B2B') { setBrand('indigo'); setStyle('enterprise'); }
-        else if (type === 'Consumer') { setBrand('emerald'); setStyle('friendly'); }
-        else { setBrand('slate'); setStyle('data-dense'); }
+        let newBrand, newStyle;
+        if (type === 'B2B') { newBrand = 'indigo'; newStyle = 'enterprise'; }
+        else if (type === 'Consumer') { newBrand = 'emerald'; newStyle = 'friendly'; }
+        else { newBrand = 'slate'; newStyle = 'data-dense'; }
+        setBrand(newBrand);
+        setStyle(newStyle);
+        document.documentElement.dataset.brand = newBrand;
+        document.documentElement.dataset.style = newStyle;
       };
 
       const handleDescriptionChange = (value) => {
@@ -606,8 +618,8 @@ ${scriptTags}
                   {BRANDS.map(b => (
                     <div key={b}
                       className={`brand-swatch ${brand === b ? 'active' : ''}`}
-                      onClick={() => setBrand(b)}>
-                      <div className="brand-swatch-color" />
+                      onClick={() => { setBrand(b); document.documentElement.dataset.brand = b; }}>
+                      <div className="brand-swatch-color" style={{background: `linear-gradient(135deg, var(--${b}-500), var(--${b}-700))`}} />
                       <div className="brand-swatch-label">{b}</div>
                     </div>
                   ))}
@@ -620,7 +632,7 @@ ${scriptTags}
                   {STYLES.map(s => (
                     <div key={s.name}
                       className={`style-preset ${style === s.name ? 'active' : ''}`}
-                      onClick={() => setStyle(s.name)}>
+                      onClick={() => { setStyle(s.name); document.documentElement.dataset.style = s.name; }}>
                       <div className="style-preset-name">{s.name}</div>
                       <div className="style-preset-font">{s.font}</div>
                       <div className="style-preset-traits">

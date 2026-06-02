@@ -4,9 +4,11 @@ Welcome to the **Whitelabel Design System** — a brand-agnostic, token-driven U
 
 ## Quick Links
 
-- **[📖 Full Documentation](index.html)** — Interactive docs site (open in browser)
-- **[🎨 Component Examples](../examples/inbox/inbox.html)** — Live working examples
-- **[📦 Source Code](../src/whitelabel/)** — All component definitions
+- **[Developer Guide](guide.html)** — Fork → setup → build with Claude Code. Start here.
+- **[Component Docs](index.html)** — Full interactive component reference
+- **[Configurator](../configure/index.html)** — Visual brand/style picker, generates boilerplate
+- **[Component Examples](../examples/inbox/inbox.html)** — Live working examples
+- **[Source Code](../src/whitelabel/)** — All component definitions
 
 ## What's This?
 

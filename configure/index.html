@@ -94,6 +94,10 @@
       margin-bottom: var(--space-5);
     }
 
+    @media (max-width: 900px) {
+      .brand-swatches { grid-template-columns: repeat(4, 1fr); }
+    }
+
     .brand-swatch {
       cursor: pointer;
       border: 2px solid transparent;
@@ -327,7 +331,20 @@
   <script type="text/babel">
     const { useState } = React;
 
-    const BRANDS = ['indigo', 'violet', 'emerald', 'rose', 'amber', 'slate'];
+    const BRANDS = [
+      { name: 'indigo',  c500: '#6366f1', c700: '#4338ca' },
+      { name: 'violet',  c500: '#8b5cf6', c700: '#6d28d9' },
+      { name: 'fuchsia', c500: '#d946ef', c700: '#a21caf' },
+      { name: 'pink',    c500: '#ec4899', c700: '#be185d' },
+      { name: 'rose',    c500: '#f43f5e', c700: '#be123c' },
+      { name: 'red',     c500: '#ef4444', c700: '#b91c1c' },
+      { name: 'orange',  c500: '#f97316', c700: '#c2410c' },
+      { name: 'amber',   c500: '#f59e0b', c700: '#b45309' },
+      { name: 'emerald', c500: '#10b981', c700: '#047857' },
+      { name: 'teal',    c500: '#14b8a6', c700: '#0f766e' },
+      { name: 'cyan',    c500: '#06b6d4', c700: '#0e7490' },
+      { name: 'blue',    c500: '#3b82f6', c700: '#1d4ed8' },
+    ];
     const STYLES = [
       { name: 'standard', font: 'Inter', traits: ['Balanced', 'Modern', 'Clean'], best: 'New products, SaaS' },
       { name: 'enterprise', font: 'IBM Plex Sans', traits: ['Dense', 'Formal', 'Structured'], best: 'B2B, Admin, Legal' },
@@ -508,7 +525,7 @@ ${scriptTags}
         let newBrand, newStyle;
         if (type === 'B2B') { newBrand = 'indigo'; newStyle = 'enterprise'; }
         else if (type === 'Consumer') { newBrand = 'emerald'; newStyle = 'friendly'; }
-        else { newBrand = 'slate'; newStyle = 'data-dense'; }
+        else { newBrand = 'cyan'; newStyle = 'data-dense'; }
         setBrand(newBrand);
         setStyle(newStyle);
         document.documentElement.dataset.brand = newBrand;
@@ -569,6 +586,26 @@ ${scriptTags}
         a.download = `${projectName || 'project'}.html`;
         a.click();
         URL.revokeObjectURL(url);
+      };
+
+      const handleSaveConfig = () => {
+        const styleInfo = STYLES.find(s => s.name === style);
+        const config = {
+          name: projectName || 'My Project',
+          brand,
+          style,
+          theme,
+          size: 'md',
+          font: null,
+        };
+        const blob = new Blob([JSON.stringify(config, null, 2) + '\n'], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'project.config.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        window.toast?.success?.('project.config.json downloaded — place it in your repo root.');
       };
 
       const handleShareWithClaude = () => {
@@ -649,11 +686,11 @@ Start building now.`;
                 <label className="form-label">Brand Hue</label>
                 <div className="brand-swatches">
                   {BRANDS.map(b => (
-                    <div key={b}
-                      className={`brand-swatch ${brand === b ? 'active' : ''}`}
-                      onClick={() => { setBrand(b); document.documentElement.dataset.brand = b; }}>
-                      <div className="brand-swatch-color" style={{background: `linear-gradient(135deg, var(--${b}-500), var(--${b}-700))`}} />
-                      <div className="brand-swatch-label">{b}</div>
+                    <div key={b.name}
+                      className={`brand-swatch ${brand === b.name ? 'active' : ''}`}
+                      onClick={() => { setBrand(b.name); document.documentElement.dataset.brand = b.name; }}>
+                      <div className="brand-swatch-color" style={{background: `linear-gradient(135deg, ${b.c500}, ${b.c700})`}} />
+                      <div className="brand-swatch-label">{b.name}</div>
                     </div>
                   ))}
                 </div>
@@ -735,9 +772,12 @@ Start building now.`;
                 </div>
               )}
 
-              {description.trim() && projectName.trim() && (
-                <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-4)' }}>
-                  <Button variant="outline" size="sm" onClick={handleShareWithClaude}>📋 Share Settings with Claude</Button>
+              {projectName.trim() && (
+                <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-4)', flexWrap: 'wrap' }}>
+                  <Button variant="outline" size="sm" onClick={handleSaveConfig}>Save project.config.json</Button>
+                  {description.trim() && (
+                    <Button variant="outline" size="sm" onClick={handleShareWithClaude}>Copy Claude prompt</Button>
+                  )}
                 </div>
               )}
             </div>
@@ -768,14 +808,15 @@ Start building now.`;
                     <label className="form-label">HTML Boilerplate</label>
                     <div className="code-block">{boilerplate}</div>
                     <div className="code-actions">
-                      <Button size="sm" variant="outline" onClick={handleCopy}>Copy</Button>
-                      <Button size="sm" variant="outline" onClick={handleDownload}>Download</Button>
+                      <Button size="sm" variant="outline" onClick={handleCopy}>Copy HTML</Button>
+                      <Button size="sm" variant="outline" onClick={handleDownload}>Download HTML</Button>
+                      <Button size="sm" variant="outline" onClick={handleSaveConfig}>Save project.config.json</Button>
                       <Button size="sm" variant="primary" onClick={() => {
                         const blob = new Blob([boilerplate], { type: 'text/html' });
                         const url = URL.createObjectURL(blob);
                         window.open(url);
                       }}>Open Preview</Button>
-                      <Button size="sm" variant="primary" onClick={handleShareWithClaude} style={{background: 'linear-gradient(135deg, var(--brand-500), var(--brand-700))'}}>Share with Claude</Button>
+                      <Button size="sm" variant="primary" onClick={handleShareWithClaude} style={{background: 'linear-gradient(135deg, var(--brand-500), var(--brand-700))'}}>Copy Claude prompt</Button>
                     </div>
                   </div>
                 )}

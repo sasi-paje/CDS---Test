@@ -4,6 +4,7 @@
   "description": "Brand-agnostic white-label UI kit with semantic tokens, React components, and multiple style presets",
   "type": "module",
   "scripts": {
+    "setup": "node scripts/setup.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

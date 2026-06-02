@@ -267,8 +267,67 @@ function AlertDialog({ open, onCancel, onConfirm, title, description, confirmLab
   );
 }
 
+/* ─── DIRECTION — LTR / RTL provider + toggle ─────────────────────────────
+   White-label apps ship to RTL locales. <Direction dir="rtl"> sets the `dir`
+   attribute + CSS `direction` on a wrapper (and optionally the document), so
+   native flow, text alignment, and logical spacing mirror. `useDirection()`
+   lets components read the active direction (e.g. to flip a chevron).
+   Note: inline-styled components that hard-code left/right won't auto-mirror —
+   prefer logical properties or read useDirection() where it matters. */
+const DirectionContext = React.createContext("ltr");
+function useDirection() { return React.useContext(DirectionContext); }
+
+function Direction({ dir = "ltr", applyToDocument = false, children, style, className }) {
+  useSE3(() => {
+    if (!applyToDocument) return;
+    const root = document.documentElement;
+    const prev = root.getAttribute("dir");
+    root.setAttribute("dir", dir);
+    return () => { if (prev) root.setAttribute("dir", prev); else root.removeAttribute("dir"); };
+  }, [dir, applyToDocument]);
+  return (
+    <DirectionContext.Provider value={dir}>
+      <div dir={dir} className={className} style={{ direction: dir, ...style }}>{children}</div>
+    </DirectionContext.Provider>
+  );
+}
+
+function DirectionToggle({ value, defaultValue = "ltr", onChange, size = "md" }) {
+  const [internal, setInternal] = useSS(defaultValue);
+  const controlled = value !== undefined;
+  const dir = controlled ? value : internal;
+  const set = (d) => { if (!controlled) setInternal(d); onChange && onChange(d); };
+  const h = size === "sm" ? 30 : 36;
+  const opts = [{ v: "ltr", label: "LTR", icon: "align-left" }, { v: "rtl", label: "RTL", icon: "align-right" }];
+  return (
+    <div role="group" aria-label="Text direction" style={{
+      display: "inline-flex", padding: 3, gap: 2, background: "var(--bg-muted)",
+      borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)",
+    }}>
+      {opts.map(o => {
+        const active = dir === o.v;
+        return (
+          <button key={o.v} type="button" onClick={() => set(o.v)} aria-pressed={active} style={{
+            appearance: "none", border: 0, cursor: "pointer",
+            display: "inline-flex", alignItems: "center", gap: 6, height: h - 6, padding: "0 12px",
+            fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500,
+            color: active ? "var(--fg-default)" : "var(--fg-muted)",
+            background: active ? "var(--bg-surface)" : "transparent",
+            borderRadius: "var(--radius-sm)",
+            boxShadow: active ? "var(--shadow-xs)" : "none",
+            transition: "all var(--dur-fast) var(--ease-out)",
+          }}>
+            <Icon name={o.icon} size={15} />{o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 Object.assign(window, {
   Label, Toggle, AspectRatio, ButtonGroup,
   InputGroup, InputGroupAddon, InputGroupInput, InputGroupButton,
   Field, Item, Collapsible, ScrollArea, AlertDialog,
+  Direction, DirectionToggle, useDirection,
 });

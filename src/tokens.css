@@ -1,11 +1,14 @@
 /* =============================================================================
-   WHITE-LABEL DESIGN SYSTEM — TOKENS
-   Brand-agnostic foundation. Theme via [data-theme="light"|"dark"] and
-   [data-brand="indigo"|"emerald"|"violet"|"rose"|"amber"|"slate"] on <html>.
+   SASI DESIGN SYSTEM — TOKENS (built on the "Sumé" primitive palette)
+   White-label foundation. Theme via [data-theme="light"|"dark"] and
+   [data-brand="sasi"|"distributor"|"client"] on <html> (mirrors [data-product]).
    ============================================================================= */
 
-/* ---------- Fonts (all 5 style presets share this single import) ---------- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
+/* ---------- Fonts ---------- */
+/* Inter is served locally from uploaded brand files (../fonts/fonts.css);
+   the remaining preset families still load from Google Fonts. */
+@import url('../fonts/fonts.css');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* ===========================================================================
@@ -14,69 +17,125 @@
      Tuned for WCAG: step 600 ≥ 4.5:1 on white; step 50–100 ≥ 4.5:1 on step 700+.
      =========================================================================== */
 
-  /* Neutral (cool gray, slight blue) */
-  --neutral-0:    #FFFFFF;
-  --neutral-50:   #F8FAFC;
-  --neutral-100:  #F1F5F9;
-  --neutral-200:  #E2E8F0;
-  --neutral-300:  #CBD5E1;
-  --neutral-400:  #94A3B8;
-  --neutral-500:  #64748B;
-  --neutral-600:  #475569;
-  --neutral-700:  #334155;
-  --neutral-800:  #1E293B;
-  --neutral-900:  #0F172A;
-  --neutral-1000: #020617;
+  /* Neutral — SASI "Sumé" Gray ramp (cool, slightly blue) */
+  --neutral-0:    #fcfcfd;
+  --neutral-50:   #f0f2f4;
+  --neutral-100:  #e2e4e9;
+  --neutral-200:  #c4c9d4;
+  --neutral-300:  #a7afbe;
+  --neutral-400:  #8a94a8;
+  --neutral-500:  #6c7993;
+  --neutral-600:  #576175;
+  --neutral-700:  #414958;
+  --neutral-800:  #2b303b;
+  --neutral-900:  #1e2229;
+  --neutral-1000: #0a0b0b;
 
-  /* Hue families — each is a complete 50→900 scale */
-  --indigo-50:  #EEF2FF;  --indigo-100: #E0E7FF;  --indigo-200: #C7D2FE;
-  --indigo-300: #A5B4FC;  --indigo-400: #818CF8;  --indigo-500: #6366F1;
-  --indigo-600: #4F46E5;  --indigo-700: #4338CA;  --indigo-800: #3730A3;
-  --indigo-900: #312E81;
+  /* SASI brand products — each maps a Sumé hue family to a white-label tenant.
+     sasi = Primary Blue · distributor = Violet · client = Teal */
+  --sasi-50:  #e5efff;  --sasi-100: #ccdeff;  --sasi-200: #99bdff;
+  --sasi-300: #669dff;  --sasi-400: #337cff;  --sasi-500: #005bff;
+  --sasi-600: #0049cc;  --sasi-700: #003799;  --sasi-800: #002466;
+  --sasi-900: #001233;
 
-  --violet-50:  #F5F3FF;  --violet-100: #EDE9FE;  --violet-200: #DDD6FE;
-  --violet-300: #C4B5FD;  --violet-400: #A78BFA;  --violet-500: #8B5CF6;
-  --violet-600: #7C3AED;  --violet-700: #6D28D9;  --violet-800: #5B21B6;
-  --violet-900: #4C1D95;
+  --distributor-50:  #f2e7fd;  --distributor-100: #e6cffc;  --distributor-200: #cc9ff9;
+  --distributor-300: #b370f5;  --distributor-400: #9940f2;  --distributor-500: #8010ef;
+  --distributor-600: #660dbf;  --distributor-700: #4d0a8f;  --distributor-800: #330660;
+  --distributor-900: #1a0330;
 
-  --emerald-50:  #ECFDF5; --emerald-100: #D1FAE5; --emerald-200: #A7F3D0;
-  --emerald-300: #6EE7B7; --emerald-400: #34D399; --emerald-500: #10B981;
-  --emerald-600: #059669; --emerald-700: #047857; --emerald-800: #065F46;
-  --emerald-900: #064E3B;
+  --client-50:  #e6f5f3;  --client-100: #b0deda;  --client-200: #8acfc8;
+  --client-300: #54b9af;  --client-400: #33aba0;  --client-500: #009688;
+  --client-600: #00897c;  --client-700: #006b61;  --client-800: #00534b;
+  --client-900: #003f39;
 
-  --rose-50:  #FFF1F2;  --rose-100: #FFE4E6;  --rose-200: #FECDD3;
-  --rose-300: #FDA4AF;  --rose-400: #FB7185;  --rose-500: #F43F5E;
-  --rose-600: #E11D48;  --rose-700: #BE123C;  --rose-800: #9F1239;
-  --rose-900: #881337;
+  /* Additional white-label brand-hue families — each a full 50→900 ramp.
+     Combined with sasi(Blue)/distributor(Violet)/client(Teal) the system ships 12. */
+  --indigo-50:  #eef2ff;  --indigo-100: #e0e7ff;  --indigo-200: #c7d2fe;
+  --indigo-300: #a5b4fc;  --indigo-400: #818cf8;  --indigo-500: #6366f1;
+  --indigo-600: #4f46e5;  --indigo-700: #4338ca;  --indigo-800: #3730a3;
+  --indigo-900: #312e81;
 
-  --amber-50:  #FFFBEB;  --amber-100: #FEF3C7; --amber-200: #FDE68A;
-  --amber-300: #FCD34D;  --amber-400: #FBBF24; --amber-500: #F59E0B;
-  --amber-600: #D97706;  --amber-700: #B45309; --amber-800: #92400E;
-  --amber-900: #78350F;
+  --fuchsia-50:  #fdf4ff;  --fuchsia-100: #fae8ff;  --fuchsia-200: #f5d0fe;
+  --fuchsia-300: #f0abfc;  --fuchsia-400: #e879f9;  --fuchsia-500: #d946ef;
+  --fuchsia-600: #c026d3;  --fuchsia-700: #a21caf;  --fuchsia-800: #86198f;
+  --fuchsia-900: #701a75;
 
-  --sky-50:   #F0F9FF;   --sky-100:  #E0F2FE;  --sky-200:  #BAE6FD;
-  --sky-300:  #7DD3FC;   --sky-400:  #38BDF8;  --sky-500:  #0EA5E9;
-  --sky-600:  #0284C7;   --sky-700:  #0369A1;  --sky-800:  #075985;
-  --sky-900:  #0C4A6E;
+  --pink-50:  #fdf2f8;  --pink-100: #fce7f3;  --pink-200: #fbcfe8;
+  --pink-300: #f9a8d4;  --pink-400: #f472b6;  --pink-500: #ec4899;
+  --pink-600: #db2777;  --pink-700: #be185d;  --pink-800: #9d174d;
+  --pink-900: #831843;
 
-  --slate-50:  #F8FAFC;  --slate-100: #F1F5F9;  --slate-200: #E2E8F0;
-  --slate-300: #CBD5E1;  --slate-400: #94A3B8;  --slate-500: #64748B;
-  --slate-600: #475569;  --slate-700: #334155;  --slate-800: #1E293B;
-  --slate-900: #0F172A;
+  --rose-br-50:  #fff1f2;  --rose-br-100: #ffe4e6;  --rose-br-200: #fecdd3;
+  --rose-br-300: #fda4af;  --rose-br-400: #fb7185;  --rose-br-500: #f43f5e;
+  --rose-br-600: #e11d48;  --rose-br-700: #be123c;  --rose-br-800: #9f1239;
+  --rose-br-900: #881337;
+
+  --red-br-50:  #fef2f2;  --red-br-100: #fee2e2;  --red-br-200: #fecaca;
+  --red-br-300: #fca5a5;  --red-br-400: #f87171;  --red-br-500: #ef4444;
+  --red-br-600: #dc2626;  --red-br-700: #b91c1c;  --red-br-800: #991b1b;
+  --red-br-900: #7f1d1d;
+
+  --orange-50:  #fff7ed;  --orange-100: #ffedd5;  --orange-200: #fed7aa;
+  --orange-300: #fdba74;  --orange-400: #fb923c;  --orange-500: #f97316;
+  --orange-600: #ea580c;  --orange-700: #c2410c;  --orange-800: #9a3412;
+  --orange-900: #7c2d12;
+
+  --amber-br-50:  #fffbeb;  --amber-br-100: #fef3c7;  --amber-br-200: #fde68a;
+  --amber-br-300: #fcd34d;  --amber-br-400: #fbbf24;  --amber-br-500: #f59e0b;
+  --amber-br-600: #d97706;  --amber-br-700: #b45309;  --amber-br-800: #92400e;
+  --amber-br-900: #78350f;
+
+  --emerald-br-50:  #ecfdf5;  --emerald-br-100: #d1fae5;  --emerald-br-200: #a7f3d0;
+  --emerald-br-300: #6ee7b7;  --emerald-br-400: #34d399;  --emerald-br-500: #10b981;
+  --emerald-br-600: #059669;  --emerald-br-700: #047857;  --emerald-br-800: #065f46;
+  --emerald-br-900: #064e3b;
+
+  --cyan-50:  #ecfeff;  --cyan-100: #cffafe;  --cyan-200: #a5f3fc;
+  --cyan-300: #67e8f9;  --cyan-400: #22d3ee;  --cyan-500: #06b6d4;
+  --cyan-600: #0891b2;  --cyan-700: #0e7490;  --cyan-800: #155e75;
+  --cyan-900: #164e63;
+
+  /* Status hue families (Sumé Green / Yellow / Red / Primary-blue for info).
+     Names kept generic so the semantic layer below can reference them unchanged. */
+  --emerald-50:  #e7f9f4; --emerald-100: #b4ebde; --emerald-200: #8fe2ce;
+  --emerald-300: #5cd5b8; --emerald-400: #3dcdaa; --emerald-500: #0cc095;
+  --emerald-600: #0baf88; --emerald-700: #09886a; --emerald-800: #076a52;
+  --emerald-900: #033328;
+
+  --rose-50:  #fdeae8;  --rose-100: #fbd6d0;  --rose-200: #f6aca2;
+  --rose-300: #f28373;  --rose-400: #ed5945;  --rose-500: #e93016;
+  --rose-600: #ba2612;  --rose-700: #8c1d0d;  --rose-800: #5d1309;
+  --rose-900: #2f0a04;
+
+  --amber-50:  #fff8e5;  --amber-100: #fff1cc; --amber-200: #ffe299;
+  --amber-300: #ffd466;  --amber-400: #ffc633; --amber-500: #ffb800;
+  --amber-600: #cc9300;  --amber-700: #996e00; --amber-800: #664900;
+  --amber-900: #332500;
+
+  --sky-50:   #e5efff;   --sky-100:  #ccdeff;  --sky-200:  #99bdff;
+  --sky-300:  #669dff;   --sky-400:  #337cff;  --sky-500:  #005bff;
+  --sky-600:  #0049cc;   --sky-700:  #003799;  --sky-800:  #002466;
+  --sky-900:  #001233;
+
+  /* Sumé accent families (available for charts / illustration, not brand) */
+  --violet-500: #8010ef; --violet-600: #660dbf;
+  --teal-500:   #009688; --teal-600:   #00897c;
+  --tangerine-500: #ff5722; --tangerine-600: #e84f1f;
 
   /* ===========================================================================
-     BRAND scale — re-aliased per [data-brand] on :root. Default: indigo.
+     BRAND scale — re-aliased per [data-brand] on :root. Default: SASI.
+     [data-brand] values: "sasi" | "distributor" | "client"
      =========================================================================== */
-  --brand-50:  var(--indigo-50);
-  --brand-100: var(--indigo-100);
-  --brand-200: var(--indigo-200);
-  --brand-300: var(--indigo-300);
-  --brand-400: var(--indigo-400);
-  --brand-500: var(--indigo-500);
-  --brand-600: var(--indigo-600);
-  --brand-700: var(--indigo-700);
-  --brand-800: var(--indigo-800);
-  --brand-900: var(--indigo-900);
+  --brand-50:  var(--sasi-50);
+  --brand-100: var(--sasi-100);
+  --brand-200: var(--sasi-200);
+  --brand-300: var(--sasi-300);
+  --brand-400: var(--sasi-400);
+  --brand-500: var(--sasi-500);
+  --brand-600: var(--sasi-600);
+  --brand-700: var(--sasi-700);
+  --brand-800: var(--sasi-800);
+  --brand-900: var(--sasi-900);
 
   /* ===========================================================================
      CONTROL GEOMETRY — buttons, inputs, selects.
@@ -371,14 +430,27 @@
 }
 
 /* =============================================================================
-   BRAND HUE OVERRIDES — set [data-brand] on :root to repaint the brand-* scale.
+   BRAND / PRODUCT OVERRIDES — set [data-brand] (a.k.a. product) on :root to
+   repaint the brand-* scale. Mirrors the SASI codebase's [data-product].
    ============================================================================= */
+:root[data-brand="sasi"]        { --brand-50:var(--sasi-50);--brand-100:var(--sasi-100);--brand-200:var(--sasi-200);--brand-300:var(--sasi-300);--brand-400:var(--sasi-400);--brand-500:var(--sasi-500);--brand-600:var(--sasi-600);--brand-700:var(--sasi-700);--brand-800:var(--sasi-800);--brand-900:var(--sasi-900); }
+:root[data-brand="distributor"] { --brand-50:var(--distributor-50);--brand-100:var(--distributor-100);--brand-200:var(--distributor-200);--brand-300:var(--distributor-300);--brand-400:var(--distributor-400);--brand-500:var(--distributor-500);--brand-600:var(--distributor-600);--brand-700:var(--distributor-700);--brand-800:var(--distributor-800);--brand-900:var(--distributor-900); }
+:root[data-brand="client"]      { --brand-50:var(--client-50);--brand-100:var(--client-100);--brand-200:var(--client-200);--brand-300:var(--client-300);--brand-400:var(--client-400);--brand-500:var(--client-500);--brand-600:var(--client-600);--brand-700:var(--client-700);--brand-800:var(--client-800);--brand-900:var(--client-900); }
+
+/* Hue-named themes — the canonical white-label set (12 total). The legacy
+   sasi/distributor/client keys above remain as aliases for blue/violet/teal. */
+:root[data-brand="blue"]    { --brand-50:var(--sasi-50);--brand-100:var(--sasi-100);--brand-200:var(--sasi-200);--brand-300:var(--sasi-300);--brand-400:var(--sasi-400);--brand-500:var(--sasi-500);--brand-600:var(--sasi-600);--brand-700:var(--sasi-700);--brand-800:var(--sasi-800);--brand-900:var(--sasi-900); }
 :root[data-brand="indigo"]  { --brand-50:var(--indigo-50);--brand-100:var(--indigo-100);--brand-200:var(--indigo-200);--brand-300:var(--indigo-300);--brand-400:var(--indigo-400);--brand-500:var(--indigo-500);--brand-600:var(--indigo-600);--brand-700:var(--indigo-700);--brand-800:var(--indigo-800);--brand-900:var(--indigo-900); }
-:root[data-brand="violet"]  { --brand-50:var(--violet-50);--brand-100:var(--violet-100);--brand-200:var(--violet-200);--brand-300:var(--violet-300);--brand-400:var(--violet-400);--brand-500:var(--violet-500);--brand-600:var(--violet-600);--brand-700:var(--violet-700);--brand-800:var(--violet-800);--brand-900:var(--violet-900); }
-:root[data-brand="emerald"] { --brand-50:var(--emerald-50);--brand-100:var(--emerald-100);--brand-200:var(--emerald-200);--brand-300:var(--emerald-300);--brand-400:var(--emerald-400);--brand-500:var(--emerald-500);--brand-600:var(--emerald-600);--brand-700:var(--emerald-700);--brand-800:var(--emerald-800);--brand-900:var(--emerald-900); }
-:root[data-brand="rose"]    { --brand-50:var(--rose-50);--brand-100:var(--rose-100);--brand-200:var(--rose-200);--brand-300:var(--rose-300);--brand-400:var(--rose-400);--brand-500:var(--rose-500);--brand-600:var(--rose-600);--brand-700:var(--rose-700);--brand-800:var(--rose-800);--brand-900:var(--rose-900); }
-:root[data-brand="amber"]   { --brand-50:var(--amber-50);--brand-100:var(--amber-100);--brand-200:var(--amber-200);--brand-300:var(--amber-300);--brand-400:var(--amber-400);--brand-500:var(--amber-500);--brand-600:var(--amber-600);--brand-700:var(--amber-700);--brand-800:var(--amber-800);--brand-900:var(--amber-900); }
-:root[data-brand="slate"]   { --brand-50:var(--slate-50);--brand-100:var(--slate-100);--brand-200:var(--slate-200);--brand-300:var(--slate-300);--brand-400:var(--slate-400);--brand-500:var(--slate-500);--brand-600:var(--slate-600);--brand-700:var(--slate-700);--brand-800:var(--slate-800);--brand-900:var(--slate-900); }
+:root[data-brand="violet"]  { --brand-50:var(--distributor-50);--brand-100:var(--distributor-100);--brand-200:var(--distributor-200);--brand-300:var(--distributor-300);--brand-400:var(--distributor-400);--brand-500:var(--distributor-500);--brand-600:var(--distributor-600);--brand-700:var(--distributor-700);--brand-800:var(--distributor-800);--brand-900:var(--distributor-900); }
+:root[data-brand="fuchsia"] { --brand-50:var(--fuchsia-50);--brand-100:var(--fuchsia-100);--brand-200:var(--fuchsia-200);--brand-300:var(--fuchsia-300);--brand-400:var(--fuchsia-400);--brand-500:var(--fuchsia-500);--brand-600:var(--fuchsia-600);--brand-700:var(--fuchsia-700);--brand-800:var(--fuchsia-800);--brand-900:var(--fuchsia-900); }
+:root[data-brand="pink"]    { --brand-50:var(--pink-50);--brand-100:var(--pink-100);--brand-200:var(--pink-200);--brand-300:var(--pink-300);--brand-400:var(--pink-400);--brand-500:var(--pink-500);--brand-600:var(--pink-600);--brand-700:var(--pink-700);--brand-800:var(--pink-800);--brand-900:var(--pink-900); }
+:root[data-brand="rose"]    { --brand-50:var(--rose-br-50);--brand-100:var(--rose-br-100);--brand-200:var(--rose-br-200);--brand-300:var(--rose-br-300);--brand-400:var(--rose-br-400);--brand-500:var(--rose-br-500);--brand-600:var(--rose-br-600);--brand-700:var(--rose-br-700);--brand-800:var(--rose-br-800);--brand-900:var(--rose-br-900); }
+:root[data-brand="red"]     { --brand-50:var(--red-br-50);--brand-100:var(--red-br-100);--brand-200:var(--red-br-200);--brand-300:var(--red-br-300);--brand-400:var(--red-br-400);--brand-500:var(--red-br-500);--brand-600:var(--red-br-600);--brand-700:var(--red-br-700);--brand-800:var(--red-br-800);--brand-900:var(--red-br-900); }
+:root[data-brand="orange"]  { --brand-50:var(--orange-50);--brand-100:var(--orange-100);--brand-200:var(--orange-200);--brand-300:var(--orange-300);--brand-400:var(--orange-400);--brand-500:var(--orange-500);--brand-600:var(--orange-600);--brand-700:var(--orange-700);--brand-800:var(--orange-800);--brand-900:var(--orange-900); }
+:root[data-brand="amber"]   { --brand-50:var(--amber-br-50);--brand-100:var(--amber-br-100);--brand-200:var(--amber-br-200);--brand-300:var(--amber-br-300);--brand-400:var(--amber-br-400);--brand-500:var(--amber-br-500);--brand-600:var(--amber-br-600);--brand-700:var(--amber-br-700);--brand-800:var(--amber-br-800);--brand-900:var(--amber-br-900); }
+:root[data-brand="emerald"] { --brand-50:var(--emerald-br-50);--brand-100:var(--emerald-br-100);--brand-200:var(--emerald-br-200);--brand-300:var(--emerald-br-300);--brand-400:var(--emerald-br-400);--brand-500:var(--emerald-br-500);--brand-600:var(--emerald-br-600);--brand-700:var(--emerald-br-700);--brand-800:var(--emerald-br-800);--brand-900:var(--emerald-br-900); }
+:root[data-brand="teal"]    { --brand-50:var(--client-50);--brand-100:var(--client-100);--brand-200:var(--client-200);--brand-300:var(--client-300);--brand-400:var(--client-400);--brand-500:var(--client-500);--brand-600:var(--client-600);--brand-700:var(--client-700);--brand-800:var(--client-800);--brand-900:var(--client-900); }
+:root[data-brand="cyan"]    { --brand-50:var(--cyan-50);--brand-100:var(--cyan-100);--brand-200:var(--cyan-200);--brand-300:var(--cyan-300);--brand-400:var(--cyan-400);--brand-500:var(--cyan-500);--brand-600:var(--cyan-600);--brand-700:var(--cyan-700);--brand-800:var(--cyan-800);--brand-900:var(--cyan-900); }
 
 /* =============================================================================
    BASE
@@ -783,4 +855,241 @@ a:focus-visible { outline: none; box-shadow: var(--ring-focus); border-radius: v
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
   --shadow-lg: 0 4px 10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
   --shadow-xl: 0 8px 20px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* =============================================================================
+   COMPONENT TOKEN LAYER
+   ─────────────────────────────────────────────────────────────────────────
+   Component-scoped semantics, modelled on the production "Sumé" (zeroheight)
+   token set. Every value DERIVES from the role-semantic layer above (or an
+   alpha tint of it), so all of this adapts automatically across the 12 brands,
+   light/dark themes, and 5 style presets — no per-theme duplication needed.
+
+   Interaction tints follow Sumé's convention: subtle hover/active states are
+   an alpha wash of brand (selected/primary affordances) or of --fg-default
+   (neutral affordances). Because --fg-default flips with the theme, a dark-ink
+   wash in light mode becomes a white wash in dark mode for free.
+   ============================================================================= */
+:root {
+  /* ---- interaction wash primitives (reused below) ---- */
+  --wash-brand-weak:    color-mix(in oklab, var(--brand-500) 8%,  transparent);
+  --wash-brand-medium:  color-mix(in oklab, var(--brand-500) 14%, transparent);
+  --wash-brand-strong:  color-mix(in oklab, var(--brand-500) 22%, transparent);
+  --wash-ink-weak:      color-mix(in oklab, var(--fg-default) 4%,  transparent);
+  --wash-ink-medium:    color-mix(in oklab, var(--fg-default) 8%,  transparent);
+  --wash-ink-strong:    color-mix(in oklab, var(--fg-default) 16%, transparent);
+
+  /* ---- PAGE / SHELL ---- */
+  --page-bg:            var(--bg-app);
+  --page-content-bg:    var(--bg-canvas);
+
+  /* ---- SIDEBAR ---- */
+  --sidebar-bg:             var(--bg-canvas);
+  --sidebar-item-hover:     var(--wash-brand-weak);
+  --sidebar-item-active:    var(--bg-brand-subtle);
+  --sidebar-rail:           var(--border-subtle);
+  --sidebar-rail-active:    var(--bg-brand);
+  --sidebar-fg:             var(--fg-muted);
+  --sidebar-fg-active:      var(--fg-strong);
+  --sidebar-fg-gray:        var(--fg-subtle);
+  --sidebar-fg-header:      var(--fg-strong);
+
+  /* ---- TABS (horizontal + vertical) ---- */
+  --tab-fg:                 var(--fg-muted);
+  --tab-fg-selected:        var(--fg-strong);
+  --tab-fg-disabled:        var(--fg-disabled);
+  --tab-bg-hover:           var(--wash-brand-weak);
+  --tab-bg-selected:        var(--wash-brand-medium);
+  --tab-border-selected:    var(--bg-brand);
+
+  /* ---- BUTTONS ---- */
+  /* primary (brand) */
+  --btn-primary-bg:         var(--bg-brand);
+  --btn-primary-bg-hover:   var(--bg-brand-hover);
+  --btn-primary-bg-active:  var(--bg-brand-active);
+  --btn-primary-fg:         var(--fg-on-brand);
+  /* danger (solid) */
+  --btn-danger-bg:          var(--bg-danger);
+  --btn-danger-bg-hover:    color-mix(in oklab, var(--bg-danger) 82%, black);
+  --btn-danger-bg-active:   color-mix(in oklab, var(--bg-danger) 68%, black);
+  --btn-danger-fg:          var(--neutral-0);
+  /* disabled (any variant) */
+  --btn-disabled-bg:        var(--bg-muted);
+  --btn-disabled-fg:        var(--fg-disabled);
+  /* tertiary / ghost — neutral */
+  --btn-ghost-hover:        var(--wash-ink-weak);
+  --btn-ghost-active:       var(--wash-ink-medium);
+  /* tertiary / ghost — brand */
+  --btn-ghost-brand-hover:  var(--wash-brand-weak);
+  --btn-ghost-brand-active: var(--wash-brand-medium);
+  /* tertiary / ghost — error */
+  --btn-ghost-danger-hover:  var(--bg-danger-subtle);
+  --btn-ghost-danger-active: color-mix(in oklab, var(--bg-danger) 18%, transparent);
+
+  /* ---- INPUTS ---- */
+  --input-bg:           var(--bg-surface);
+  --input-bg-active:    var(--wash-ink-weak);
+  --input-bg-disabled:  var(--bg-muted);
+  --input-bg-error:     var(--bg-danger-subtle);
+  --input-bg-success:   var(--bg-success-subtle);   /* NEW — positive field state */
+  --input-border:           var(--border-default);
+  --input-border-hover:     var(--border-strong);
+  --input-border-active:    var(--border-focus);
+  --input-border-error:     var(--border-danger);
+  --input-border-success:   var(--border-success);
+  --input-fg-placeholder:   var(--fg-subtle);
+
+  /* ---- TABLE ---- */
+  --table-header-bg:    var(--bg-subtle);
+  --table-footer-bg:    var(--bg-subtle);
+  --table-row-bg:       transparent;
+  --table-row-stripe:   color-mix(in oklab, var(--fg-default) 2.5%, transparent);  /* zebra */
+  --table-row-hover:    var(--bg-subtle);
+  --table-row-selected: var(--bg-brand-subtle);
+  --table-border:       var(--border-subtle);
+
+  /* ---- CARD ---- */
+  --card-bg:            var(--bg-surface);
+  --card-bg-tint:       var(--wash-brand-weak);     /* translucent card variant */
+  --card-bg-hover:      var(--wash-brand-medium);
+  --card-border:        var(--border-subtle);
+
+  /* ---- POPOVER / DROPDOWN / MENU ---- */
+  --popover-bg:          var(--bg-surface);
+  --popover-item-hover:  var(--wash-ink-weak);
+  --popover-item-active: var(--bg-brand-subtle);
+  --popover-border:      var(--border-subtle);
+
+  /* ---- DIALOG / MODAL ---- */
+  --dialog-bg:          var(--bg-surface);
+  --dialog-backdrop:    var(--bg-overlay);
+
+  /* ---- FLYOUT / SHEET / DRAWER ---- */
+  --flyout-header-bg:   var(--bg-canvas);
+  --flyout-content-bg:  var(--bg-subtle);
+  --flyout-border:      var(--border-subtle);
+
+  /* ---- TOAST ---- */
+  --toast-bg:               var(--bg-inverse);
+  --toast-fg:               var(--fg-inverse);
+  --toast-success-bg:       var(--bg-success);
+  --toast-success-subtle:   var(--bg-success-subtle);
+  --toast-warning-bg:       var(--bg-warning);
+  --toast-warning-subtle:   var(--bg-warning-subtle);
+  --toast-danger-bg:        var(--bg-danger);
+  --toast-danger-subtle:    var(--bg-danger-subtle);
+
+  /* ---- CHIP ---- */
+  --chip-bg:            var(--wash-ink-medium);
+  --chip-bg-brand:      var(--bg-brand-subtle);
+
+  /* ---- TOOLTIP ---- */
+  --tooltip-bg:           var(--bg-inverse);
+  --tooltip-fg:           var(--fg-inverse);
+  --tooltip-shortcut-bg:  color-mix(in oklab, var(--fg-inverse) 16%, transparent);
+
+  /* ---- SCROLLBAR ---- */
+  --scroll-thumb:         var(--wash-ink-strong);
+  --scroll-thumb-hover:   color-mix(in oklab, var(--fg-default) 24%, transparent);
+  --scroll-track:         var(--wash-ink-weak);
+
+  /* ---- DRAG & DROP ---- */
+  --dnd-bg:               var(--bg-canvas);
+  --dnd-bg-hover:         var(--bg-brand-subtle);
+  --dnd-border:           var(--border-default);
+  --dnd-border-active:    var(--bg-brand);
+
+  /* ---- ICON FILLS — parity set mirroring text colors ---- */
+  --fill-default:       var(--fg-default);
+  --fill-strong:        var(--fg-strong);
+  --fill-muted:         var(--fg-muted);
+  --fill-subtle:        var(--fg-subtle);
+  --fill-disabled:      var(--fg-disabled);
+  --fill-on-brand:      var(--fg-on-brand);
+  --fill-brand:         var(--fg-brand);
+  --fill-link:          var(--fg-link);
+  --fill-success:       var(--fg-success);
+  --fill-warning:       var(--fg-warning);
+  --fill-danger:        var(--fg-danger);
+  --fill-info:          var(--fg-info);
+
+  /* ---- LOGO ---- */
+  --logo-fg:            var(--fg-strong);
+  --logo-accent:        var(--bg-danger);   /* SASI mark red */
+}
+
+/* A couple of component tokens want a wider gap from their surface in DARK so
+   washes don't disappear on near-black. Bump the neutral washes only. */
+:root[data-theme="dark"] {
+  --wash-ink-weak:    color-mix(in oklab, var(--fg-default) 6%,  transparent);
+  --wash-ink-medium:  color-mix(in oklab, var(--fg-default) 10%, transparent);
+  --wash-ink-strong:  color-mix(in oklab, var(--fg-default) 20%, transparent);
+  --table-row-stripe: color-mix(in oklab, var(--fg-default) 4%,  transparent);
+}
+
+/* =============================================================================
+   CONTRAST MODES — set [data-contrast] on :root (or any subtree) to retune the
+   separation between text, borders and surfaces.
+     (default)               contrast-proof — WCAG-AA reliable baseline
+     [data-contrast=smooth]  delicate — softened ink, hairline borders, gentle motion
+     [data-contrast=high]    maximum — near-pure ink, strong borders, crisp surfaces
+   Each mode is defined for both light and dark themes.
+   ============================================================================= */
+/* ---- LIGHT ---- */
+[data-contrast="smooth"],
+:root[data-theme="light"][data-contrast="smooth"] {
+  --fg-strong:   var(--neutral-900);
+  --fg-default:  var(--neutral-800);
+  --fg-muted:    var(--neutral-500);
+  --fg-subtle:   var(--neutral-400);
+  --fg-disabled: var(--neutral-300);
+  --border-subtle:  var(--neutral-100);
+  --border-default: var(--neutral-200);
+  --border-strong:  var(--neutral-300);
+  --bg-app:   var(--neutral-0);
+  --bg-muted: var(--neutral-50);
+  --dur-fast: 220ms; --dur-base: 320ms; --dur-default: 320ms; --ease-default: var(--ease-in-out);
+}
+[data-contrast="high"],
+:root[data-theme="light"][data-contrast="high"] {
+  --fg-strong:   #000000;
+  --fg-default:  #000000;
+  --fg-muted:    var(--neutral-800);
+  --fg-subtle:   var(--neutral-700);
+  --fg-disabled: var(--neutral-600);
+  --border-subtle:  var(--neutral-400);
+  --border-default: var(--neutral-600);
+  --border-strong:  var(--neutral-800);
+  --bg-app:     #ffffff;
+  --bg-canvas:  #ffffff;
+  --bg-surface: #ffffff;
+  --bg-muted:   var(--neutral-100);
+  --ring-width: 3px;
+}
+/* ---- DARK ---- */
+:root[data-theme="dark"][data-contrast="smooth"] {
+  --fg-strong:   var(--neutral-100);
+  --fg-default:  var(--neutral-300);
+  --fg-muted:    var(--neutral-500);
+  --fg-subtle:   var(--neutral-600);
+  --fg-disabled: var(--neutral-700);
+  --border-subtle:  var(--neutral-900);
+  --border-default: var(--neutral-800);
+  --border-strong:  var(--neutral-700);
+  --dur-fast: 220ms; --dur-base: 320ms; --dur-default: 320ms; --ease-default: var(--ease-in-out);
+}
+:root[data-theme="dark"][data-contrast="high"] {
+  --fg-strong:   #ffffff;
+  --fg-default:  #ffffff;
+  --fg-muted:    var(--neutral-200);
+  --fg-subtle:   var(--neutral-300);
+  --fg-disabled: var(--neutral-400);
+  --border-subtle:  var(--neutral-600);
+  --border-default: var(--neutral-400);
+  --border-strong:  var(--neutral-200);
+  --bg-app:     #000000;
+  --bg-canvas:  #000000;
+  --bg-surface: #000000;
+  --bg-muted:   var(--neutral-900);
+  --ring-width: 3px;
 }

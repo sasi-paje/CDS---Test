@@ -120,7 +120,7 @@ function IconButton({ icon, ariaLabel, ...rest }) {
    INPUT — text input with leading/trailing slots, hint, error
    ───────────────────────────────────────────────────────────────────────── */
 function Input({
-  label, hint, error, required,
+  label, hint, error, success, required,
   value, defaultValue, onChange, onBlur, onFocus,
   placeholder, type = "text", disabled, readOnly,
   leading, trailing, size = "md", id,
@@ -134,7 +134,10 @@ function Input({
     lg: { h: "var(--ctl-h-lg)", fs: "var(--ctl-fs-lg)", px: "var(--ctl-px-lg)", ic: "var(--ctl-ic-lg)" },
   };
   const sz = sizeMap[size];
+  // valid/success is a positive sibling of error — never show both; error wins.
+  const isSuccess = success && !error;
   const borderColor = error ? "var(--border-danger)"
+    : isSuccess ? "var(--border-success)"
     : focus ? "var(--border-focus)" : "var(--border-default)";
   return (
     <label htmlFor={autoId.current} style={{
@@ -177,11 +180,12 @@ function Input({
           }}
         />
         {trailing && <Icon name={trailing} size={sz.ic} color="var(--fg-muted)" />}
+        {isSuccess && !trailing && <Icon name="check-circle" size={sz.ic} color="var(--fg-success)" />}
       </div>
       {hint && (
         <span id={autoId.current + "_hint"} style={{
           fontSize: 12, lineHeight: 1.4,
-          color: error ? "var(--fg-danger)" : "var(--fg-muted)",
+          color: error ? "var(--fg-danger)" : isSuccess ? "var(--fg-success)" : "var(--fg-muted)",
         }}>{hint}</span>
       )}
     </label>
@@ -670,8 +674,84 @@ function Kbd({ children }) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   TYPOGRAPHY — renders the semantic type scale as a component.
+   variant: display | h1–h6 | body-lg | body | body-sm | caption | label | overline | mono
+   Maps 1:1 to the .t-* classes in tokens.css; `as` overrides the element.
+   ───────────────────────────────────────────────────────────────────────── */
+function Typography({ variant = "body", as, align, color, weight, truncate, children, style, className, ...rest }) {
+  const tagMap = {
+    display: "h1", h1: "h1", h2: "h2", h3: "h3", h4: "h4", h5: "h5", h6: "h6",
+    "body-lg": "p", body: "p", "body-sm": "p",
+    caption: "span", label: "span", overline: "div", mono: "span",
+  };
+  const Tag = as || tagMap[variant] || "p";
+  const cls = `t-${variant}${className ? " " + className : ""}`;
+  return (
+    <Tag className={cls} style={{
+      margin: 0,
+      ...(align ? { textAlign: align } : {}),
+      ...(color ? { color } : {}),
+      ...(weight ? { fontWeight: weight } : {}),
+      ...(truncate ? { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } : {}),
+      ...style,
+    }} {...rest}>{children}</Tag>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   RADIO GROUP — manages a set of Radios under one name + value.
+   <RadioGroup value={v} onChange={setV} options={[{value,label,hint?,disabled?}]} />
+   Also accepts <Radio> children (their `name`/`checked`/`onChange` are injected).
+   ───────────────────────────────────────────────────────────────────────── */
+function RadioGroup({
+  value, defaultValue, onChange, name, options,
+  orientation = "vertical", label, hint, error, required, disabled, children,
+}) {
+  const [internal, setInternal] = useState(defaultValue);
+  const controlled = value !== undefined;
+  const val = controlled ? value : internal;
+  const groupName = useRef(name || "rg_" + Math.random().toString(36).slice(2, 9));
+  const select = (v) => { if (!controlled) setInternal(v); onChange && onChange(v); };
+
+  const radios = options
+    ? options.map(o => {
+        const ov = typeof o === "object" ? o.value : o;
+        const ol = typeof o === "object" ? o.label : o;
+        const oh = typeof o === "object" ? o.hint : undefined;
+        const od = disabled || (typeof o === "object" && o.disabled) || false;
+        return <Radio key={ov} value={ov} name={groupName.current} checked={val === ov} onChange={select} disabled={od} label={ol} hint={oh} />;
+      })
+    : React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child;
+        return React.cloneElement(child, {
+          name: groupName.current,
+          checked: val === child.props.value,
+          onChange: select,
+          disabled: disabled || child.props.disabled,
+        });
+      });
+
+  return (
+    <fieldset role="radiogroup" aria-required={required || undefined} aria-invalid={error || undefined}
+      style={{ border: 0, margin: 0, padding: 0, minWidth: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+      {label && (
+        <legend style={{ padding: 0, fontSize: 13, fontWeight: 500, color: "var(--fg-default)", lineHeight: 1.3 }}>
+          {label}{required && <span style={{ color: "var(--fg-danger)", marginLeft: 2 }}>*</span>}
+        </legend>
+      )}
+      <div style={{ display: "flex", flexDirection: orientation === "horizontal" ? "row" : "column", gap: orientation === "horizontal" ? 20 : 10, flexWrap: orientation === "horizontal" ? "wrap" : "nowrap" }}>
+        {radios}
+      </div>
+      {(hint || error) && (
+        <span style={{ fontSize: 12, lineHeight: 1.4, color: error ? "var(--fg-danger)" : "var(--fg-muted)" }}>{error || hint}</span>
+      )}
+    </fieldset>
+  );
+}
+
 Object.assign(window, {
   Icon, Button, IconButton, Input, Textarea, Select,
-  Checkbox, Radio, Switch, Badge, Avatar, AvatarGroup,
-  Card, Spinner, Alert, Tooltip, Progress, Tabs, Breadcrumbs, Kbd,
+  Checkbox, Radio, RadioGroup, Switch, Badge, Avatar, AvatarGroup,
+  Card, Spinner, Alert, Tooltip, Progress, Tabs, Breadcrumbs, Kbd, Typography,
 });

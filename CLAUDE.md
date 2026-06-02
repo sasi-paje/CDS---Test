@@ -1,20 +1,25 @@
 # Custom Design System
 
-A brand-agnostic UI kit built on semantic tokens. Swap brand hue and light/dark theme on the `<html>` element; every component reflows.
+A brand-agnostic, white-label UI kit built on semantic tokens. Swap brand hue, light/dark theme, and density preset on the `<html>` element; every component reflows with no rebuild.
 
 ## What's here
 
 - **`Whitelabel UI Kit.html`** — the showcase. Foundations + every component spec card with working JSX inline. Open it to pick the brand hue, theme, and copy any component's source.
-- **`src/whitelabel/tokens.css`** — the only stylesheet you need. Defines the primitive scales (`--neutral-*`, `--indigo-*`, etc.), the **semantic layer** (`--fg-*`, `--bg-*`, `--border-*`, `--space-*`, `--radius-*`, `--shadow-*`, `--text-*`, `--dur-*`, `--ease-*`), and the brand aliasing (`--brand-*` re-points based on `[data-brand]`).
-- **`src/whitelabel/*.jsx`** — React primitives, loaded with Babel-in-browser. Split across files but all export to `window`:
-  - `Primitives.jsx` — Button, IconButton, Input, Textarea, Select, Checkbox, Radio, Switch, Badge, Avatar, AvatarGroup, Card, Spinner, Alert, Tooltip, Progress, Tabs, Breadcrumbs, Kbd, Icon
-  - `Overlays.jsx` — Dialog, Sheet, Popover, DropdownMenu, Toast, AlertDialog, HoverCard, ContextMenu, Drawer, Menubar, NavigationMenu, Command (⌘K)
-  - `Display.jsx` — Table, Pagination, Skeleton, Separator, EmptyState
-  - `Sidebar.jsx` — Sidebar layout
+- **`src/whitelabel/tokens.css`** — canonical token system. Primitive scales (`--neutral-*`, `--indigo-*`, etc.), the **semantic layer** (`--fg-*`, `--bg-*`, `--border-*`, `--space-*`, `--radius-*`, `--shadow-*`, `--text-*`, `--dur-*`, `--ease-*`), 12 brand hues, 2 themes, 5 style presets.
+- **`src/whitelabel/*.jsx`** — React primitives loaded with Babel-in-browser. All export to `window`:
+  - `Primitives.jsx` — Icon, Button, IconButton, Input, Textarea, Select, Checkbox, Radio, RadioGroup, Switch, Badge, Avatar, AvatarGroup, Card, Spinner, Alert, Tooltip, Progress, Tabs, Breadcrumbs, Kbd, Typography
+  - `Overlays.jsx` — Dialog, Sheet, Popover, DropdownMenu, Toaster (+ `window.toast`)
+  - `Display.jsx` — Table family, Pagination, Skeleton, Separator, Empty
+  - `Sidebar.jsx` — collapsible app Sidebar with sections + sub-items
+  - `Small.jsx` — Label, Field, ButtonGroup, InputGroup, Toggle, AspectRatio, Collapsible, ScrollArea, Item, AlertDialog, Direction / DirectionToggle / useDirection (RTL)
+  - `Medium.jsx` — HoverCard, ContextMenu, InputOTP, Resizable, Drawer, Menubar
   - `MoreInputs.jsx` — Slider, ToggleGroup, Combobox, Accordion
-  - `Small.jsx` — Label, Field, InputGroup, InputOTP, Toggle, ButtonGroup, DatePicker, Calendar
-  - `Medium.jsx` — AspectRatio, Collapsible, ScrollArea, Resizable, Item
-  - `Complex.jsx` — Carousel, Chart, DataTable
+  - `Complex.jsx` — Calendar, DatePicker, Command (⌘K), Carousel, Chart, DataTable, NavigationMenu
+  - `Gaps.jsx` — FileUpload, MultiSelect (chips), Typeahead (async), DateRangePicker, FormErrorSummary
+  - `Gaps2.jsx` — AsyncField (live validation), AvatarUpload (circular), CsvImport (preview-before-import)
+  - `AppShell.jsx` — app shell layout
+  - `Patterns.jsx` — reusable layout patterns
+  - `SaaS.jsx` — SaaS-specific patterns
 
 ## How to start a new screen
 

@@ -3,787 +3,675 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Whitelabel Design System — Documentation</title>
+  <title>Component Docs — Custom Design System</title>
   <link rel="stylesheet" href="../src/whitelabel/tokens.css" />
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: var(--font-sans); background: var(--bg-app); color: var(--fg-default); }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--bg-app); color: var(--fg-default); line-height: 1.7; -webkit-font-smoothing: antialiased; }
 
-    .doc-shell {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      min-height: 100vh;
+    /* ── Topbar ──────────────────────────────────────────────── */
+    .stb { position: sticky; top: 0; z-index: 300; height: 56px; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; padding: 0 24px; gap: 6px; font-family: var(--font-sans); }
+    [data-theme="dark"] .stb { background: rgba(12,13,17,.9); }
+    .stb-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-right: 4px; flex-shrink: 0; }
+    .stb-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--brand-500), var(--brand-700)); color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .stb-name { font-size: 14px; font-weight: 650; color: var(--fg-strong); letter-spacing: -0.2px; }
+    .stb-sep { flex: 1; }
+    .stb-link { font-size: 13px; font-weight: 500; color: var(--fg-muted); text-decoration: none; padding: 6px 10px; border-radius: 7px; white-space: nowrap; transition: background 100ms, color 100ms; }
+    .stb-link:hover { background: var(--bg-muted); color: var(--fg-default); }
+    .stb-link.stb-cur { color: var(--fg-brand); font-weight: 600; background: var(--bg-brand-subtle); }
+    .stb-tog { display: flex; background: var(--bg-muted); border-radius: 8px; padding: 3px; gap: 2px; margin-left: 4px; }
+    .stb-tbtn { padding: 4px 12px; border: none; background: transparent; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--fg-muted); cursor: pointer; transition: background 120ms, color 120ms; font-family: var(--font-sans); }
+    .stb-tbtn.active { background: var(--bg-surface); color: var(--fg-default); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+    /* ── Layout ──────────────────────────────────────────────── */
+    .shell { display: grid; grid-template-columns: 256px 1fr; min-height: calc(100vh - 56px); }
+
+    /* ── Sidebar ─────────────────────────────────────────────── */
+    .sidebar { position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; background: var(--bg-canvas); border-right: 1px solid var(--border-subtle); padding: 24px 12px 48px; scrollbar-width: thin; }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 4px; }
+    .nav-group { margin-bottom: 24px; }
+    .nav-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--fg-subtle); padding: 0 10px; margin-bottom: 4px; }
+    .nav-link { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; font-size: 14px; font-weight: 450; color: var(--fg-muted); text-decoration: none; transition: background 100ms, color 100ms; line-height: 1.3; }
+    .nav-link:hover { background: var(--bg-muted); color: var(--fg-default); }
+    .nav-link.active { background: var(--bg-brand-subtle); color: var(--fg-brand); font-weight: 550; }
+    .nav-divider { height: 1px; background: var(--border-subtle); margin: 4px 10px 20px; }
+    .picker-row { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 6px; margin-top: 6px; }
+    .swatch-btn { width: 22px; height: 22px; border-radius: 6px; border: 2px solid transparent; cursor: pointer; transition: transform 120ms, border-color 120ms; }
+    .swatch-btn.active { border-color: var(--fg-strong); transform: scale(1.1); }
+    .style-btn { padding: 4px 8px; border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--fg-muted); background: transparent; cursor: pointer; transition: background 100ms, color 100ms; font-family: var(--font-sans); }
+    .style-btn:hover { background: var(--bg-muted); color: var(--fg-default); }
+    .style-btn.active { background: var(--bg-brand-subtle); color: var(--fg-brand); border-color: color-mix(in srgb, var(--brand-400) 40%, transparent); }
+    .picker-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--fg-subtle); padding: 12px 10px 4px; }
+
+    /* ── Main ────────────────────────────────────────────────── */
+    .main { min-width: 0; padding: 52px 64px 96px; }
+    .content { max-width: 720px; }
+    .doc-section { padding-bottom: 64px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 64px; scroll-margin-top: 80px; }
+    .doc-section:last-child { border-bottom: none; padding-bottom: 0; }
+
+    /* ── Typography ──────────────────────────────────────────── */
+    .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-brand); margin-bottom: 10px; }
+    h1 { font-size: 38px; font-weight: 750; color: var(--fg-strong); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 14px; }
+    h2 { font-size: 24px; font-weight: 700; color: var(--fg-strong); letter-spacing: -0.02em; line-height: 1.2; margin-top: 44px; margin-bottom: 10px; }
+    h3 { font-size: 16px; font-weight: 650; color: var(--fg-strong); margin-top: 28px; margin-bottom: 6px; }
+    .lead { font-size: 16px; color: var(--fg-muted); line-height: 1.65; margin-bottom: 32px; max-width: 580px; }
+    p { color: var(--fg-default); margin-bottom: 14px; font-size: 15px; line-height: 1.7; }
+    code { font-family: var(--font-mono); font-size: 12px; background: var(--bg-muted); color: var(--fg-default); padding: 1.5px 5px; border-radius: 5px; border: 1px solid var(--border-subtle); }
+    ul, ol { padding-left: 20px; color: var(--fg-default); font-size: 15px; line-height: 1.85; }
+    li { margin-bottom: 2px; }
+    a { color: var(--fg-brand); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Code blocks ─────────────────────────────────────────── */
+    .code-wrap { position: relative; margin: 16px 0; }
+    .code-block { display: block; background: #0f1117; color: #e2e8f0; border-radius: 10px; padding: 20px 24px; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.65; overflow-x: auto; white-space: pre; tab-size: 2; }
+    .code-copy { position: absolute; top: 10px; right: 10px; padding: 4px 10px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: 6px; font-size: 11px; font-weight: 500; color: #94a3b8; cursor: pointer; transition: background 120ms; font-family: var(--font-sans); }
+    .code-copy:hover { background: rgba(255,255,255,.13); color: #e2e8f0; }
+
+    /* ── Component cards ─────────────────────────────────────── */
+    .comp-card { border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; margin: 20px 0; }
+    .comp-preview { padding: 28px 24px; background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 72px; }
+    .comp-code { padding: 16px 20px; background: var(--bg-muted); font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55; color: var(--fg-muted); overflow-x: auto; white-space: pre; }
+
+    /* ── CSS-only component previews ─────────────────────────── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 550; cursor: default; border: none; line-height: 1; font-family: var(--font-sans); }
+    .btn-primary   { background: var(--bg-brand); color: var(--fg-on-brand); }
+    .btn-secondary { background: var(--bg-muted); color: var(--fg-default); border: 1px solid var(--border-default); }
+    .btn-outline   { background: transparent; color: var(--fg-brand); border: 1px solid var(--border-brand); }
+    .btn-ghost     { background: transparent; color: var(--fg-default); }
+    .btn-danger    { background: var(--bg-danger); color: var(--fg-on-danger); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-lg { padding: 10px 20px; font-size: 15px; }
+    .bdg { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-weight: 550; line-height: 1.4; }
+    .bdg-success { background: var(--bg-success-subtle); color: var(--fg-success); border: 1px solid color-mix(in srgb, var(--success-400) 25%, transparent); }
+    .bdg-warning { background: var(--bg-warning-subtle); color: var(--fg-warning); border: 1px solid color-mix(in srgb, var(--warning-400) 25%, transparent); }
+    .bdg-danger  { background: var(--bg-danger-subtle);  color: var(--fg-danger);  border: 1px solid color-mix(in srgb, var(--danger-400) 25%, transparent); }
+    .bdg-info    { background: var(--bg-info-subtle);    color: var(--fg-info);    border: 1px solid color-mix(in srgb, var(--info-400) 25%, transparent); }
+    .bdg-neutral { background: var(--bg-muted);          color: var(--fg-muted);   border: 1px solid var(--border-subtle); }
+    .bdg-brand   { background: var(--bg-brand-subtle);   color: var(--fg-brand);   border: 1px solid color-mix(in srgb, var(--brand-400) 25%, transparent); }
+    .inp { display: flex; flex-direction: column; gap: 5px; }
+    .inp label { font-size: 13px; font-weight: 550; color: var(--fg-strong); }
+    .inp input, .inp select { padding: 8px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--fg-default); font-size: 14px; font-family: inherit; outline: none; }
+    .inp input:focus { border-color: var(--border-focus); box-shadow: var(--ring-focus); }
+    .inp .hint { font-size: 12px; color: var(--fg-muted); }
+    .inp .err-hint { font-size: 12px; color: var(--fg-danger); }
+    .inp.error input { border-color: var(--border-danger); }
+    .alrt { padding: 12px 16px; border-radius: 8px; font-size: 13.5px; line-height: 1.55; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+    .alrt-info    { background: var(--bg-info-subtle);    border: 1px solid color-mix(in srgb, var(--info-400) 30%, transparent); }
+    .alrt-success { background: var(--bg-success-subtle); border: 1px solid color-mix(in srgb, var(--success-400) 30%, transparent); }
+    .alrt-warning { background: var(--bg-warning-subtle); border: 1px solid color-mix(in srgb, var(--warning-400) 30%, transparent); }
+    .alrt-danger  { background: var(--bg-danger-subtle);  border: 1px solid color-mix(in srgb, var(--danger-400) 30%, transparent); }
+    .alrt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .alrt-info .alrt-dot { background: var(--fg-info); }
+    .alrt-success .alrt-dot { background: var(--fg-success); }
+    .alrt-warning .alrt-dot { background: var(--fg-warning); }
+    .alrt-danger  .alrt-dot { background: var(--fg-danger); }
+
+    /* ── Token + color grids ─────────────────────────────────── */
+    .token-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+    .token-list { list-style: none; padding: 0; }
+    .token-list li { padding: 7px 0; font-size: 13px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; }
+    .token-list li:last-child { border-bottom: none; }
+    .token-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--border-subtle); flex-shrink: 0; }
+    .color-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+    .color-card { border-radius: 10px; overflow: hidden; border: 1px solid var(--border-subtle); }
+    .color-swatch { height: 48px; }
+    .color-info { padding: 10px 12px; background: var(--bg-surface); }
+    .color-name { font-size: 13px; font-weight: 600; color: var(--fg-strong); }
+    .color-var  { font-size: 11px; color: var(--fg-muted); font-family: var(--font-mono); }
+
+    /* ── Brand + style grids ─────────────────────────────────── */
+    .brand-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 16px; }
+    .brand-card { border-radius: 10px; overflow: hidden; border: 1px solid var(--border-subtle); cursor: pointer; transition: transform 120ms, box-shadow 120ms; }
+    .brand-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .brand-card.active { box-shadow: 0 0 0 2px var(--fg-strong); }
+    .brand-swatch { height: 40px; }
+    .brand-label { padding: 5px 4px; background: var(--bg-surface); font-size: 10px; font-weight: 600; color: var(--fg-muted); text-align: center; text-transform: capitalize; }
+    .preset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 20px; }
+    .preset-card { padding: 16px; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--bg-surface); cursor: pointer; transition: border-color 120ms, background 120ms; }
+    .preset-card.active { border-color: var(--border-brand); background: var(--bg-brand-subtle); }
+    .preset-card:hover:not(.active) { border-color: var(--border-default); }
+    .preset-name { font-size: 14px; font-weight: 650; color: var(--fg-strong); margin-bottom: 3px; }
+    .preset-font { font-size: 12px; color: var(--fg-brand); margin-bottom: 5px; }
+    .preset-desc { font-size: 12px; color: var(--fg-muted); line-height: 1.45; }
+
+    /* ── Rules ───────────────────────────────────────────────── */
+    .rule-list { display: flex; flex-direction: column; gap: 8px; }
+    .rule { display: flex; gap: 14px; padding: 16px 18px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; }
+    .rule:hover { border-color: var(--border-default); }
+    .rule-n { flex-shrink: 0; width: 24px; height: 24px; border-radius: 7px; background: var(--bg-brand-subtle); color: var(--fg-brand); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .rule-title { font-size: 13.5px; font-weight: 650; color: var(--fg-strong); margin-bottom: 3px; }
+    .rule-desc { font-size: 13px; color: var(--fg-muted); line-height: 1.5; }
+
+    /* ── Ref table ───────────────────────────────────────────── */
+    .ref-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 16px 0; }
+    .ref-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-subtle); border-bottom: 1px solid var(--border-subtle); }
+    .ref-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--fg-default); vertical-align: top; }
+    .ref-table tr:last-child td { border-bottom: none; }
+    .ref-table tr:hover td { background: var(--bg-muted); }
+    .file-tag { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-brand); background: var(--bg-brand-subtle); padding: 2px 7px; border-radius: 5px; white-space: nowrap; border: 1px solid color-mix(in srgb, var(--brand-400) 25%, transparent); }
+
+    /* ── Example cards ───────────────────────────────────────── */
+    .example-card { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 1px solid var(--border-subtle); border-radius: 12px; text-decoration: none; color: var(--fg-default); transition: border-color 120ms, background 120ms; margin-bottom: 10px; }
+    .example-card:hover { border-color: var(--border-brand); background: var(--bg-brand-subtle); text-decoration: none; }
+    .example-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--bg-brand-subtle); border: 1px solid color-mix(in srgb, var(--brand-400) 25%, transparent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .example-title { font-size: 14px; font-weight: 600; color: var(--fg-strong); margin-bottom: 2px; }
+    .example-desc { font-size: 13px; color: var(--fg-muted); }
+
+    /* ── Callout ─────────────────────────────────────────────── */
+    .callout { padding: 14px 18px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--brand-400) 30%, transparent); background: var(--bg-brand-subtle); font-size: 14px; color: var(--fg-default); line-height: 1.6; margin: 20px 0; }
+
+    /* ── Stat cards ──────────────────────────────────────────── */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0 32px; }
+    .stat-card { padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; }
+    .stat-n { font-size: 26px; font-weight: 750; color: var(--fg-strong); letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; }
+    .stat-l { font-size: 13px; color: var(--fg-muted); }
+
+    /* ── Principle grid ──────────────────────────────────────── */
+    .principle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+    .principle-card { padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; }
+    .principle-title { font-size: 14px; font-weight: 650; color: var(--fg-strong); margin-bottom: 5px; }
+    .principle-desc { font-size: 13px; color: var(--fg-muted); line-height: 1.5; }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main { padding: 32px 24px; }
+      .color-grid, .stat-grid { grid-template-columns: 1fr 1fr; }
+      .brand-grid { grid-template-columns: repeat(4, 1fr); }
+      .token-grid, .principle-grid { grid-template-columns: 1fr; }
     }
-
-    .doc-nav {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      background: var(--bg-canvas);
-      border-right: 1px solid var(--border-subtle);
-      padding: 24px 16px;
-    }
-
-    .doc-nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 14px;
-      color: var(--fg-strong);
-      padding: 0 8px 16px;
-      border-bottom: 1px solid var(--border-subtle);
-      margin-bottom: 24px;
-    }
-
-    .doc-nav-brand-mark {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--neutral-0);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .doc-nav-section {
-      margin-bottom: 20px;
-    }
-
-    .doc-nav-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--fg-subtle);
-      letter-spacing: 0.08em;
-      padding: 12px 8px 8px;
-      margin-bottom: 4px;
-    }
-
-    .doc-nav-link {
-      display: block;
-      padding: 8px 10px;
-      border-radius: 6px;
-      font-size: 13.5px;
-      color: var(--fg-muted);
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      text-align: left;
-      width: 100%;
-      transition: all var(--dur-fast);
-    }
-
-    .doc-nav-link:hover {
-      background: var(--bg-muted);
-      color: var(--fg-default);
-    }
-
-    .doc-nav-link.active {
-      background: var(--bg-brand-subtle);
-      color: var(--fg-brand);
-      font-weight: 600;
-    }
-
-    .doc-main {
-      overflow-y: auto;
-      padding: 48px 64px;
-      max-width: 1400px;
-    }
-
-    .doc-header {
-      margin-bottom: 48px;
-    }
-
-    .doc-header h1 {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--fg-strong);
-    }
-
-    .doc-header p {
-      font-size: 16px;
-      color: var(--fg-muted);
-      max-width: 70ch;
-      line-height: 1.6;
-    }
-
-    .doc-section {
-      margin-bottom: 64px;
-    }
-
-    .doc-section h2 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: var(--fg-strong);
-    }
-
-    .doc-section p {
-      color: var(--fg-muted);
-      margin-bottom: 24px;
-      max-width: 70ch;
-      line-height: 1.6;
-    }
-
-    .doc-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-top: 24px;
-    }
-
-    .doc-swatch {
-      padding: 16px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-subtle);
-      background: var(--bg-surface);
-      text-align: center;
-      cursor: pointer;
-      transition: all var(--dur-fast);
-    }
-
-    .doc-swatch:hover {
-      border-color: var(--border-default);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .doc-color-square {
-      width: 100%;
-      height: 80px;
-      border-radius: 6px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border-subtle);
-    }
-
-    .doc-color-name {
-      font-weight: 600;
-      font-size: 13px;
-      margin-bottom: 4px;
-      color: var(--fg-default);
-    }
-
-    .doc-color-value {
-      font-size: 11px;
-      color: var(--fg-muted);
-      font-family: var(--font-mono);
-    }
-
-    .doc-controls {
-      display: flex;
-      gap: 12px;
-      padding: 16px 24px;
-      background: var(--bg-surface);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-subtle);
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-    }
-
-    .doc-control-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .doc-control-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--fg-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .doc-control-buttons {
-      display: flex;
-      gap: 4px;
-      padding: 3px;
-      background: var(--bg-muted);
-      border-radius: 6px;
-    }
-
-    .doc-control-button {
-      padding: 5px 10px;
-      border: none;
-      background: transparent;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--fg-muted);
-      transition: all var(--dur-fast);
-    }
-
-    .doc-control-button.active {
-      background: var(--bg-surface);
-      color: var(--fg-default);
-      box-shadow: var(--shadow-xs);
-    }
-
-    .doc-component {
-      padding: 24px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      margin-bottom: 24px;
-    }
-
-    .doc-component-preview {
-      padding: 32px;
-      background: var(--bg-raised);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 120px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .doc-component-code {
-      padding: 12px;
-      background: var(--bg-muted);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--fg-muted);
-      overflow-x: auto;
-      line-height: 1.5;
-    }
-
-    .doc-rule {
-      padding: 16px;
-      background: var(--bg-info-subtle);
-      border: 1px solid var(--border-info);
-      border-left: 3px solid var(--border-info);
-      border-radius: var(--radius-md);
-      margin-bottom: 12px;
-      font-size: 13.5px;
-      color: var(--fg-default);
-      line-height: 1.6;
-    }
-
-    .doc-rule strong {
-      color: var(--fg-strong);
-    }
-
-    .doc-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      margin-top: 24px;
-    }
-
-    @media (max-width: 1024px) {
-      .doc-grid-2 {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* ── Cross-page shell topbar ──────────────────────────── */
-    .stb{position:sticky;top:0;z-index:300;height:56px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;padding:0 24px;gap:6px;font-family:var(--font-sans);}
-    [data-theme="dark"] .stb{background:rgba(12,13,17,.9);}
-    .stb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:4px;flex-shrink:0;}
-    .stb-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
-    .stb-name{font-size:14px;font-weight:650;color:var(--fg-strong);letter-spacing:-0.2px;}
-    .stb-sep{flex:1;}
-    .stb-link{font-size:13px;font-weight:500;color:var(--fg-muted);text-decoration:none;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:background 100ms,color 100ms;}
-    .stb-link:hover{background:var(--bg-muted);color:var(--fg-default);}
-    .stb-link.stb-cur{color:var(--fg-brand);font-weight:600;background:var(--bg-brand-subtle);}
-    /* Fix doc-nav to sit below 56px topbar */
-    .doc-nav{top:56px !important;height:calc(100vh - 56px) !important;}
-    .doc-shell{min-height:calc(100vh - 56px) !important;}
-    /* Restyle doc-nav to match guide sidebar */
-    .doc-nav-brand{display:none !important;}
-    .doc-nav-label{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--fg-subtle);padding:0 10px;margin-bottom:6px;}
-    .doc-nav-link{padding:7px 10px !important;border-radius:8px !important;font-size:14px !important;font-weight:450 !important;}
-    .doc-nav-link.active{font-weight:550 !important;}
   </style>
 </head>
 <body>
-  <header class="stb">
-    <a href="guide.html" class="stb-logo">
-      <div class="stb-mark">C</div>
-      <span class="stb-name">Custom Design System</span>
-    </a>
-    <div class="stb-sep"></div>
-    <a href="guide.html" class="stb-link">Developer guide</a>
-    <a href="../configure/index.html" class="stb-link">Configurator</a>
-    <span class="stb-link stb-cur">Component docs</span>
-    <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit ↗</a>
-  </header>
-  <div id="root"></div>
 
-  <script type="text/babel" src="../src/whitelabel/Primitives.jsx"></script>
-  <script type="text/babel" src="../src/whitelabel/Sidebar.jsx"></script>
-  <script type="text/babel" src="../src/whitelabel/Display.jsx"></script>
-  <script type="text/babel" src="../src/whitelabel/Overlays.jsx"></script>
-  <script type="text/babel" src="../src/whitelabel/Complex.jsx"></script>
+<header class="stb">
+  <a href="guide.html" class="stb-logo">
+    <div class="stb-mark">C</div>
+    <span class="stb-name">Custom Design System</span>
+  </a>
+  <div class="stb-sep"></div>
+  <a href="guide.html" class="stb-link">Developer guide</a>
+  <a href="../configure/index.html" class="stb-link">Configurator</a>
+  <span class="stb-link stb-cur">Component docs</span>
+  <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit ↗</a>
+  <div class="stb-tog">
+    <button class="stb-tbtn active" data-v="light">Light</button>
+    <button class="stb-tbtn" data-v="dark">Dark</button>
+  </div>
+</header>
 
-  <script type="text/babel">
-    const { useState } = React;
+<div class="shell">
+  <nav class="sidebar">
+    <div class="nav-group">
+      <div class="nav-label">Getting started</div>
+      <a href="#overview"   class="nav-link active" data-s="overview">Overview</a>
+      <a href="#quickstart" class="nav-link" data-s="quickstart">Quick start</a>
+      <a href="#tokens"     class="nav-link" data-s="tokens">Design tokens</a>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-group">
+      <div class="nav-label">Components</div>
+      <a href="#buttons"   class="nav-link" data-s="buttons">Buttons</a>
+      <a href="#badges"    class="nav-link" data-s="badges">Badges</a>
+      <a href="#forms"     class="nav-link" data-s="forms">Form fields</a>
+      <a href="#alerts"    class="nav-link" data-s="alerts">Alerts</a>
+      <a href="#all-comps" class="nav-link" data-s="all-comps">All components</a>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-group">
+      <div class="nav-label">Theming</div>
+      <a href="#styles"  class="nav-link" data-s="styles">Style presets</a>
+      <a href="#brands"  class="nav-link" data-s="brands">Brand hues</a>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-group">
+      <div class="nav-label">Reference</div>
+      <a href="#rules"    class="nav-link" data-s="rules">Usage rules</a>
+      <a href="#examples" class="nav-link" data-s="examples">Examples</a>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="picker-label">Brand</div>
+    <div class="picker-row" id="brandPicker">
+      <button class="swatch-btn active" data-brand="indigo"  style="background:#6366f1" title="Indigo"></button>
+      <button class="swatch-btn"        data-brand="violet"  style="background:#8b5cf6" title="Violet"></button>
+      <button class="swatch-btn"        data-brand="fuchsia" style="background:#d946ef" title="Fuchsia"></button>
+      <button class="swatch-btn"        data-brand="pink"    style="background:#ec4899" title="Pink"></button>
+      <button class="swatch-btn"        data-brand="rose"    style="background:#f43f5e" title="Rose"></button>
+      <button class="swatch-btn"        data-brand="red"     style="background:#ef4444" title="Red"></button>
+      <button class="swatch-btn"        data-brand="orange"  style="background:#f97316" title="Orange"></button>
+      <button class="swatch-btn"        data-brand="amber"   style="background:#f59e0b" title="Amber"></button>
+      <button class="swatch-btn"        data-brand="emerald" style="background:#10b981" title="Emerald"></button>
+      <button class="swatch-btn"        data-brand="teal"    style="background:#14b8a6" title="Teal"></button>
+      <button class="swatch-btn"        data-brand="cyan"    style="background:#06b6d4" title="Cyan"></button>
+      <button class="swatch-btn"        data-brand="blue"    style="background:#3b82f6" title="Blue"></button>
+    </div>
+    <div class="picker-label" style="margin-top:8px">Style</div>
+    <div class="picker-row" id="stylePicker">
+      <button class="style-btn active" data-style="standard">Std</button>
+      <button class="style-btn" data-style="enterprise">Ent</button>
+      <button class="style-btn" data-style="friendly">Fri</button>
+      <button class="style-btn" data-style="refined">Ref</button>
+      <button class="style-btn" data-style="data-dense">Den</button>
+    </div>
+  </nav>
 
-    function DocsApp() {
-      const [section, setSection] = useState("overview");
-      const [theme, setTheme] = useState("light");
-      const [brand, setBrand] = useState("indigo");
-      const [style, setStyle] = useState("standard");
+  <main class="main">
+  <div class="content">
 
-      const handleThemeChange = (newTheme) => {
-        setTheme(newTheme);
-        document.documentElement.dataset.theme = newTheme;
-      };
+    <section class="doc-section" id="overview">
+      <p class="eyebrow">Component docs</p>
+      <h1>Whitelabel Design System</h1>
+      <p class="lead">A brand-agnostic UI kit built on semantic tokens. Swap brand hue, theme, and style on <code>&lt;html&gt;</code> — every component reflows with no rebuild.</p>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-n">12</div><div class="stat-l">Brand hues</div></div>
+        <div class="stat-card"><div class="stat-n">5</div><div class="stat-l">Style presets</div></div>
+        <div class="stat-card"><div class="stat-n">50+</div><div class="stat-l">Components</div></div>
+      </div>
+      <h2>What's included</h2>
+      <ul>
+        <li><strong>12 brand hues</strong> — indigo, violet, fuchsia, pink, rose, red, orange, amber, emerald, teal, cyan, blue</li>
+        <li><strong>Light + Dark themes</strong> — applied automatically via CSS variables</li>
+        <li><strong>5 style presets</strong> — Standard, Enterprise, Friendly, Refined, Data-dense</li>
+        <li><strong>50+ components</strong> — Button, Input, Badge, Dialog, DataTable, Sidebar, and more</li>
+        <li><strong>Semantic token layer</strong> — colors, spacing, typography, shadows, motion, z-index</li>
+        <li><strong>WCAG AA accessibility</strong> — contrast, ARIA, keyboard navigation built in</li>
+      </ul>
+      <h2>Core principles</h2>
+      <div class="principle-grid">
+        <div class="principle-card"><div class="principle-title">Token-driven</div><div class="principle-desc">All styling via CSS variables. Change colors, not code.</div></div>
+        <div class="principle-card"><div class="principle-title">No build required</div><div class="principle-desc">Works in any browser with React, Babel, and Lucide from CDN.</div></div>
+        <div class="principle-card"><div class="principle-title">Composable</div><div class="principle-desc">Mix and match components. Simple primitives, complex layouts.</div></div>
+        <div class="principle-card"><div class="principle-title">Accessible</div><div class="principle-desc">WCAG AA contrast, proper ARIA, keyboard support built-in.</div></div>
+      </div>
+    </section>
 
-      const handleBrandChange = (newBrand) => {
-        setBrand(newBrand);
-        document.documentElement.dataset.brand = newBrand;
-      };
-
-      const handleStyleChange = (newStyle) => {
-        setStyle(newStyle);
-        document.documentElement.dataset.style = newStyle;
-      };
-
-      const sections = {
-        overview: {
-          title: "Whitelabel Design System",
-          subtitle: "A brand-agnostic UI kit built on semantic tokens. Swap brand hue, theme, and style on the <html> element — every component reflows automatically.",
-          render: () => (
-            <div>
-              <div className="doc-section">
-                <h2>What's Included</h2>
-                <p>A complete, production-ready design system with:</p>
-                <ul style={{ marginLeft: 24, lineHeight: 1.8, color: "var(--fg-default)" }}>
-                  <li><strong>6 brand hues</strong> — Indigo, Violet, Emerald, Rose, Amber, Slate</li>
-                  <li><strong>Light + Dark themes</strong> — Automatically applied via CSS variables</li>
-                  <li><strong>5 style presets</strong> — Standard, Enterprise, Friendly, Refined, Data-dense</li>
-                  <li><strong>50+ components</strong> — Button, Input, Badge, Dialog, DataTable, Sidebar, and more</li>
-                  <li><strong>Semantic tokens</strong> — Colors, spacing, typography, shadows, motion, z-index</li>
-                  <li><strong>Accessibility first</strong> — WCAG AA contrast, proper ARIA, keyboard navigation</li>
-                </ul>
-              </div>
-
-              <div className="doc-section">
-                <h2>Quick Start</h2>
-                <div className="doc-component">
-                  <div className="doc-component-code" style={{ marginBottom: 12 }}>
-{`<!doctype html>
-<html lang="en" data-theme="light" data-brand="indigo" data-style="standard">
-<head>
-  <link rel="stylesheet" href="src/whitelabel/tokens.css" />
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel" src="src/whitelabel/Primitives.jsx"></script>
-  <script type="text/babel">
-    const { Button, Card } = window;
+    <section class="doc-section" id="quickstart">
+      <p class="eyebrow">Getting started</p>
+      <h1>Quick start</h1>
+      <p class="lead">No npm install, no build step. Load tokens, React, and component files — write JSX directly in the browser.</p>
+      <div class="code-wrap">
+        <pre class="code-block">&lt;!doctype html&gt;
+&lt;html lang="en" data-theme="light" data-brand="indigo" data-style="standard"&gt;
+&lt;head&gt;
+  &lt;link rel="stylesheet" href="src/whitelabel/tokens.css" /&gt;
+  &lt;script src="https://unpkg.com/react@18.3.1/umd/react.development.js"&gt;&lt;/script&gt;
+  &lt;script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"&gt;&lt;/script&gt;
+  &lt;script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"&gt;&lt;/script&gt;
+  &lt;script src="https://unpkg.com/lucide@latest"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div id="root"&gt;&lt;/div&gt;
+  &lt;script type="text/babel" src="src/whitelabel/Primitives.jsx"&gt;&lt;/script&gt;
+  &lt;script type="text/babel"&gt;
+    const { Button, Card, Input, Alert } = window;
     function App() {
-      return <Card><Button variant="primary">Click me</Button></Card>;
-    }
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
-</body>
-</html>`}
-                  </div>
-                  <p style={{ fontSize: 13, color: "var(--fg-muted)" }}>That's it. No build, no npm install. Just HTML + React in the browser.</p>
-                </div>
-              </div>
-
-              <div className="doc-section">
-                <h2>Core Principles</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
-                  {[
-                    { icon: "palette", title: "Token-driven", desc: "All styling via CSS variables. Change colors, not code." },
-                    { icon: "zap", title: "No build required", desc: "Works in any browser with React, Babel, and Lucide." },
-                    { icon: "layers", title: "Composable", desc: "Mix and match components. Simple primitives, complex layouts." },
-                    { icon: "shield", title: "Accessible", desc: "WCAG AA contrast, proper ARIA, keyboard support built-in." },
-                  ].map((p, i) => (
-                    <div key={i} style={{ padding: 16, background: "var(--bg-muted)", borderRadius: "var(--radius-md)" }}>
-                      <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                        <Icon name={p.icon} size={20} color="var(--brand-500)" />
-                        <strong style={{ color: "var(--fg-strong)" }}>{p.title}</strong>
-                      </div>
-                      <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0, lineHeight: 1.5 }}>{p.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ),
-        },
-
-        tokens: {
-          title: "Design Tokens",
-          subtitle: "The semantic layer that powers every component.",
-          render: () => (
-            <div>
-              <div className="doc-section">
-                <h2>Color Palette</h2>
-                <p>The system uses 6 brand hues, each with an 11-step scale. Consume via semantic aliases like <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--brand-*</code>, <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--fg-*</code>, <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--bg-*</code>.</p>
-                <div className="doc-grid">
-                  {[
-                    { name: "Brand Primary", var: "--brand-500" },
-                    { name: "Success", var: "--success-500" },
-                    { name: "Warning", var: "--warning-500" },
-                    { name: "Danger", var: "--danger-500" },
-                    { name: "Info", var: "--info-500" },
-                    { name: "Neutral", var: "--neutral-500" },
-                  ].map((c, i) => (
-                    <div key={i} className="doc-swatch">
-                      <div className="doc-color-square" style={{ backgroundColor: `var(${c.var})` }} />
-                      <div className="doc-color-name">{c.name}</div>
-                      <div className="doc-color-value">{c.var}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="doc-section">
-                <h2>Semantic Layer</h2>
-                <p>Never reference raw colors. Use semantic tokens instead:</p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginTop: 24 }}>
-                  {[
-                    { title: "Text Colors", tokens: ["--fg-strong", "--fg-default", "--fg-muted", "--fg-subtle", "--fg-disabled"] },
-                    { title: "Background Colors", tokens: ["--bg-raised", "--bg-surface", "--bg-app", "--bg-subtle", "--bg-muted"] },
-                    { title: "Border Colors", tokens: ["--border-strong", "--border-default", "--border-subtle"] },
-                    { title: "Spacing", tokens: ["--space-1 (4px)", "--space-2 (8px)", "--space-3 (12px)", "--space-4 (16px)", "--space-5 (24px)"] },
-                  ].map((g, i) => (
-                    <div key={i}>
-                      <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: "var(--fg-strong)" }}>{g.title}</h3>
-                      <ul style={{ listStyle: "none" }}>
-                        {g.tokens.map((t, j) => (
-                          <li key={j} style={{ padding: "6px 0", fontSize: 13, color: "var(--fg-default)", borderBottom: "1px solid var(--border-subtle)" }}>
-                            <code style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>{t}</code>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ),
-        },
-
-        components: {
-          title: "Component Library",
-          subtitle: "Every component with examples and usage patterns.",
-          render: () => {
-            const { Button, Badge, Input, Checkbox, Card, Spinner, Alert } = window;
-            return (
-              <div>
-                <div className="doc-section">
-                  <h2>Buttons</h2>
-                  <p>The primary action component. Use variants to indicate intent.</p>
-                  <div className="doc-component">
-                    <div className="doc-component-preview">
-                      <Button variant="primary">Primary</Button>
-                      <Button variant="secondary">Secondary</Button>
-                      <Button variant="outline">Outline</Button>
-                      <Button variant="ghost">Ghost</Button>
-                      <Button variant="danger">Danger</Button>
-                    </div>
-                    <div className="doc-component-code">{`<Button variant="primary">Click me</Button>
-<Button variant="outline" size="sm">Small</Button>
-<Button iconOnly leading="trash-2" ariaLabel="Delete" />`}</div>
-                  </div>
-                </div>
-
-                <div className="doc-section">
-                  <h2>Badges</h2>
-                  <p>Inline status indicators with semantic colors.</p>
-                  <div className="doc-component">
-                    <div className="doc-component-preview">
-                      <Badge variant="success">Success</Badge>
-                      <Badge variant="warning">Warning</Badge>
-                      <Badge variant="danger">Danger</Badge>
-                      <Badge variant="info">Info</Badge>
-                      <Badge variant="neutral">Neutral</Badge>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="doc-section">
-                  <h2>Form Fields</h2>
-                  <p>Always include labels. Use hints for help text, error for validation.</p>
-                  <div className="doc-component">
-                    <div className="doc-component-preview" style={{ flexDirection: "column", alignItems: "flex-start", minHeight: 200 }}>
-                      <Input label="Email" placeholder="you@example.com" leading="mail" fullWidth={false} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="doc-section">
-                  <h2>Alerts</h2>
-                  <p>Inline alerts with semantic variants.</p>
-                  <div className="doc-component">
-                    <Alert variant="info" title="Info">Check your settings for updates.</Alert>
-                    <div style={{ marginTop: 8 }} />
-                    <Alert variant="success" title="Success">Your changes were saved.</Alert>
-                    <div style={{ marginTop: 8 }} />
-                    <Alert variant="warning" title="Warning">This action may have side effects.</Alert>
-                    <div style={{ marginTop: 8 }} />
-                    <Alert variant="danger" title="Error">Something went wrong. Try again.</Alert>
-                  </div>
-                </div>
-              </div>
-            );
-          },
-        },
-
-        styles: {
-          title: "Style Presets",
-          subtitle: "Five design systems for different contexts.",
-          render: () => (
-            <div>
-              <div className="doc-section">
-                <h2>Choose a Style</h2>
-                <p>Each preset changes fonts, border radii, shadows, and type metrics. Pick the one that matches your product.</p>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginTop: 24 }}>
-                  {[
-                    { style: "standard", label: "Standard", desc: "Modern, clean. Safest for new products." },
-                    { style: "enterprise", label: "Enterprise", desc: "Dense, formal. Dense tables, compliance." },
-                    { style: "friendly", label: "Friendly", desc: "Warm, approachable. Consumer SaaS." },
-                    { style: "refined", label: "Refined", desc: "Premium feel. Design-led brands." },
-                    { style: "data-dense", label: "Data-dense", desc: "Compact, data-focused. Analytics." },
-                  ].map((s, i) => (
-                    <button key={i}
-                      onClick={() => handleStyleChange(s.style)}
-                      style={{
-                        padding: 16,
-                        background: style === s.style ? "var(--bg-brand-subtle)" : "var(--bg-muted)",
-                        border: style === s.style ? "2px solid var(--brand-500)" : "1px solid var(--border-subtle)",
-                        borderRadius: "var(--radius-md)",
-                        cursor: "pointer",
-                        transition: "all var(--dur-fast)",
-                      }}>
-                      <div style={{ fontWeight: 600, color: "var(--fg-strong)", marginBottom: 4, fontSize: 14 }}>{s.label}</div>
-                      <div style={{ fontSize: 12, color: "var(--fg-muted)", lineHeight: 1.4 }}>{s.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ),
-        },
-
-        brands: {
-          title: "Brand Hues",
-          subtitle: "Six color hues. Switch any time.",
-          render: () => (
-            <div>
-              <div className="doc-section">
-                <h2>Available Brands</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12, marginTop: 24 }}>
-                  {["indigo", "violet", "emerald", "rose", "amber", "slate"].map((b, i) => (
-                    <button key={i}
-                      onClick={() => handleBrandChange(b)}
-                      style={{
-                        padding: 16,
-                        background: "var(--bg-muted)",
-                        border: brand === b ? "2px solid var(--brand-500)" : "1px solid var(--border-subtle)",
-                        borderRadius: "var(--radius-md)",
-                        cursor: "pointer",
-                        transition: "all var(--dur-fast)",
-                        textAlign: "center",
-                      }}>
-                      <div style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 8,
-                        background: "linear-gradient(135deg, var(--brand-500), var(--brand-700))",
-                        margin: "0 auto 8px",
-                      }} />
-                      <div style={{ fontWeight: 600, color: "var(--fg-strong)", fontSize: 13, textTransform: "capitalize" }}>{b}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ),
-        },
-
-        rules: {
-          title: "Usage Guidelines",
-          subtitle: "Rules to follow when building with this system.",
-          render: () => (
-            <div>
-              <div className="doc-section">
-                <h2>10 Core Rules</h2>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {[
-                    { num: "1", rule: "Never inline raw values", desc: "No hex colors, no px values for spacing. Always use CSS variables: var(--fg-default), var(--space-4)." },
-                    { num: "2", rule: "Consume semantic tokens", desc: "Use --fg-muted not --neutral-500. Use --bg-brand not --indigo-600. Semantic layer only." },
-                    { num: "3", rule: "One brand, one accent", desc: "Don't introduce a second hue alongside --brand-*. Use status taxonomy instead: success, warning, danger, info." },
-                    { num: "4", rule: "Match variant to intent", desc: "primary = most important action. secondary/outline = supporting. ghost = toolbar. danger = destructive." },
-                    { num: "5", rule: "Match size to context", desc: "xs/sm for tables. md for forms. lg for landing CTAs." },
-                    { num: "6", rule: "Status taxonomy is closed", desc: "Only: success, warning, danger, info. Never invent a fifth." },
-                    { num: "7", rule: "Light + dark are equal", desc: "Test every screen in both themes. Components handle this via tokens." },
-                    { num: "8", rule: "Accessibility floor: AA", desc: "4.5:1 contrast on text. 32px+ touch targets. iconOnly buttons need ariaLabel. Status ≠ color only." },
-                    { num: "9", rule: "Form fields need labels", desc: "Always set label. Use placeholder or hint. Errors = error + hint together. Mark required fields." },
-                    { num: "10", rule: "Respect spacing rhythm", desc: "Stick to --space-2, 3, 4, 5, 7, 8 (4px, 8px, 12px, 16px, 24px, 32px). Maintain 4-point grid." },
-                  ].map((r, i) => (
-                    <div key={i} className="doc-rule">
-                      <strong style={{ color: "var(--brand-500)" }}>Rule {r.num}: </strong>
-                      <strong>{r.rule}</strong>
-                      <div style={{ marginTop: 6, color: "var(--fg-muted)" }}>{r.desc}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="doc-section">
-                <h2>Accessibility Checklist</h2>
-                <ul style={{ marginLeft: 24, lineHeight: 2, color: "var(--fg-default)" }}>
-                  <li>Text contrast ≥ 4.5:1 (AA) or 7:1 (AAA)</li>
-                  <li>Touch targets ≥ 32×32px (or size="md" Button)</li>
-                  <li>iconOnly buttons have ariaLabel</li>
-                  <li>Form fields have label</li>
-                  <li>Status conveyed by icon or text, not color alone</li>
-                  <li>Keyboard navigation works (Tab, Enter, Escape)</li>
-                  <li>Focus rings visible in all themes</li>
-                  <li>Error messages associated via aria-describedby</li>
-                </ul>
-              </div>
-            </div>
-          ),
-        },
-
-        examples: {
-          title: "Real-world Examples",
-          subtitle: "Full page layouts built with the system.",
-          render: () => (
-            <div>
-              <div className="doc-section">
-                <h2>Inbox Page</h2>
-                <p>A task management interface with sidebar, data table, search, and delete dialogs.</p>
-                <div className="doc-component">
-                  <Button variant="primary" onClick={() => window.open("../examples/inbox/inbox.html", "_blank")}>
-                    View Live Demo →
-                  </Button>
-                  <div style={{ marginTop: 16, fontSize: 13, color: "var(--fg-muted)" }}>
-                    Demonstrates: Sidebar, DataTable, Badge, Input, Button, AlertDialog, Toaster
-                  </div>
-                </div>
-              </div>
-
-              <div className="doc-section">
-                <h2>File Structure</h2>
-                <p>All examples follow this pattern:</p>
-                <div className="doc-component">
-                  <div className="doc-component-code">{`examples/
-├── inbox/
-│   └── inbox.html          ← Self-contained example
-├── dashboard/
-│   └── dashboard.html
-└── README.md               ← Docs for examples`}</div>
-                </div>
-              </div>
-
-              <div className="doc-section">
-                <h2>Building Your Own Example</h2>
-                <ol style={{ marginLeft: 24, lineHeight: 2, color: "var(--fg-default)" }}>
-                  <li>Create a folder: <code style={{ background: "var(--bg-muted)", padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>examples/my-page/</code></li>
-                  <li>Copy the HTML boilerplate from Quick Start</li>
-                  <li>Use actual design system components only</li>
-                  <li>Test in light + dark themes</li>
-                  <li>Push to Git when production-ready</li>
-                </ol>
-              </div>
-            </div>
-          ),
-        },
-      };
-
-      const currentSection = sections[section] || sections.overview;
-
       return (
-        <div className="doc-shell">
-          <nav className="doc-nav">
-            <div className="doc-nav-brand">
-              <div className="doc-nav-brand-mark">W</div>
-              <span>Whitelabel</span>
-            </div>
-            <div className="doc-nav-section">
-              <div className="doc-nav-label">Getting Started</div>
-              {["overview", "tokens", "components"].map((s, i) => (
-                <button key={i}
-                  className={`doc-nav-link ${section === s ? "active" : ""}`}
-                  onClick={() => setSection(s)}>
-                  {sections[s].title.split(" ")[0]}
-                </button>
-              ))}
-            </div>
-            <div className="doc-nav-section">
-              <div className="doc-nav-label">Reference</div>
-              {["styles", "brands", "rules", "examples"].map((s, i) => (
-                <button key={i}
-                  className={`doc-nav-link ${section === s ? "active" : ""}`}
-                  onClick={() => setSection(s)}>
-                  {sections[s].title.split(" ")[0]}
-                </button>
-              ))}
-            </div>
-          </nav>
-
-          <main className="doc-main">
-            <div className="doc-controls">
-              <div className="doc-control-group">
-                <span className="doc-control-label">Theme</span>
-                <div className="doc-control-buttons">
-                  <button className={`doc-control-button ${theme === "light" ? "active" : ""}`} onClick={() => handleThemeChange("light")}>Light</button>
-                  <button className={`doc-control-button ${theme === "dark" ? "active" : ""}`} onClick={() => handleThemeChange("dark")}>Dark</button>
-                </div>
-              </div>
-              <div className="doc-control-group">
-                <span className="doc-control-label">Brand</span>
-                <div className="doc-control-buttons">
-                  {["indigo", "emerald", "rose"].map((b, i) => (
-                    <button key={i} className={`doc-control-button ${brand === b ? "active" : ""}`} onClick={() => handleBrandChange(b)} style={{ textTransform: "capitalize" }}>{b}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="doc-header">
-              <h1>{currentSection.title}</h1>
-              <p>{currentSection.subtitle}</p>
-            </div>
-
-            {currentSection.render()}
-
-            <div style={{ paddingTop: 48, borderTop: "1px solid var(--border-subtle)", marginTop: 64 }}>
-              <p style={{ fontSize: 13, color: "var(--fg-muted)" }}>
-                Built with the Whitelabel Design System. <a href="https://github.com/eduardosicsu-Viber/Custom-Design-system" style={{ color: "var(--fg-brand)", textDecoration: "none" }}>View on GitHub →</a>
-              </p>
-            </div>
-          </main>
-        </div>
+        &lt;Card&gt;
+          &lt;Alert variant="success" title="Ready"&gt;Design system loaded.&lt;/Alert&gt;
+          &lt;Input label="Email" placeholder="you@example.com" /&gt;
+          &lt;Button variant="primary"&gt;Get started&lt;/Button&gt;
+        &lt;/Card&gt;
       );
     }
+    ReactDOM.createRoot(document.getElementById("root")).render(&lt;App /&gt;);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+        <button class="code-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <div class="callout"><strong>Three attributes control everything.</strong> Set <code>data-theme</code>, <code>data-brand</code>, and <code>data-style</code> on <code>&lt;html&gt;</code> — the entire interface reflows with no code changes.</div>
+    </section>
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<DocsApp />);
-  </script>
+    <section class="doc-section" id="tokens">
+      <p class="eyebrow">Foundations</p>
+      <h1>Design tokens</h1>
+      <p class="lead">The semantic layer that powers every component. Always consume the semantic layer — never reference primitive scales directly.</p>
+      <h2>Status colors</h2>
+      <div class="color-grid">
+        <div class="color-card"><div class="color-swatch" style="background:var(--brand-500)"></div><div class="color-info"><div class="color-name">Brand</div><div class="color-var">--brand-500</div></div></div>
+        <div class="color-card"><div class="color-swatch" style="background:var(--success-500)"></div><div class="color-info"><div class="color-name">Success</div><div class="color-var">--success-500</div></div></div>
+        <div class="color-card"><div class="color-swatch" style="background:var(--warning-500)"></div><div class="color-info"><div class="color-name">Warning</div><div class="color-var">--warning-500</div></div></div>
+        <div class="color-card"><div class="color-swatch" style="background:var(--danger-500)"></div><div class="color-info"><div class="color-name">Danger</div><div class="color-var">--danger-500</div></div></div>
+        <div class="color-card"><div class="color-swatch" style="background:var(--info-500)"></div><div class="color-info"><div class="color-name">Info</div><div class="color-var">--info-500</div></div></div>
+        <div class="color-card"><div class="color-swatch" style="background:var(--neutral-500)"></div><div class="color-info"><div class="color-name">Neutral</div><div class="color-var">--neutral-500</div></div></div>
+      </div>
+      <h2>Semantic tokens</h2>
+      <div class="token-grid">
+        <div>
+          <h3>Foreground</h3>
+          <ul class="token-list">
+            <li><div class="token-swatch" style="background:var(--fg-strong)"></div><code>--fg-strong</code></li>
+            <li><div class="token-swatch" style="background:var(--fg-default)"></div><code>--fg-default</code></li>
+            <li><div class="token-swatch" style="background:var(--fg-muted)"></div><code>--fg-muted</code></li>
+            <li><div class="token-swatch" style="background:var(--fg-subtle)"></div><code>--fg-subtle</code></li>
+            <li><div class="token-swatch" style="background:var(--fg-brand)"></div><code>--fg-brand</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Background</h3>
+          <ul class="token-list">
+            <li><div class="token-swatch" style="background:var(--bg-app);border:1px solid var(--border-subtle)"></div><code>--bg-app</code></li>
+            <li><div class="token-swatch" style="background:var(--bg-canvas);border:1px solid var(--border-subtle)"></div><code>--bg-canvas</code></li>
+            <li><div class="token-swatch" style="background:var(--bg-surface);border:1px solid var(--border-subtle)"></div><code>--bg-surface</code></li>
+            <li><div class="token-swatch" style="background:var(--bg-muted)"></div><code>--bg-muted</code></li>
+            <li><div class="token-swatch" style="background:var(--bg-brand-subtle)"></div><code>--bg-brand-subtle</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Spacing (4pt grid)</h3>
+          <ul class="token-list">
+            <li><code>--space-1</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">4px</span></li>
+            <li><code>--space-2</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">8px</span></li>
+            <li><code>--space-3</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">12px</span></li>
+            <li><code>--space-4</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">16px</span></li>
+            <li><code>--space-5</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">20px</span></li>
+            <li><code>--space-6</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">24px</span></li>
+            <li><code>--space-7</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">32px</span></li>
+            <li><code>--space-8</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">48px</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Border &amp; Radius</h3>
+          <ul class="token-list">
+            <li><code>--border-subtle</code></li>
+            <li><code>--border-default</code></li>
+            <li><code>--border-strong</code></li>
+            <li><code>--border-brand</code></li>
+            <li><code>--border-focus</code></li>
+            <li><code>--radius-sm</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">4px</span></li>
+            <li><code>--radius-md</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">6px</span></li>
+            <li><code>--radius-lg</code><span style="color:var(--fg-muted);font-size:12px;margin-left:6px">10px</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-section" id="buttons">
+      <p class="eyebrow">Components</p>
+      <h1>Buttons</h1>
+      <p class="lead">The primary action component. Use <code>variant</code> to communicate intent. One <code>primary</code> per surface.</p>
+      <h2>Variants</h2>
+      <div class="comp-card">
+        <div class="comp-preview">
+          <span class="btn btn-primary">Primary</span>
+          <span class="btn btn-secondary">Secondary</span>
+          <span class="btn btn-outline">Outline</span>
+          <span class="btn btn-ghost">Ghost</span>
+          <span class="btn btn-danger">Danger</span>
+        </div>
+        <pre class="comp-code">&lt;Button variant="primary"&gt;Primary&lt;/Button&gt;
+&lt;Button variant="secondary"&gt;Secondary&lt;/Button&gt;
+&lt;Button variant="outline"&gt;Outline&lt;/Button&gt;
+&lt;Button variant="ghost"&gt;Ghost&lt;/Button&gt;
+&lt;Button variant="danger"&gt;Danger&lt;/Button&gt;</pre>
+      </div>
+      <h2>Sizes</h2>
+      <div class="comp-card">
+        <div class="comp-preview">
+          <span class="btn btn-primary btn-sm">Small</span>
+          <span class="btn btn-primary">Medium</span>
+          <span class="btn btn-primary btn-lg">Large</span>
+        </div>
+        <pre class="comp-code">&lt;Button size="sm"&gt;Small&lt;/Button&gt;
+&lt;Button&gt;Medium (default)&lt;/Button&gt;
+&lt;Button size="lg"&gt;Large&lt;/Button&gt;</pre>
+      </div>
+      <h3>When to use each variant</h3>
+      <ul>
+        <li><strong>primary</strong> — the single most important action per surface</li>
+        <li><strong>secondary</strong> — supporting actions (cancel, back, reset)</li>
+        <li><strong>outline</strong> — secondary actions that need more visual weight</li>
+        <li><strong>ghost</strong> — toolbar, table row, and icon-bar actions</li>
+        <li><strong>danger</strong> — destructive actions only; always confirm first</li>
+      </ul>
+    </section>
+
+    <section class="doc-section" id="badges">
+      <p class="eyebrow">Components</p>
+      <h1>Badges</h1>
+      <p class="lead">Inline status indicators. The taxonomy is closed — four semantic variants plus neutral and brand.</p>
+      <div class="comp-card">
+        <div class="comp-preview">
+          <span class="bdg bdg-success">Active</span>
+          <span class="bdg bdg-warning">Pending</span>
+          <span class="bdg bdg-danger">Failed</span>
+          <span class="bdg bdg-info">Processing</span>
+          <span class="bdg bdg-neutral">Draft</span>
+          <span class="bdg bdg-brand">New</span>
+        </div>
+        <pre class="comp-code">&lt;Badge variant="success"&gt;Active&lt;/Badge&gt;
+&lt;Badge variant="warning"&gt;Pending&lt;/Badge&gt;
+&lt;Badge variant="danger"&gt;Failed&lt;/Badge&gt;
+&lt;Badge variant="info"&gt;Processing&lt;/Badge&gt;
+&lt;Badge variant="neutral"&gt;Draft&lt;/Badge&gt;
+&lt;Badge variant="brand"&gt;New&lt;/Badge&gt;</pre>
+      </div>
+      <p>Status must be communicated by color <em>and</em> text (or icon). Never rely on color alone.</p>
+    </section>
+
+    <section class="doc-section" id="forms">
+      <p class="eyebrow">Components</p>
+      <h1>Form fields</h1>
+      <p class="lead">Always set a <code>label</code>. Use <code>hint</code> for help text. Errors require both <code>error</code> prop and <code>hint</code> text.</p>
+      <h2>Input</h2>
+      <div class="comp-card">
+        <div class="comp-preview" style="flex-direction:column;align-items:flex-start;gap:16px">
+          <div class="inp" style="width:280px">
+            <label>Email address</label>
+            <input type="email" placeholder="you@example.com" />
+            <span class="hint">We'll never share your email.</span>
+          </div>
+          <div class="inp error" style="width:280px">
+            <label>Password</label>
+            <input type="password" value="short" />
+            <span class="err-hint">Password must be at least 8 characters.</span>
+          </div>
+        </div>
+        <pre class="comp-code">&lt;Input label="Email address" placeholder="you@example.com"
+       hint="We'll never share your email." /&gt;
+&lt;Input label="Password" type="password"
+       error hint="Password must be at least 8 characters." /&gt;</pre>
+      </div>
+      <h2>Select</h2>
+      <div class="comp-card">
+        <div class="comp-preview">
+          <div class="inp" style="width:220px">
+            <label>Role</label>
+            <select><option>Admin</option><option>Member</option><option>Viewer</option></select>
+          </div>
+        </div>
+        <pre class="comp-code">&lt;Select label="Role" options={["Admin","Member","Viewer"]} /&gt;</pre>
+      </div>
+    </section>
+
+    <section class="doc-section" id="alerts">
+      <p class="eyebrow">Components</p>
+      <h1>Alerts</h1>
+      <p class="lead">Inline contextual feedback. Uses the same four-variant status taxonomy as Badge and Progress.</p>
+      <div class="comp-card">
+        <div class="comp-preview" style="flex-direction:column;align-items:stretch;gap:0;padding:16px">
+          <div class="alrt alrt-info"><div class="alrt-dot"></div><div><strong>Info</strong> — Check your settings for the latest updates.</div></div>
+          <div class="alrt alrt-success"><div class="alrt-dot"></div><div><strong>Success</strong> — Your changes were saved successfully.</div></div>
+          <div class="alrt alrt-warning"><div class="alrt-dot"></div><div><strong>Warning</strong> — This action may have side effects.</div></div>
+          <div class="alrt alrt-danger" style="margin-bottom:0"><div class="alrt-dot"></div><div><strong>Error</strong> — Something went wrong. Please try again.</div></div>
+        </div>
+        <pre class="comp-code">&lt;Alert variant="info"    title="Info"&gt;Check your settings.&lt;/Alert&gt;
+&lt;Alert variant="success" title="Success"&gt;Changes saved.&lt;/Alert&gt;
+&lt;Alert variant="warning" title="Warning"&gt;Side effects possible.&lt;/Alert&gt;
+&lt;Alert variant="danger"  title="Error"&gt;Something went wrong.&lt;/Alert&gt;</pre>
+      </div>
+    </section>
+
+    <section class="doc-section" id="all-comps">
+      <p class="eyebrow">Reference</p>
+      <h1>All components</h1>
+      <p class="lead">Every component lives in <code>src/whitelabel/</code> and exports to <code>window</code>. Load only the files your screen needs.</p>
+      <table class="ref-table">
+        <thead><tr><th>File</th><th>Exports</th></tr></thead>
+        <tbody>
+          <tr><td><span class="file-tag">Primitives.jsx</span></td><td>Icon, Button, IconButton, Input, Textarea, Select, Checkbox, Radio, Switch, Badge, Avatar, AvatarGroup, Card, Spinner, Alert, Tooltip, Progress, Tabs, Breadcrumbs, Kbd, Typography</td></tr>
+          <tr><td><span class="file-tag">Overlays.jsx</span></td><td>Dialog, Sheet, Popover, DropdownMenu, Toaster, toast</td></tr>
+          <tr><td><span class="file-tag">Display.jsx</span></td><td>Table, TableHead, TableBody, TableRow, TableCell, Pagination, Skeleton, Separator, Empty</td></tr>
+          <tr><td><span class="file-tag">Sidebar.jsx</span></td><td>Sidebar — collapsible app nav with sections and sub-items</td></tr>
+          <tr><td><span class="file-tag">Small.jsx</span></td><td>Label, Field, ButtonGroup, InputGroup, Toggle, AspectRatio, Collapsible, ScrollArea, Item, AlertDialog, Direction, DirectionToggle</td></tr>
+          <tr><td><span class="file-tag">Medium.jsx</span></td><td>HoverCard, ContextMenu, InputOTP, Resizable, Drawer, Menubar</td></tr>
+          <tr><td><span class="file-tag">MoreInputs.jsx</span></td><td>Slider, ToggleGroup, Combobox, Accordion</td></tr>
+          <tr><td><span class="file-tag">Complex.jsx</span></td><td>Calendar, DatePicker, Command (⌘K), Carousel, Chart, DataTable, NavigationMenu</td></tr>
+          <tr><td><span class="file-tag">Gaps.jsx</span></td><td>FileUpload, MultiSelect, Typeahead, DateRangePicker, FormErrorSummary</td></tr>
+          <tr><td><span class="file-tag">Gaps2.jsx</span></td><td>AsyncField, AvatarUpload, CsvImport</td></tr>
+          <tr><td><span class="file-tag">AppShell.jsx</span></td><td>AppShell — full-page layout</td></tr>
+          <tr><td><span class="file-tag">Patterns.jsx</span></td><td>Reusable layout patterns</td></tr>
+          <tr><td><span class="file-tag">SaaS.jsx</span></td><td>SaaS-specific patterns (billing, pricing, team)</td></tr>
+        </tbody>
+      </table>
+      <p>For live demos and full prop tables, open <a href="../Whitelabel UI Kit.html" target="_blank">UI Kit showcase ↗</a></p>
+    </section>
+
+    <section class="doc-section" id="styles">
+      <p class="eyebrow">Theming</p>
+      <h1>Style presets</h1>
+      <p class="lead">Five presets control fonts, radii, shadows, and density. Pick one per product — never mix. Click a card to preview live.</p>
+      <div class="preset-grid" id="styleCards">
+        <div class="preset-card active" data-style="standard"><div class="preset-name">Standard</div><div class="preset-font">Inter</div><div class="preset-desc">New products, modern SaaS</div></div>
+        <div class="preset-card" data-style="enterprise"><div class="preset-name">Enterprise</div><div class="preset-font">IBM Plex Sans</div><div class="preset-desc">B2B, admin, compliance</div></div>
+        <div class="preset-card" data-style="friendly"><div class="preset-name">Friendly</div><div class="preset-font">DM Sans</div><div class="preset-desc">Consumer, SMB, education</div></div>
+        <div class="preset-card" data-style="refined"><div class="preset-name">Refined</div><div class="preset-font">Geist</div><div class="preset-desc">Premium, design-led</div></div>
+        <div class="preset-card" data-style="data-dense"><div class="preset-name">Data-dense</div><div class="preset-font">Inter (tabular)</div><div class="preset-desc">Analytics, dashboards</div></div>
+      </div>
+    </section>
+
+    <section class="doc-section" id="brands">
+      <p class="eyebrow">Theming</p>
+      <h1>Brand hues</h1>
+      <p class="lead">12 built-in hues. Set via <code>data-brand</code> on <code>&lt;html&gt;</code>. Always use <code>--brand-*</code> tokens — never the raw hue scale. Click to preview.</p>
+      <div class="brand-grid" id="brandCards">
+        <div class="brand-card active" data-brand="indigo"><div class="brand-swatch" style="background:linear-gradient(135deg,#6366f1,#4338ca)"></div><div class="brand-label">indigo</div></div>
+        <div class="brand-card" data-brand="violet"><div class="brand-swatch" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)"></div><div class="brand-label">violet</div></div>
+        <div class="brand-card" data-brand="fuchsia"><div class="brand-swatch" style="background:linear-gradient(135deg,#d946ef,#a21caf)"></div><div class="brand-label">fuchsia</div></div>
+        <div class="brand-card" data-brand="pink"><div class="brand-swatch" style="background:linear-gradient(135deg,#ec4899,#be185d)"></div><div class="brand-label">pink</div></div>
+        <div class="brand-card" data-brand="rose"><div class="brand-swatch" style="background:linear-gradient(135deg,#f43f5e,#be123c)"></div><div class="brand-label">rose</div></div>
+        <div class="brand-card" data-brand="red"><div class="brand-swatch" style="background:linear-gradient(135deg,#ef4444,#b91c1c)"></div><div class="brand-label">red</div></div>
+        <div class="brand-card" data-brand="orange"><div class="brand-swatch" style="background:linear-gradient(135deg,#f97316,#c2410c)"></div><div class="brand-label">orange</div></div>
+        <div class="brand-card" data-brand="amber"><div class="brand-swatch" style="background:linear-gradient(135deg,#f59e0b,#b45309)"></div><div class="brand-label">amber</div></div>
+        <div class="brand-card" data-brand="emerald"><div class="brand-swatch" style="background:linear-gradient(135deg,#10b981,#047857)"></div><div class="brand-label">emerald</div></div>
+        <div class="brand-card" data-brand="teal"><div class="brand-swatch" style="background:linear-gradient(135deg,#14b8a6,#0f766e)"></div><div class="brand-label">teal</div></div>
+        <div class="brand-card" data-brand="cyan"><div class="brand-swatch" style="background:linear-gradient(135deg,#06b6d4,#0e7490)"></div><div class="brand-label">cyan</div></div>
+        <div class="brand-card" data-brand="blue"><div class="brand-swatch" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)"></div><div class="brand-label">blue</div></div>
+      </div>
+    </section>
+
+    <section class="doc-section" id="rules">
+      <p class="eyebrow">Guidelines</p>
+      <h1>Usage rules</h1>
+      <p class="lead">Ten rules for every screen and every component. Written into <code>CLAUDE.md</code> so Claude Code follows them automatically.</p>
+      <div class="rule-list">
+        <div class="rule"><div class="rule-n">1</div><div><div class="rule-title">Never inline raw values</div><div class="rule-desc">No hex colors, no raw px for spacing or radius. Use tokens: <code>var(--fg-default)</code>, <code>var(--space-4)</code>, <code>var(--radius-md)</code>.</div></div></div>
+        <div class="rule"><div class="rule-n">2</div><div><div class="rule-title">Consume the semantic layer, not the scale</div><div class="rule-desc">Use <code>--fg-muted</code> not <code>--neutral-500</code>. Use <code>--bg-brand</code> not <code>--indigo-600</code>.</div></div></div>
+        <div class="rule"><div class="rule-n">3</div><div><div class="rule-title">One brand, one accent</div><div class="rule-desc">Never introduce a second hue alongside <code>--brand-*</code>. A second color must be success / warning / danger / info.</div></div></div>
+        <div class="rule"><div class="rule-n">4</div><div><div class="rule-title">Variant maps to intent</div><div class="rule-desc">One <code>primary</code> per surface. <code>danger</code> always confirms. <code>ghost</code> for toolbars.</div></div></div>
+        <div class="rule"><div class="rule-n">5</div><div><div class="rule-title">Match size to context</div><div class="rule-desc"><code>xs</code>/<code>sm</code> for tables. <code>md</code> for forms (default). <code>lg</code> for landing CTAs.</div></div></div>
+        <div class="rule"><div class="rule-n">6</div><div><div class="rule-title">Status taxonomy is closed</div><div class="rule-desc">Exactly: success, warning, danger, info. Never invent a fifth variant.</div></div></div>
+        <div class="rule"><div class="rule-n">7</div><div><div class="rule-title">Light and dark are equal</div><div class="rule-desc">Test every screen in both themes. Components get dark mode free via tokens.</div></div></div>
+        <div class="rule"><div class="rule-n">8</div><div><div class="rule-title">Accessibility floor: AA</div><div class="rule-desc">4.5:1 contrast. Touch targets ≥ 32px. Icon-only buttons need <code>ariaLabel</code>.</div></div></div>
+        <div class="rule"><div class="rule-n">9</div><div><div class="rule-title">Form fields need labels</div><div class="rule-desc">Always set <code>label</code>. Errors = <code>error</code> + <code>hint</code>. Required fields get <code>required</code>.</div></div></div>
+        <div class="rule"><div class="rule-n">10</div><div><div class="rule-title">Respect the spacing rhythm</div><div class="rule-desc">4-point grid. Most layouts: <code>--space-3/5/7/8</code> (8/16/24/32px).</div></div></div>
+      </div>
+    </section>
+
+    <section class="doc-section" id="examples">
+      <p class="eyebrow">Live demos</p>
+      <h1>Examples</h1>
+      <p class="lead">Full-page interfaces built entirely with design system components. Open in a browser — no server required.</p>
+      <a href="../examples/inbox/inbox.html" target="_blank" class="example-card">
+        <div class="example-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fg-brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg></div>
+        <div><div class="example-title">Inbox — Task management</div><div class="example-desc">Sidebar, DataTable, Badge, Input, AlertDialog, Toaster</div></div>
+        <span style="margin-left:auto;color:var(--fg-muted);font-size:13px">Open ↗</span>
+      </a>
+      <a href="../examples/dashboard" target="_blank" class="example-card">
+        <div class="example-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--fg-brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        <div><div class="example-title">Dashboard — Analytics</div><div class="example-desc">Chart, DataTable, KPI cards, date range, Tabs</div></div>
+        <span style="margin-left:auto;color:var(--fg-muted);font-size:13px">Open ↗</span>
+      </a>
+      <h2>Building your own</h2>
+      <ol>
+        <li>Create a folder: <code>examples/my-page/</code></li>
+        <li>Copy the Quick Start boilerplate above</li>
+        <li>Use only components from <code>src/whitelabel/</code></li>
+        <li>Test in both light and dark themes</li>
+        <li>Push to Git when ready</li>
+      </ol>
+    </section>
+
+  </div>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.stb-tbtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.documentElement.dataset.theme = b.dataset.v;
+      document.querySelectorAll('.stb-tbtn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+  document.querySelectorAll('#brandPicker .swatch-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.documentElement.dataset.brand = b.dataset.brand;
+      document.querySelectorAll('#brandPicker .swatch-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.querySelectorAll('#brandCards .brand-card').forEach(c => c.classList.toggle('active', c.dataset.brand === b.dataset.brand));
+    });
+  });
+  document.querySelectorAll('#stylePicker .style-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.documentElement.dataset.style = b.dataset.style;
+      document.querySelectorAll('#stylePicker .style-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.querySelectorAll('#styleCards .preset-card').forEach(c => c.classList.toggle('active', c.dataset.style === b.dataset.style));
+    });
+  });
+  document.querySelectorAll('#styleCards .preset-card').forEach(c => {
+    c.addEventListener('click', () => {
+      const s = c.dataset.style;
+      document.documentElement.dataset.style = s;
+      document.querySelectorAll('#styleCards .preset-card').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      document.querySelectorAll('#stylePicker .style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === s));
+    });
+  });
+  document.querySelectorAll('#brandCards .brand-card').forEach(c => {
+    c.addEventListener('click', () => {
+      const brand = c.dataset.brand;
+      document.documentElement.dataset.brand = brand;
+      document.querySelectorAll('#brandCards .brand-card').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      document.querySelectorAll('#brandPicker .swatch-btn').forEach(b => b.classList.toggle('active', b.dataset.brand === brand));
+    });
+  });
+  const sections = document.querySelectorAll('.doc-section[id]');
+  const navLinks = document.querySelectorAll('.nav-link[data-s]');
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.nav-link[data-s="${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' }).observe && sections.forEach(s =>
+    new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { navLinks.forEach(l => l.classList.remove('active')); const a = document.querySelector(`.nav-link[data-s="${e.target.id}"]`); if (a) a.classList.add('active'); }});
+    }, { rootMargin: '-15% 0px -75% 0px' }).observe(s)
+  );
+  function copyCode(btn) {
+    navigator.clipboard.writeText(btn.previousElementSibling.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  }
+</script>
 </body>
 </html>

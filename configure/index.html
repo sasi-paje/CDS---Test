@@ -316,9 +316,38 @@
         padding: var(--space-4);
       }
     }
+    /* ── Cross-page shell topbar ──────────────────────────── */
+    .stb{position:sticky;top:0;z-index:300;height:56px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;padding:0 24px;gap:6px;font-family:var(--font-sans);}
+    [data-theme="dark"] .stb{background:rgba(12,13,17,.9);}
+    .stb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:4px;flex-shrink:0;}
+    .stb-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+    .stb-name{font-size:14px;font-weight:650;color:var(--fg-strong);letter-spacing:-0.2px;}
+    .stb-sep{flex:1;}
+    .stb-link{font-size:13px;font-weight:500;color:var(--fg-muted);text-decoration:none;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:background 100ms,color 100ms;}
+    .stb-link:hover{background:var(--bg-muted);color:var(--fg-default);}
+    .stb-link.stb-cur{color:var(--fg-brand);font-weight:600;background:var(--bg-brand-subtle);}
+    .stb-tog{display:flex;background:var(--bg-muted);border-radius:8px;padding:3px;gap:2px;margin-left:4px;}
+    .stb-tbtn{padding:4px 12px;border:none;background:transparent;border-radius:6px;font-size:12px;font-weight:500;color:var(--fg-muted);cursor:pointer;transition:background 120ms,color 120ms;font-family:var(--font-sans);}
+    .stb-tbtn.active{background:var(--bg-surface);color:var(--fg-default);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+    .configurator { padding-top: 0 !important; }
   </style>
 </head>
 <body>
+  <header class="stb">
+    <a href="../docs/guide.html" class="stb-logo">
+      <div class="stb-mark">C</div>
+      <span class="stb-name">Custom Design System</span>
+    </a>
+    <div class="stb-sep"></div>
+    <a href="../docs/guide.html" class="stb-link">Developer guide</a>
+    <span class="stb-link stb-cur">Configurator</span>
+    <a href="../docs/index.html" class="stb-link">Component docs</a>
+    <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit ↗</a>
+    <div class="stb-tog">
+      <button class="stb-tbtn active" data-v="light">Light</button>
+      <button class="stb-tbtn" data-v="dark">Dark</button>
+    </div>
+  </header>
   <div id="root"></div>
 
   <script type="text/babel" src="../src/whitelabel/Primitives.jsx"></script>
@@ -830,6 +859,7 @@ Start building now.`;
     }
 
     ReactDOM.createRoot(document.getElementById("root")).render(<ConfiguratorApp />);
+    document.querySelectorAll('.stb-tbtn').forEach(b=>{b.addEventListener('click',()=>{document.documentElement.dataset.theme=b.dataset.v;document.querySelectorAll('.stb-tbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');});});
   </script>
 </body>
 </html>

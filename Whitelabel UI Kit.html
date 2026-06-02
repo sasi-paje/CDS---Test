@@ -35,39 +35,44 @@
       height: 100vh; overflow: auto;
       background: var(--bg-canvas);
       border-right: 1px solid var(--border-subtle);
-      padding: 20px 16px;
+      padding: 20px 12px;
+      scrollbar-width: thin;
     }
-    .nav-brand {
-      display: flex; align-items: center; gap: 10px;
-      font-weight: 700; font-size: 15px; letter-spacing: -0.01em;
-      color: var(--fg-strong); padding: 0 8px 16px;
-      border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px;
+    .nav-brand { display: none; }
+    .nav-brand-mark { display: none; }
+    .nav-group {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--fg-subtle);
+      padding: 16px 10px 6px;
     }
-    .nav-brand-mark {
-      width: 28px; height: 28px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
-      display: inline-flex; align-items: center; justify-content: center;
-      color: var(--neutral-0); font-weight: 700;
-    }
-    .nav-group { font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--fg-subtle); padding: 16px 8px 6px; }
     .nav a {
       display: flex; align-items: center; gap: 8px;
-      padding: 7px 10px; border-radius: 6px;
-      font-size: 13.5px; color: var(--fg-muted); text-decoration: none;
+      padding: 7px 10px; border-radius: 8px;
+      font-size: 13.5px; font-weight: 450; color: var(--fg-muted); text-decoration: none;
+      transition: background 100ms, color 100ms;
     }
     .nav a:hover { background: var(--bg-muted); color: var(--fg-default); text-decoration: none; }
-    .nav a.active { background: var(--bg-brand-subtle); color: var(--fg-brand); }
+    .nav a.active { background: var(--bg-brand-subtle); color: var(--fg-brand); font-weight: 550; }
 
     /* Top bar */
     .topbar {
       position: sticky; top: 0; z-index: var(--z-sticky);
-      display: flex; align-items: center; gap: 14px;
-      padding: 14px 32px; background: var(--bg-canvas);
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 24px; height: 56px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-subtle);
+      font-family: var(--font-sans);
     }
-    .topbar h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    [data-theme="dark"] .topbar { background: rgba(12,13,17,.9); }
+    .topbar h1 { display: none; }
     .topbar .grow { flex: 1; }
+    .stb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+    .stb-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+    .stb-name{font-size:14px;font-weight:650;color:var(--fg-strong);letter-spacing:-0.2px;}
+    .stb-link{font-size:13px;font-weight:500;color:var(--fg-muted);text-decoration:none;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:background 100ms,color 100ms;}
+    .stb-link:hover{background:var(--bg-muted);color:var(--fg-default);}
+    .stb-sep{width:1px;height:20px;background:var(--border-subtle);margin:0 4px;}
     .seg {
       display: inline-flex; padding: 3px; background: var(--bg-muted);
       border-radius: 8px; gap: 0;
@@ -413,10 +418,6 @@
 <body>
   <div class="app">
     <aside class="nav">
-      <div class="nav-brand">
-        <span class="nav-brand-mark">W</span>
-        White-label UI Kit
-      </div>
       <a href="#start" class="active">Getting started</a>
       <a href="#styles">Styles</a>
       <div class="nav-group">Foundations</div>
@@ -494,7 +495,14 @@
 
     <div>
       <header class="topbar">
-        <h1>White-label UI Kit</h1>
+        <a href="docs/guide.html" class="stb-logo">
+          <div class="stb-mark">W</div>
+          <span class="stb-name">White-label UI Kit</span>
+        </a>
+        <div class="stb-sep"></div>
+        <a href="docs/guide.html" class="stb-link">Developer guide</a>
+        <a href="configure/index.html" class="stb-link">Configurator</a>
+        <a href="docs/index.html" class="stb-link">Component docs</a>
         <span class="grow"></span>
         <div class="seg" role="group" aria-label="Style" id="style-pick">
           <button data-style="standard"   aria-pressed="true">Standard</button>

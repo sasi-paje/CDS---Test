@@ -296,9 +296,39 @@
     .hidden {
       display: none !important;
     }
+
+    /* ── Cross-page shell topbar ──────────────────────────── */
+    .stb{position:sticky;top:0;z-index:300;height:56px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;padding:0 24px;gap:6px;font-family:var(--font-sans);}
+    [data-theme="dark"] .stb{background:rgba(12,13,17,.9);}
+    .stb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:4px;flex-shrink:0;}
+    .stb-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+    .stb-name{font-size:14px;font-weight:650;color:var(--fg-strong);letter-spacing:-0.2px;}
+    .stb-sep{flex:1;}
+    .stb-link{font-size:13px;font-weight:500;color:var(--fg-muted);text-decoration:none;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:background 100ms,color 100ms;}
+    .stb-link:hover{background:var(--bg-muted);color:var(--fg-default);}
+    .stb-link.stb-cur{color:var(--fg-brand);font-weight:600;background:var(--bg-brand-subtle);}
+    /* Fix doc-nav to sit below 56px topbar */
+    .doc-nav{top:56px !important;height:calc(100vh - 56px) !important;}
+    .doc-shell{min-height:calc(100vh - 56px) !important;}
+    /* Restyle doc-nav to match guide sidebar */
+    .doc-nav-brand{display:none !important;}
+    .doc-nav-label{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--fg-subtle);padding:0 10px;margin-bottom:6px;}
+    .doc-nav-link{padding:7px 10px !important;border-radius:8px !important;font-size:14px !important;font-weight:450 !important;}
+    .doc-nav-link.active{font-weight:550 !important;}
   </style>
 </head>
 <body>
+  <header class="stb">
+    <a href="guide.html" class="stb-logo">
+      <div class="stb-mark">C</div>
+      <span class="stb-name">Custom Design System</span>
+    </a>
+    <div class="stb-sep"></div>
+    <a href="guide.html" class="stb-link">Developer guide</a>
+    <a href="../configure/index.html" class="stb-link">Configurator</a>
+    <span class="stb-link stb-cur">Component docs</span>
+    <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit ↗</a>
+  </header>
   <div id="root"></div>
 
   <script type="text/babel" src="../src/whitelabel/Primitives.jsx"></script>

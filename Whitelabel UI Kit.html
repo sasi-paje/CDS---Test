@@ -54,26 +54,26 @@
     .nav a:hover { background: var(--bg-muted); color: var(--fg-default); text-decoration: none; }
     .nav a.active { background: var(--bg-brand-subtle); color: var(--fg-brand); font-weight: 550; }
 
-    /* Top bar */
-    .topbar {
-      position: sticky; top: 0; z-index: var(--z-sticky);
-      display: flex; align-items: center; gap: 10px;
-      padding: 0 24px; height: 56px;
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-subtle);
-      font-family: var(--font-sans);
-    }
-    [data-theme="dark"] .topbar { background: rgba(12,13,17,.9); }
-    .topbar h1 { display: none; }
-    .topbar .grow { flex: 1; }
-    .stb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
-    .stb-mark{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
-    .stb-mark svg{width:28px;height:28px;display:block;}
-    .stb-name{font-size:14px;font-weight:650;color:var(--fg-strong);letter-spacing:-0.2px;}
-    .stb-link{font-size:13px;font-weight:500;color:var(--fg-muted);text-decoration:none;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:background 100ms,color 100ms;}
-    .stb-link:hover{background:var(--bg-muted);color:var(--fg-default);}
-    .stb-sep{width:1px;height:20px;background:var(--border-subtle);margin:0 4px;}
+    /* ── Canonical topbar ─────────────────────────────────────── */
+.ds-t{position:sticky;top:0;z-index:999;height:56px;display:flex;align-items:center;padding:0 28px;background:#fff;border-bottom:1px solid #e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;gap:0;}
+[data-theme=dark] .ds-t{background:#0d0f14;border-color:#1e2333;}
+.ds-logo{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;color:#111827;text-decoration:none;flex-shrink:0;}
+[data-theme=dark] .ds-logo{color:#f1f5f9;}
+.ds-mark{width:28px;height:28px;border-radius:7px;overflow:hidden;flex-shrink:0;}
+.ds-mark svg{width:28px;height:28px;display:block;}
+.ds-div{width:1px;height:20px;background:#e2e8f0;margin:0 18px;flex-shrink:0;}
+[data-theme=dark] .ds-div{background:#2d3148;}
+.ds-nav{display:flex;align-items:center;gap:0;}
+.ds-nl{padding:6px 11px;border-radius:7px;font-size:13.5px;font-weight:500;color:#64748b;text-decoration:none;white-space:nowrap;transition:background .12s,color .12s;}
+.ds-nl:hover{background:#f1f5f9;color:#111827;}
+[data-theme=dark] .ds-nl{color:#94a3b8;}
+[data-theme=dark] .ds-nl:hover{background:#1a1d2e;color:#f1f5f9;}
+.ds-cur{color:#5B5BF7!important;font-weight:600;background:#f0f0fe!important;}
+[data-theme=dark] .ds-cur{color:#8D8DFF!important;background:#1a1a3a!important;}
+.ds-sp{flex:1;}
+    /* Top bar legacy (keep for .grow and h1 hide) */
+    .ds-t h1 { display: none; }
+    .ds-t .grow { flex: 1; }
     .seg {
       display: inline-flex; padding: 3px; background: var(--bg-muted);
       border-radius: 8px; gap: 0;
@@ -495,19 +495,19 @@
     </aside>
 
     <div>
-      <header class="topbar">
-        <a href="docs/guide.html" class="stb-logo">
-          <span class="stb-mark">
-            <svg viewBox="0 0 28 28" width="28" height="28" fill="none"><defs><linearGradient id="bmg" x1="3" y1="2" x2="25" y2="26" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6C6CFF"/><stop offset=".52" stop-color="#5B5BF7"/><stop offset="1" stop-color="#4B4BE5"/></linearGradient></defs><rect width="28" height="28" rx="6.3" fill="url(#bmg)"/><rect x="7.5" y="7.5" width="5.8" height="5.8" rx="1.2" fill="white"/><rect x="15" y="7.5" width="5.8" height="5.8" rx="1.2" fill="#DCDCFF"/><rect x="7.5" y="15" width="5.8" height="5.8" rx="1.2" fill="#DCDCFF"/><rect x="15" y="15" width="5.8" height="5.8" rx="1.2" fill="white"/></svg>
-          </span>
-          <span class="stb-name">Custom DS</span>
+      <header class="ds-t">
+        <a href="docs/guide.html" class="ds-logo">
+          <span class="ds-mark"><svg viewBox="0 0 28 28" width="28" height="28" fill="none"><defs><linearGradient id="bmg" x1="3" y1="2" x2="25" y2="26" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6C6CFF"/><stop offset=".52" stop-color="#5B5BF7"/><stop offset="1" stop-color="#4B4BE5"/></linearGradient></defs><rect width="28" height="28" rx="6.3" fill="url(#bmg)"/><rect x="7.5" y="7.5" width="5.8" height="5.8" rx="1.2" fill="white"/><rect x="15" y="7.5" width="5.8" height="5.8" rx="1.2" fill="#DCDCFF"/><rect x="7.5" y="15" width="5.8" height="5.8" rx="1.2" fill="#DCDCFF"/><rect x="15" y="15" width="5.8" height="5.8" rx="1.2" fill="white"/></svg></span>
+          Custom DS
         </a>
-        <div class="stb-sep"></div>
-        <a href="docs/guide.html" class="stb-link">Guide</a>
-        <a href="docs/index.html" class="stb-link">Components</a>
-        <a href="configure/index.html" class="stb-link">Configurator</a>
-        <span class="stb-link stb-cur" style="color:var(--fg-brand);font-weight:600">UI Kit</span>
-        <a href="docs/onboarding.html" class="stb-link">Onboarding</a>
+        <span class="ds-div"></span>
+        <nav class="ds-nav">
+          <a href="docs/guide.html" class="ds-nl">Guide</a>
+          <a href="docs/index.html" class="ds-nl">Components</a>
+          <a href="configure/index.html" class="ds-nl">Configurator</a>
+          <span class="ds-nl ds-cur">UI Kit</span>
+          <a href="docs/onboarding.html" class="ds-nl">Onboarding</a>
+        </nav>
         <span class="grow"></span>
         <div class="seg" role="group" aria-label="Style" id="style-pick">
           <button data-style="standard"   aria-pressed="true">Standard</button>

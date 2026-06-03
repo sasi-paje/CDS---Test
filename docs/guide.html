@@ -27,80 +27,29 @@
     }
 
     /* ── Top bar ───────────────────────────────────────────────────────── */
-    .topbar {
-      grid-column: 1 / -1;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      height: 56px;
-      background: rgba(var(--bg-canvas-rgb, 255 255 255) / .9);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-      gap: 16px;
-    }
-    .topbar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      width: 260px;
-      flex-shrink: 0;
-    }
-    .topbar-logo-mark {
-      width: 28px; height: 28px;
-      border-radius: 7px;
-      background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 800; font-size: 13px; letter-spacing: -0.5px;
-      flex-shrink: 0;
-    }
-    .topbar-logo-name {
-      font-size: 14px;
-      font-weight: 650;
-      color: var(--fg-strong);
-      letter-spacing: -0.2px;
-    }
-    .topbar-sep { flex: 1; }
-    .topbar-actions { display: flex; align-items: center; gap: 8px; }
-
-    .theme-toggle {
-      display: flex;
-      background: var(--bg-muted);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 2px;
-    }
-    .theme-btn {
-      padding: 4px 12px;
-      border: none;
-      background: transparent;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--fg-muted);
-      cursor: pointer;
-      transition: background 120ms, color 120ms;
-    }
-    .theme-btn.active {
-      background: var(--bg-surface);
-      color: var(--fg-default);
-      box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
-    }
-
-    .topbar-link {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--fg-muted);
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 7px;
-      transition: background 120ms, color 120ms;
-    }
-    .topbar-link:hover { background: var(--bg-muted); color: var(--fg-default); }
+    .stb { grid-column: 1/-1; position: sticky; top: 0; z-index: 100; height: 56px; display: flex; align-items: center; padding: 0 24px; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,.08); }
+    .stb-logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14.5px; color: #0f172a; text-decoration: none; flex-shrink: 0; }
+    .stb-mark { width: 28px; height: 28px; background: #6366f1; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stb-mark svg { width: 14px; height: 14px; }
+    .stb-sep { width: 1px; height: 18px; background: rgba(0,0,0,.12); margin: 0 16px; flex-shrink: 0; }
+    .stb-links { display: flex; align-items: center; gap: 2px; }
+    .stb-link { padding: 5px 10px; border-radius: 6px; font-size: 13.5px; color: #64748b; text-decoration: none; transition: background .15s, color .15s; white-space: nowrap; }
+    .stb-link:hover { background: rgba(0,0,0,.05); color: #0f172a; }
+    .stb-cur { color: #6366f1 !important; font-weight: 600; }
+    .stb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .stb-tog { display: flex; border: 1px solid rgba(0,0,0,.12); border-radius: 7px; overflow: hidden; }
+    .stb-tbtn { padding: 4px 12px; font-size: 12px; cursor: pointer; border: none; background: transparent; color: #64748b; transition: all .15s; font-family: inherit; font-weight: 500; }
+    .stb-tbtn.active { background: #0f172a; color: #fff; }
+    [data-theme="dark"] .stb { background: rgba(10,12,18,.92); border-color: rgba(255,255,255,.07); }
+    [data-theme="dark"] .stb-logo { color: #e8eaf0; }
+    [data-theme="dark"] .stb-mark { background: #4f46e5; }
+    [data-theme="dark"] .stb-sep { background: rgba(255,255,255,.1); }
+    [data-theme="dark"] .stb-link { color: #8b98b8; }
+    [data-theme="dark"] .stb-link:hover { background: rgba(255,255,255,.06); color: #e8eaf0; }
+    [data-theme="dark"] .stb-cur { color: #818cf8 !important; }
+    [data-theme="dark"] .stb-tog { border-color: #252b3b; }
+    [data-theme="dark"] .stb-tbtn { color: #8b98b8; }
+    [data-theme="dark"] .stb-tbtn.active { background: #e8eaf0; color: #0c0e14; }
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
     .sidebar {
@@ -600,19 +549,25 @@
 <div class="shell">
 
   <!-- ── Top bar ──────────────────────────────────────────────────────── -->
-  <header class="topbar">
-    <a href="#overview" class="topbar-logo">
-      <div class="topbar-logo-mark">C</div>
-      <span class="topbar-logo-name">Custom Design System</span>
+  <header class="stb">
+    <a href="guide.html" class="stb-logo">
+      <span class="stb-mark">
+        <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" fill="white"/><rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity=".5"/><rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity=".5"/><rect x="8" y="8" width="5" height="5" rx="1" fill="white"/></svg>
+      </span>
+      Custom DS
     </a>
-    <div class="topbar-sep"></div>
-    <div class="topbar-actions">
-      <a href="../configure/index.html" target="_blank" class="topbar-link">Configurator</a>
-      <a href="index.html" target="_blank" class="topbar-link">Component docs</a>
-      <a href="onboarding.html" target="_blank" class="topbar-link">Onboarding</a>
-      <div class="theme-toggle">
-        <button class="theme-btn active" data-theme-val="light">Light</button>
-        <button class="theme-btn" data-theme-val="dark">Dark</button>
+    <span class="stb-sep"></span>
+    <nav class="stb-links">
+      <span class="stb-link stb-cur">Guide</span>
+      <a href="index.html" class="stb-link">Components</a>
+      <a href="../configure/index.html" class="stb-link">Configurator</a>
+      <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit</a>
+      <a href="onboarding.html" class="stb-link">Onboarding</a>
+    </nav>
+    <div class="stb-right">
+      <div class="stb-tog">
+        <button class="stb-tbtn active" data-v="light">Light</button>
+        <button class="stb-tbtn" data-v="dark">Dark</button>
       </div>
     </div>
   </header>
@@ -1198,11 +1153,10 @@ Follow CLAUDE.md. Sentence case all labels.</div>
 <script>
   // ── Theme toggle ─────────────────────────────────────────────────────
   const html = document.documentElement;
-  document.querySelectorAll('.theme-btn').forEach(btn => {
+  document.querySelectorAll('.stb-tbtn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const val = btn.dataset.themeVal;
-      html.dataset.theme = val;
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      html.dataset.theme = btn.dataset.v;
+      document.querySelectorAll('.stb-tbtn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     });
   });

@@ -68,7 +68,7 @@
     .topbar h1 { display: none; }
     .topbar .grow { flex: 1; }
     .stb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
-    .stb-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+    .stb-mark{width:28px;height:28px;border-radius:7px;background:#6366f1;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
     .stb-name{font-size:14px;font-weight:650;color:var(--fg-strong);letter-spacing:-0.2px;}
     .stb-link{font-size:13px;font-weight:500;color:var(--fg-muted);text-decoration:none;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:background 100ms,color 100ms;}
     .stb-link:hover{background:var(--bg-muted);color:var(--fg-default);}
@@ -496,13 +496,17 @@
     <div>
       <header class="topbar">
         <a href="docs/guide.html" class="stb-logo">
-          <div class="stb-mark">W</div>
-          <span class="stb-name">White-label UI Kit</span>
+          <span class="stb-mark" style="background:#6366f1;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><rect x="1" y="1" width="5" height="5" rx="1" fill="white"/><rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity=".5"/><rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity=".5"/><rect x="8" y="8" width="5" height="5" rx="1" fill="white"/></svg>
+          </span>
+          <span class="stb-name">Custom DS</span>
         </a>
         <div class="stb-sep"></div>
-        <a href="docs/guide.html" class="stb-link">Developer guide</a>
+        <a href="docs/guide.html" class="stb-link">Guide</a>
+        <a href="docs/index.html" class="stb-link">Components</a>
         <a href="configure/index.html" class="stb-link">Configurator</a>
-        <a href="docs/index.html" class="stb-link">Component docs</a>
+        <span class="stb-link stb-cur" style="color:var(--fg-brand);font-weight:600">UI Kit</span>
+        <a href="docs/onboarding.html" class="stb-link">Onboarding</a>
         <span class="grow"></span>
         <div class="seg" role="group" aria-label="Style" id="style-pick">
           <button data-style="standard"   aria-pressed="true">Standard</button>

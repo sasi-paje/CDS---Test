@@ -320,7 +320,8 @@
     .stb{position:sticky;top:0;z-index:300;height:56px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;padding:0 24px;gap:6px;font-family:var(--font-sans);}
     [data-theme="dark"] .stb{background:rgba(12,13,17,.9);}
     .stb-logo{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:4px;flex-shrink:0;}
-    .stb-mark{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+    .stb-mark{width:28px;height:28px;border-radius:7px;background:#6366f1;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .stb-mark svg{width:14px;height:14px;}
     .stb-name{font-size:14px;font-weight:650;color:var(--fg-strong);letter-spacing:-0.2px;}
     .stb-sep{flex:1;}
     .stb-link{font-size:13px;font-weight:500;color:var(--fg-muted);text-decoration:none;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:background 100ms,color 100ms;}
@@ -335,17 +336,24 @@
 <body>
   <header class="stb">
     <a href="../docs/guide.html" class="stb-logo">
-      <div class="stb-mark">C</div>
-      <span class="stb-name">Custom Design System</span>
+      <span class="stb-mark">
+        <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" fill="white"/><rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity=".5"/><rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity=".5"/><rect x="8" y="8" width="5" height="5" rx="1" fill="white"/></svg>
+      </span>
+      Custom DS
     </a>
-    <div class="stb-sep"></div>
-    <a href="../docs/guide.html" class="stb-link">Developer guide</a>
-    <span class="stb-link stb-cur">Configurator</span>
-    <a href="../docs/index.html" class="stb-link">Component docs</a>
-    <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit ↗</a>
-    <div class="stb-tog">
-      <button class="stb-tbtn active" data-v="light">Light</button>
-      <button class="stb-tbtn" data-v="dark">Dark</button>
+    <span class="stb-sep"></span>
+    <nav class="stb-links">
+      <a href="../docs/guide.html" class="stb-link">Guide</a>
+      <a href="../docs/index.html" class="stb-link">Components</a>
+      <span class="stb-link stb-cur">Configurator</span>
+      <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit</a>
+      <a href="../docs/onboarding.html" class="stb-link">Onboarding</a>
+    </nav>
+    <div class="stb-right">
+      <div class="stb-tog">
+        <button class="stb-tbtn active" data-v="light">Light</button>
+        <button class="stb-tbtn" data-v="dark">Dark</button>
+      </div>
     </div>
   </header>
   <div id="root"></div>

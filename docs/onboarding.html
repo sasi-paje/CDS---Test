@@ -641,9 +641,9 @@ function contrastChecker(brandHex) {
   const typoPreview = `
     <div class="ob-contrast-typo">
       <div class="ob-contrast-typo-card" style="background:#fff;border:1px solid var(--wiz-border)">
-        <div style="font-size:16px;font-weight:700;color:${brandHex}">Heading</div>
-        <div style="font-size:13px;color:${brandHex};margin-top:2px">Link / label text</div>
-        <div style="font-size:10.5px;color:var(--wiz-text-subtle);margin-top:6px">Brand on white</div>
+        <div style="font-size:16px;font-weight:700;color:${aaHex}">Heading</div>
+        <div style="font-size:13px;color:${aaHex};margin-top:2px">Link / label text</div>
+        <div style="font-size:10.5px;color:var(--wiz-text-subtle);margin-top:6px">Auto-adapted for light</div>
       </div>
       <div class="ob-contrast-typo-card" style="background:${brandHex}">
         <div style="font-size:16px;font-weight:700;color:${textOnBrand}">Button</div>
@@ -651,9 +651,9 @@ function contrastChecker(brandHex) {
         <div style="font-size:10.5px;color:${textOnBrand};opacity:.6;margin-top:6px">Text on brand bg</div>
       </div>
       <div class="ob-contrast-typo-card" style="background:${DARK};border:1px solid rgba(255,255,255,.08)">
-        <div style="font-size:16px;font-weight:700;color:${brandHex}">Heading</div>
-        <div style="font-size:13px;color:${brandHex};margin-top:2px">Link / label text</div>
-        <div style="font-size:10.5px;color:#64748b;margin-top:6px">Brand on dark bg</div>
+        <div style="font-size:16px;font-weight:700;color:${darkAAHex}">Heading</div>
+        <div style="font-size:13px;color:${darkAAHex};margin-top:2px">Link / label text</div>
+        <div style="font-size:10.5px;color:#64748b;margin-top:6px">Auto-adapted for dark</div>
       </div>
     </div>`;
 

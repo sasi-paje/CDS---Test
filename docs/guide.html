@@ -27,7 +27,7 @@
     }
 
     /* ── Canonical topbar ─────────────────────────────────────── */
-.ds-t{position:sticky;top:0;z-index:999;height:56px;display:flex;align-items:center;padding:0 28px;background:#fff;border-bottom:1px solid #e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;}
+.ds-t{grid-column:1/-1;position:sticky;top:0;z-index:999;height:56px;display:flex;align-items:center;padding:0 28px;background:#fff;border-bottom:1px solid #e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;}
 [data-theme=dark] .ds-t{background:#0d0f14;border-color:#1e2333;}
 .ds-logo{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600;color:#111827;text-decoration:none;flex-shrink:0;}
 [data-theme=dark] .ds-logo{color:#f1f5f9;}
@@ -52,6 +52,7 @@
 
     /* ── Sidebar ───────────────────────────────────────────────────────── */
     .sidebar {
+      grid-column:1;grid-row:2;
       position: sticky;
       top: 56px;
       height: calc(100vh - 56px);
@@ -105,6 +106,7 @@
 
     /* ── Main content ──────────────────────────────────────────────────── */
     .main {
+      grid-column:2;grid-row:2;
       min-width: 0;
       padding: 56px 64px 96px;
     }

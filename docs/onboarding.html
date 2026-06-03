@@ -508,32 +508,59 @@ function hslToHex(h, s, l) {
   return '#'+[hue2rgb(p,q,h+1/3),hue2rgb(p,q,h),hue2rgb(p,q,h-1/3)].map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');
 }
 function applyCustomBrand(hex) {
-  const [h,s,l] = hexToHsl(hex);
   const root = document.documentElement;
-  root.style.setProperty('--bg-brand',           hex);
-  root.style.setProperty('--bg-brand-subtle',    hslToHex(h, Math.max(s-20,8), Math.min(l+36,95)));
-  root.style.setProperty('--fg-brand',           hslToHex(h, s, Math.min(l-4,48)));
-  root.style.setProperty('--fg-on-brand',        l > 62 ? '#1a1a1a' : '#ffffff');
-  root.style.setProperty('--border-brand',       hslToHex(h, Math.max(s-12,12), Math.min(l+22,82)));
-  root.style.setProperty('--bg-brand-hover',     hslToHex(h, s, Math.max(l-8,18)));
+  const isDark = root.dataset.theme === 'dark';
+  const DARK_BG = '#0f172a';
+
+  // Pick the right brand hex for the current theme
+  const activeBrand = isDark
+    ? findAATone(hex, DARK_BG, 4.5)   // lighten so it's readable on dark bg
+    : hex;                              // keep original for light mode
+
+  const [h,s,l] = hexToHsl(activeBrand);
+
+  root.style.setProperty('--bg-brand',        activeBrand);
+  root.style.setProperty('--fg-brand',        activeBrand);
+  root.style.setProperty('--fg-on-brand',     getLuminance(activeBrand) > 0.35 ? '#0f172a' : '#ffffff');
+  root.style.setProperty('--bg-brand-hover',  hslToHex(h, s, isDark ? Math.min(l+8,95) : Math.max(l-8,18)));
+
+  if (isDark) {
+    root.style.setProperty('--bg-brand-subtle',  hslToHex(h, Math.max(s-20,8), Math.min(l-28,22)));
+    root.style.setProperty('--border-brand',     hslToHex(h, Math.max(s-15,10), Math.min(l-15,35)));
+  } else {
+    root.style.setProperty('--bg-brand-subtle',  hslToHex(h, Math.max(s-20,8), Math.min(l+36,95)));
+    root.style.setProperty('--border-brand',     hslToHex(h, Math.max(s-12,12), Math.min(l+22,82)));
+  }
 }
 function clearCustomBrand() {
   ['--bg-brand','--bg-brand-subtle','--fg-brand','--fg-on-brand','--border-brand','--bg-brand-hover']
     .forEach(v => document.documentElement.style.removeProperty(v));
 }
 
-// ─── AA tone finder ───────────────────────────────────────────────────────────
-function findAATone(hex, target) {
+// ─── AA tone finder (works vs any background) ─────────────────────────────────
+function findAATone(hex, bgHex, target) {
+  bgHex  = bgHex  || '#ffffff';
   target = target || 4.5;
-  if (contrastRatio(hex, '#ffffff') >= target) return hex;
-  const [h, s] = hexToHsl(hex);
-  // Binary search: find the HIGHEST lightness (least colour-shifted) that still passes
-  let lo = 0, hi = hexToHsl(hex)[2];
-  for (let i = 0; i < 40; i++) {
-    const mid = (lo + hi) / 2;
-    contrastRatio(hslToHex(h, s, mid), '#ffffff') >= target ? (lo = mid) : (hi = mid);
+  if (contrastRatio(hex, bgHex) >= target) return hex;
+  const [h, s, l] = hexToHsl(hex);
+  const bgLight = getLuminance(bgHex) > 0.18; // light bg → darken brand; dark bg → lighten brand
+  if (bgLight) {
+    // Decrease L until contrast passes — find highest L that still passes
+    let lo = 0, hi = l;
+    for (let i = 0; i < 40; i++) {
+      const mid = (lo + hi) / 2;
+      contrastRatio(hslToHex(h, s, mid), bgHex) >= target ? (lo = mid) : (hi = mid);
+    }
+    return hslToHex(h, s, Math.round(lo));
+  } else {
+    // Increase L until contrast passes — find lowest L that still passes
+    let lo = l, hi = 100;
+    for (let i = 0; i < 40; i++) {
+      const mid = (lo + hi) / 2;
+      contrastRatio(hslToHex(h, s, mid), bgHex) >= target ? (hi = mid) : (lo = mid);
+    }
+    return hslToHex(h, s, Math.round(hi));
   }
-  return hslToHex(h, s, Math.round(lo));
 }
 
 // ─── WCAG contrast checker ───────────────────────────────────────────────────
@@ -564,36 +591,50 @@ function contrastChecker(brandHex) {
   const rDark = contrastRatio(brandHex, DARK);
   const textOnBrand = contrastRatio(brandHex, WHITE) >= contrastRatio(brandHex, DARK) ? WHITE : DARK;
 
-  // Auto-fix suggestions
-  const aaHex  = findAATone(brandHex, 4.5);
-  const aaaHex = findAATone(brandHex, 7);
+  const DARK_BG = '#0f172a';
+  // Light mode fixes (brand vs white)
+  const aaHex   = findAATone(brandHex, '#ffffff', 4.5);
+  const aaaHex  = findAATone(brandHex, '#ffffff', 7);
   const needsAA  = rMain < 4.5;
   const needsAAA = rMain < 7;
+  // Dark mode fixes (brand vs dark bg)
+  const darkAAHex  = findAATone(brandHex, DARK_BG, 4.5);
+  const darkAAAHex = findAATone(brandHex, DARK_BG, 7);
+  const needsDarkAA  = rDark < 4.5;
+  const needsDarkAAA = rDark < 7;
 
-  const fixBlock = needsAA ? `
-    <div class="ob-contrast-fix">
-      <div class="ob-contrast-fix-dot" style="background:${aaHex}"></div>
+  function fixRow(label, fixHex, bgForRatio, btnLabel, btnColor, note) {
+    const r = contrastRatio(fixHex, bgForRatio).toFixed(2);
+    return `<div class="ob-contrast-fix">
+      <div class="ob-contrast-fix-dot" style="background:${fixHex}"></div>
       <div class="ob-contrast-fix-info">
-        <div class="ob-contrast-fix-label">AA fix: <code style="font-family:monospace">${aaHex}</code>
-          <span style="font-size:11px;font-weight:400;color:var(--wiz-text-muted);margin-left:4px">(ratio ${contrastRatio(aaHex,'#ffffff').toFixed(2)}:1)</span>
+        <div class="ob-contrast-fix-label">${label}: <code style="font-family:monospace">${fixHex}</code>
+          <span style="font-size:11px;font-weight:400;color:var(--wiz-text-muted);margin-left:4px">(${r}:1)</span>
         </div>
-        <div class="ob-contrast-fix-sub">Same hue &amp; saturation — lightness adjusted to meet 4.5:1</div>
+        <div class="ob-contrast-fix-sub">${note}</div>
       </div>
-      <button class="ob-fix-btn" onclick="pickCustomBrand('${aaHex}')">Apply AA</button>
-    </div>
-    ${needsAAA ? `<div class="ob-contrast-fix" style="margin-top:6px">
-      <div class="ob-contrast-fix-dot" style="background:${aaaHex}"></div>
-      <div class="ob-contrast-fix-info">
-        <div class="ob-contrast-fix-label">AAA fix: <code style="font-family:monospace">${aaaHex}</code>
-          <span style="font-size:11px;font-weight:400;color:var(--wiz-text-muted);margin-left:4px">(ratio ${contrastRatio(aaaHex,'#ffffff').toFixed(2)}:1)</span>
-        </div>
-        <div class="ob-contrast-fix-sub">Same hue &amp; saturation — lightness adjusted to meet 7:1</div>
-      </div>
-      <button class="ob-fix-btn" style="background:#7c3aed" onclick="pickCustomBrand('${aaaHex}')">Apply AAA</button>
-    </div>` : ''}` : `
-    <div style="margin-top:12px;padding:10px 12px;background:var(--wiz-surface);border:1px solid #bbf7d0;border-radius:9px;display:flex;align-items:center;gap:8px">
-      <span style="color:#10b981;font-size:16px">✓</span>
-      <span style="font-size:13px;color:var(--wiz-text)">This color passes AA for normal text. No adjustment needed.</span>
+      <button class="ob-fix-btn" style="background:${btnColor||'#6366f1'}" onclick="pickCustomBrand('${fixHex}')">${btnLabel}</button>
+    </div>`;
+  }
+
+  const fixBlock = `
+    ${needsAA
+      ? fixRow('Light AA', aaHex, '#ffffff', 'Apply AA', '#4f46e5', 'Same hue — darkened to 4.5:1 on white')
+      : `<div style="padding:10px 12px;background:var(--wiz-surface);border:1px solid #bbf7d0;border-radius:9px;display:flex;align-items:center;gap:8px">
+           <span style="color:#10b981;font-size:16px">✓</span>
+           <span style="font-size:13px;color:var(--wiz-text)">Passes AA on white background.</span>
+         </div>`}
+    ${needsAA && needsAAA ? fixRow('Light AAA', aaaHex, '#ffffff', 'Apply AAA', '#7c3aed', 'Same hue — darkened to 7:1 on white') : ''}
+    <div style="margin-top:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wiz-text-subtle);padding-top:10px;border-top:1px solid var(--wiz-border)">Dark mode</div>
+    ${needsDarkAA
+      ? fixRow('Dark AA', darkAAHex, DARK_BG, 'Apply AA dark', '#1d4ed8', 'Same hue — lightened to 4.5:1 on dark bg')
+      : `<div style="padding:10px 12px;background:var(--wiz-surface);border:1px solid #bbf7d0;border-radius:9px;display:flex;align-items:center;gap:8px;margin-top:6px">
+           <span style="color:#10b981;font-size:16px">✓</span>
+           <span style="font-size:13px;color:var(--wiz-text)">Passes AA on dark background.</span>
+         </div>`}
+    ${needsDarkAA && needsDarkAAA ? fixRow('Dark AAA', darkAAAHex, DARK_BG, 'Apply AAA dark', '#1e40af', 'Same hue — lightened to 7:1 on dark bg') : ''}
+    <div style="margin-top:10px;padding:9px 12px;background:var(--wiz-surface-2);border-radius:8px;font-size:11.5px;color:var(--wiz-text-muted)">
+      ℹ️ The preview auto-adapts the brand shade per theme — dark mode always uses the lightened variant.
     </div>`;
 
   // Typography preview
@@ -658,17 +699,20 @@ function contrastChecker(brandHex) {
     </table>
     ${typoPreview}
     ${fixBlock}
-    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--wiz-border);display:flex;align-items:center;gap:8px">
-      <div class="ob-contrast-swatches">
-        <div class="ob-contrast-swatch" style="background:#0f172a;color:${brandHex};border:1px solid rgba(255,255,255,.08);font-size:13px">Aa</div>
-        <div class="ob-contrast-arrow">↔</div>
-        <div class="ob-contrast-swatch" style="background:${brandHex};color:${textOnBrand};border:1px solid rgba(0,0,0,.08);font-size:13px">Aa</div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--wiz-border)">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wiz-text-subtle);margin-bottom:8px">As-picked on dark background</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="ob-contrast-swatches">
+          <div class="ob-contrast-swatch" style="background:#0f172a;color:${brandHex};border:1px solid rgba(255,255,255,.08);font-size:13px">Aa</div>
+          <div class="ob-contrast-arrow">↔</div>
+          <div class="ob-contrast-swatch" style="background:${brandHex};color:${rDark > 4.5 ? '#0f172a' : '#ffffff'};border:1px solid rgba(0,0,0,.08);font-size:13px">Aa</div>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--wiz-text)">${rDark.toFixed(2)}<span style="font-size:13px;color:var(--wiz-text-muted)">:1</span></div>
+          <div style="font-size:11.5px;color:var(--wiz-text-muted)">${brandHex} vs #0f172a</div>
+        </div>
+        <div class="ob-contrast-badges" style="margin-left:auto">${wcagBadge(rDark)}</div>
       </div>
-      <div>
-        <div style="font-size:15px;font-weight:700;color:var(--wiz-text)">${rDark.toFixed(2)}<span style="font-size:13px;color:var(--wiz-text-muted)">:1</span></div>
-        <div style="font-size:11.5px;color:var(--wiz-text-muted)">brand vs dark mode bg</div>
-      </div>
-      <div class="ob-contrast-badges" style="margin-left:auto">${wcagBadge(rDark)}</div>
     </div>
   </div>`;
 }

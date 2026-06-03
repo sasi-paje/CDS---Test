@@ -147,9 +147,10 @@ function ToggleGroup({ type = "single", value, onChange, items, size = "md", var
       {items.map((it, i) => {
         const on = isOn(it.value);
         const first = i === 0, last = i === items.length - 1;
-        return (
+        const btn = (
           <button key={it.value} onClick={() => toggle(it.value)}
-            aria-pressed={on}
+            aria-pressed={on} aria-label={it.ariaLabel || it.tooltip}
+            title={!it.tooltip && !it.label ? (it.ariaLabel || undefined) : undefined}
             style={{
               appearance: "none", border: 0, cursor: "pointer", fontFamily: "inherit",
               height: sz.h, padding: `0 ${sz.px}px`, fontSize: sz.fs, fontWeight: 500,
@@ -169,6 +170,9 @@ function ToggleGroup({ type = "single", value, onChange, items, size = "md", var
             {it.label}
           </button>
         );
+        return it.tooltip
+          ? <Tooltip key={it.value} content={it.tooltip}>{btn}</Tooltip>
+          : btn;
       })}
     </div>
   );

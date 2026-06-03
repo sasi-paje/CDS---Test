@@ -106,6 +106,18 @@ Use this to match a client brief to a preset. **One style per client / per produ
 9. **Form fields:** always set `label` and either `placeholder` or `hint`. Errors use `error` + `hint` together. Required fields get `required`.
 10. **Respect spacing rhythm.** Most layouts only need `--space-2` / `--space-3` / `--space-4` / `--space-5` / `--space-7` / `--space-8` (4 / 8 / 12 / 16 / 24 / 32). Don't break the 4-point grid.
 
+## Examples
+
+Full-page reference implementations in `examples/`. Each is self-contained and opens directly in a browser.
+
+| Folder | What it is | Components exercised |
+|---|---|---|
+| `examples/inbox/` | Task management — feed rail, severity list, triage detail | Sidebar, DataTable, Badge, Input, AlertDialog, Toaster |
+| `examples/dashboard/` | Analytics dashboard — KPIs, charts, date-range, tabs | Chart, DataTable, Progress, Tabs |
+| `examples/console/` | Admin console — Dashboard, Members CRUD, Billing, Settings, ⌘K | Sidebar, DataTable, Chart, Dialog, AlertDialog, Command, Field, Switch |
+| `examples/datatable/` | Advanced data table — multi-sort, facets, bulk actions, CSV export, drag-reorder | Checkbox, Badge, Avatar, Popover, Pagination, Tooltip |
+| `examples/spreadsheet/` | Editable spreadsheet — keyboard nav, range selection, typed cells, multiple sheets | Checkbox, Badge, IconButton, DropdownMenu, Tooltip |
+
 ## When in doubt
 
 Open `Whitelabel UI Kit.html` → find the component → every spec card has a working JSX example. Copy that.

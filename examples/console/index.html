@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="indigo" data-style="standard">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Northwind Console — Whitelabel UI Kit</title>
+  <link rel="stylesheet" href="../../src/whitelabel/tokens.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style> html, body { margin: 0; height: 100%; } </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="../../src/whitelabel/Primitives.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Display.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Overlays.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Small.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Sidebar.jsx"></script>
+  <script type="text/babel" src="../../src/whitelabel/Complex.jsx"></script>
+  <script type="text/babel" src="AppShell.jsx"></script>
+  <script type="text/babel" src="Screens.jsx"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const { Command, Toaster } = window;
+
+    const TITLES = { dashboard: "Dashboard", members: "Members", billing: "Billing", settings: "Settings", help: "Help & docs" };
+
+    function App() {
+      const [page, setPage] = useState("dashboard");
+      const [theme, setTheme] = useState("light");
+      const [brand, setBrand] = useState("indigo");
+      const [style, setStyle] = useState("standard");
+      const [cmdOpen, setCmdOpen] = useState(false);
+
+      useEffect(() => {
+        const r = document.documentElement;
+        r.dataset.theme = theme; r.dataset.brand = brand; r.dataset.style = style;
+      }, [theme, brand, style]);
+
+      useEffect(() => {
+        const onKey = (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setCmdOpen(o => !o); }
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }, []);
+
+      const go = (id) => { if (TITLES[id]) setPage(id); };
+
+      const screen = {
+        dashboard: <window.DashboardScreen />,
+        members: <window.MembersScreen />,
+        billing: <window.BillingScreen />,
+        settings: <window.SettingsScreen />,
+        help: <window.DashboardScreen />,
+      }[page];
+
+      const cmdSections = [
+        { section: "Navigate", commands: [
+          { id: "dashboard", label: "Go to Dashboard", icon: "layout-dashboard", onSelect: () => go("dashboard") },
+          { id: "members", label: "Go to Members", icon: "users", onSelect: () => go("members") },
+          { id: "billing", label: "Go to Billing", icon: "credit-card", onSelect: () => go("billing") },
+          { id: "settings", label: "Go to Settings", icon: "settings", onSelect: () => go("settings") },
+        ]},
+        { section: "Theme", commands: [
+          { id: "toggle", label: "Toggle light / dark", icon: "sun-moon", onSelect: () => setTheme(t => t === "light" ? "dark" : "light") },
+          { id: "violet", label: "Brand: Violet", icon: "circle", onSelect: () => setBrand("violet") },
+          { id: "emerald", label: "Brand: Emerald", icon: "circle", onSelect: () => setBrand("emerald") },
+          { id: "enterprise", label: "Style: Enterprise", icon: "square", onSelect: () => setStyle("enterprise") },
+        ]},
+      ];
+
+      return (
+        <>
+          <window.ConsoleShell
+            page={page} onNavigate={go}
+            theme={theme} brand={brand} style={style}
+            onTheme={setTheme} onBrand={setBrand} onStyle={setStyle}
+            onOpenCommand={() => setCmdOpen(true)}
+            title={TITLES[page]}
+          >
+            {screen}
+          </window.ConsoleShell>
+          <Command open={cmdOpen} onClose={() => setCmdOpen(false)} sections={cmdSections} placeholder="Search or jump to…" />
+          <Toaster position="bottom-right" />
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

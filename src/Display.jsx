@@ -126,15 +126,23 @@ function TableBody({ children }) { return <tbody>{children}</tbody>; }
 function TableFooter({ children }) {
   return <tfoot style={{ background: "var(--bg-subtle)", borderTop: "1px solid var(--border-subtle)" }}>{children}</tfoot>;
 }
-function TableRow({ children, selected, onClick, hoverable = true }) {
+function TableRow({ children, selected, onClick, hoverable = true, style, tint, tintHover }) {
   const [hover, setH] = useStS(false);
+  // Resting background priority: explicit selected → severity/priority tint → default.
+  const rest = tint || "transparent";
+  const bg = selected
+    ? "var(--bg-brand-subtle)"
+    : hover && hoverable
+      ? (tintHover || tint || "var(--bg-subtle)")
+      : rest;
   return (
     <tr onClick={onClick}
       onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{
-        background: selected ? "var(--bg-brand-subtle)" : hover && hoverable ? "var(--bg-subtle)" : "transparent",
+        background: bg,
         cursor: onClick ? "pointer" : "default",
         transition: "background var(--dur-fast)",
+        ...style,
       }}>{children}</tr>
   );
 }

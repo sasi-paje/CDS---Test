@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-brand="orange" data-style="standard">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CDS SaaS</title>
+  <link rel="stylesheet" href="src/whitelabel/tokens.css" />
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-canvas); color: var(--fg-default); font-family: var(--font-sans); }
+
+    /* Login */
+    .login-root {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: var(--space-5);
+      background: var(--bg-muted);
+    }
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+      box-shadow: var(--shadow-md);
+    }
+    .login-header { display: flex; flex-direction: column; gap: var(--space-2); }
+    .login-fields { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    /* Inbox */
+    .inbox-root { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg-canvas); }
+    .topbar {
+      height: 56px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-7);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-weight: 600;
+      font-size: var(--text-base);
+      color: var(--fg-default);
+    }
+    .topbar-brand-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-brand);
+    }
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--fg-muted);
+    }
+    .inbox-body {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: var(--space-7) var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+    .inbox-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .alert-feed { display: flex; flex-direction: column; gap: var(--space-3); }
+    .alert-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .alert-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+    .alert-card-meta { display: flex; flex-direction: column; gap: var(--space-2); flex: 1; min-width: 0; }
+    .alert-card-title-row { display: flex; align-items: center; gap: var(--space-3); }
+    .alert-card-footer { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+    .alert-card-time { font-size: var(--text-xs); color: var(--fg-subtle); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="src/whitelabel/Primitives.jsx"></script>
+
+  <script type="text/babel">
+    const { useState } = React;
+    const { Button, Input, Badge, Avatar, Card, Typography } = window;
+
+    /* ── Data ─────────────────────────────────────────────────────────── */
+    const ALERTS = [
+      {
+        id: 1,
+        severity: "danger",
+        title: "Payment failed",
+        message: "The scheduled invoice for Acme Corp ($4,200) could not be processed. Card ending in 4242 was declined.",
+        time: "2 min ago",
+        cta: "Retry payment",
+      },
+      {
+        id: 2,
+        severity: "warning",
+        title: "Storage at 87%",
+        message: "Your workspace is approaching the 10 GB storage limit. Upgrade your plan or remove unused files to avoid disruption.",
+        time: "18 min ago",
+        cta: "Manage storage",
+      },
+      {
+        id: 3,
+        severity: "info",
+        title: "New team member joined",
+        message: "Sara Mendes accepted her invitation and joined the workspace. Assign her a role to get started.",
+        time: "1 hr ago",
+        cta: "Assign role",
+      },
+      {
+        id: 4,
+        severity: "success",
+        title: "Backup completed",
+        message: "Your full workspace backup finished successfully. The archive is available for download for the next 30 days.",
+        time: "3 hr ago",
+        cta: "Download archive",
+      },
+      {
+        id: 5,
+        severity: "warning",
+        title: "API rate limit approaching",
+        message: "Your integration has used 78% of the monthly API quota. At the current rate, you will hit the limit in ~4 days.",
+        time: "5 hr ago",
+        cta: "View usage",
+      },
+    ];
+
+    const SEVERITY_ICON = {
+      danger:  "alert-circle",
+      warning: "alert-triangle",
+      info:    "info",
+      success: "check-circle",
+    };
+
+    /* ── Login screen ─────────────────────────────────────────────────── */
+    function LoginScreen({ onLogin }) {
+      const [email, setEmail]       = useState("");
+      const [password, setPassword] = useState("");
+
+      return (
+        <div className="login-root">
+          <div className="login-card">
+            <div className="login-header">
+              <Typography variant="h2">Sign in</Typography>
+              <Typography variant="body" style={{ color: "var(--fg-muted)" }}>
+                Welcome back — enter your credentials to continue.
+              </Typography>
+            </div>
+
+            <div className="login-fields">
+              <Input
+                label="Email"
+                type="email"
+                placeholder="you@company.com"
+                leading="mail"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+              <Input
+                label="Password"
+                type="password"
+                placeholder="••••••••"
+                leading="lock"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <Button variant="primary" fullWidth onClick={onLogin}>
+              Sign in
+            </Button>
+
+            <Typography
+              variant="caption"
+              style={{ textAlign: "center", color: "var(--fg-muted)" }}
+            >
+              Forgot your password?{" "}
+              <span style={{ color: "var(--fg-brand)", cursor: "pointer" }}>Reset it</span>
+            </Typography>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Alert card ───────────────────────────────────────────────────── */
+    function AlertCard({ item, onDismiss }) {
+      return (
+        <div className="alert-card">
+          <div className="alert-card-header">
+            <div className="alert-card-meta">
+              <div className="alert-card-title-row">
+                <Badge variant={item.severity} leading={SEVERITY_ICON[item.severity]} size="sm">
+                  {item.severity.charAt(0).toUpperCase() + item.severity.slice(1)}
+                </Badge>
+                <Typography variant="label" style={{ fontWeight: 600, color: "var(--fg-default)" }}>
+                  {item.title}
+                </Typography>
+              </div>
+              <Typography variant="body" style={{ color: "var(--fg-muted)", fontSize: "var(--text-sm)" }}>
+                {item.message}
+              </Typography>
+            </div>
+            <button
+              aria-label="Dismiss"
+              onClick={() => onDismiss(item.id)}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                color: "var(--fg-subtle)", padding: "var(--space-1)",
+                borderRadius: "var(--radius-sm)", flexShrink: 0,
+                display: "flex", alignItems: "center",
+              }}
+            >
+              {/* inline X icon */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div className="alert-card-footer">
+            <span className="alert-card-time">{item.time}</span>
+            <Button variant="outline" size="sm">{item.cta}</Button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Inbox screen ─────────────────────────────────────────────────── */
+    function InboxScreen({ onLogout }) {
+      const [alerts, setAlerts] = useState(ALERTS);
+
+      const dismiss = id => setAlerts(prev => prev.filter(a => a.id !== id));
+
+      return (
+        <div className="inbox-root">
+          <header className="topbar">
+            <div className="topbar-brand">
+              <div className="topbar-brand-dot" />
+              CDS SaaS
+            </div>
+            <div className="topbar-user">
+              <span>eduardo.sicsu@sasi.com.br</span>
+              <Avatar name="Eduardo Sicsu" size={28} />
+              <Button variant="ghost" size="sm" onClick={onLogout}>
+                Sign out
+              </Button>
+            </div>
+          </header>
+
+          <main className="inbox-body">
+            <div className="inbox-page-header">
+              <div>
+                <Typography variant="h2">Inbox</Typography>
+                <Typography variant="body" style={{ color: "var(--fg-muted)", marginTop: "var(--space-1)" }}>
+                  {alerts.length} alert{alerts.length !== 1 ? "s" : ""} need your attention
+                </Typography>
+              </div>
+              {alerts.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => setAlerts([])}>
+                  Dismiss all
+                </Button>
+              )}
+            </div>
+
+            {alerts.length === 0 ? (
+              <div style={{
+                display: "flex", flexDirection: "column", alignItems: "center",
+                justifyContent: "center", gap: "var(--space-3)",
+                padding: "var(--space-8) 0", color: "var(--fg-subtle)",
+              }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <Typography variant="body" style={{ color: "var(--fg-subtle)" }}>
+                  You're all caught up
+                </Typography>
+              </div>
+            ) : (
+              <div className="alert-feed">
+                {alerts.map(item => (
+                  <AlertCard key={item.id} item={item} onDismiss={dismiss} />
+                ))}
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    /* ── Root ─────────────────────────────────────────────────────────── */
+    function App() {
+      const [screen, setScreen] = useState("login");
+      return screen === "login"
+        ? <LoginScreen onLogin={() => setScreen("inbox")} />
+        : <InboxScreen onLogout={() => setScreen("login")} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

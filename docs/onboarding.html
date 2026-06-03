@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Project Onboarding — Custom DS</title>
+  <link rel="stylesheet" href="../src/whitelabel/tokens.css">
+  <style>
+  /* ─── Reset ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body { font-family: -apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif; background: #f4f5f7; color: #0f172a; min-height: 100vh; }
+
+  /* ─── Topbar ─── */
+  .stb { position: sticky; top: 0; z-index: 100; height: 56px; display: flex; align-items: center; padding: 0 24px; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,.08); }
+  .stb-logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14.5px; color: #0f172a; text-decoration: none; }
+  .stb-mark { width: 28px; height: 28px; background: #6366f1; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .stb-mark svg { width: 14px; height: 14px; }
+  .stb-sep { width: 1px; height: 18px; background: rgba(0,0,0,.12); margin: 0 16px; }
+  .stb-links { display: flex; align-items: center; gap: 2px; }
+  .stb-link { padding: 5px 10px; border-radius: 6px; font-size: 13.5px; color: #64748b; text-decoration: none; transition: background .15s, color .15s; }
+  .stb-link:hover { background: rgba(0,0,0,.05); color: #0f172a; }
+  .stb-cur { color: #6366f1 !important; font-weight: 500; }
+  .stb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  /* ─── Outer wrapper ─── */
+  .ob-wrap { max-width: 1100px; margin: 0 auto; padding: 44px 24px 80px; }
+
+  /* ─── Steps indicator ─── */
+  .ob-steps { display: flex; align-items: center; margin-bottom: 44px; }
+  .ob-step-item { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .ob-step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; transition: all .2s; flex-shrink: 0; }
+  .ob-step-dot.done { background: #6366f1; color: #fff; }
+  .ob-step-dot.active { background: #fff; color: #6366f1; border: 2px solid #6366f1; box-shadow: 0 0 0 4px #eef2ff; }
+  .ob-step-dot.todo { background: #fff; color: #94a3b8; border: 2px solid #e2e8f0; }
+  .ob-step-label { font-size: 13px; font-weight: 500; color: #94a3b8; white-space: nowrap; }
+  .ob-step-label.active { color: #0f172a; }
+  .ob-step-connector { flex: 1; height: 1px; background: #e2e8f0; margin: 0 10px; min-width: 16px; }
+  .ob-step-connector.done { background: #6366f1; }
+
+  /* ─── Body grid ─── */
+  .ob-body { display: grid; grid-template-columns: 1fr 420px; gap: 32px; align-items: start; }
+  @media (max-width: 860px) { .ob-body { grid-template-columns: 1fr; } }
+
+  /* ─── Form panel ─── */
+  .ob-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 36px; }
+  .ob-step-num { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #6366f1; margin-bottom: 8px; }
+  .ob-panel-title { font-size: 22px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+  .ob-panel-sub { font-size: 13.5px; color: #64748b; margin-bottom: 28px; line-height: 1.6; }
+  .ob-divider { height: 1px; background: #e2e8f0; margin: 20px 0; }
+
+  /* ─── Navigation ─── */
+  .ob-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+  .ob-btn { padding: 10px 24px; border-radius: 9px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all .15s; border: none; display: flex; align-items: center; gap: 6px; }
+  .ob-btn-back { background: #f1f5f9; color: #475569; }
+  .ob-btn-back:hover { background: #e2e8f0; }
+  .ob-btn-next { background: #6366f1; color: #fff; }
+  .ob-btn-next:hover { background: #4f46e5; }
+  .ob-btn-next:disabled { opacity: .45; cursor: default; pointer-events: none; }
+  .ob-btn-generate { background: #10b981; color: #fff; padding: 12px 28px; font-size: 15px; }
+  .ob-btn-generate:hover { background: #059669; }
+
+  /* ─── Name input ─── */
+  .ob-name-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
+  .ob-name-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-size: 15px; margin-bottom: 24px; color: #0f172a; outline: none; transition: border-color .15s; font-family: inherit; }
+  .ob-name-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px #eef2ff; }
+
+  /* ─── Site type cards ─── */
+  .ob-type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ob-type-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; cursor: pointer; transition: border-color .15s, background .15s; display: flex; flex-direction: column; gap: 5px; }
+  .ob-type-card:hover { border-color: #a5b4fc; background: #fafafa; }
+  .ob-type-card.selected { border-color: #6366f1; background: #eef2ff; }
+  .ob-type-icon { font-size: 22px; margin-bottom: 2px; }
+  .ob-type-name { font-size: 13.5px; font-weight: 700; color: #0f172a; }
+  .ob-type-desc { font-size: 12px; color: #64748b; line-height: 1.4; }
+  .ob-type-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .ob-type-tag { font-size: 10.5px; color: #6b7280; background: #f3f4f6; border-radius: 4px; padding: 2px 6px; }
+  .ob-type-card.selected .ob-type-tag { background: #e0e7ff; color: #4f46e5; }
+
+  /* ─── Brand swatches ─── */
+  .ob-brand-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 16px; }
+  .ob-swatch { width: 100%; aspect-ratio: 1; border-radius: 9px; cursor: pointer; border: 3px solid transparent; transition: transform .1s, border-color .1s, box-shadow .1s; }
+  .ob-swatch:hover { transform: scale(1.1); }
+  .ob-swatch.selected { border-color: #fff; box-shadow: 0 0 0 3px #6366f1; transform: scale(1.05); }
+  .ob-brand-selected-info { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .ob-brand-swatch-lg { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
+  .ob-brand-name { font-size: 14px; font-weight: 600; color: #0f172a; }
+  .ob-brand-code { font-size: 12px; color: #64748b; font-family: monospace; }
+
+  /* ─── Style cards ─── */
+  .ob-style-list { display: flex; flex-direction: column; gap: 8px; }
+  .ob-style-card { border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 14px; }
+  .ob-style-card:hover { border-color: #a5b4fc; background: #fafafa; }
+  .ob-style-card.selected { border-color: #6366f1; background: #eef2ff; }
+  .ob-style-vis { display: flex; flex-direction: column; gap: 3px; width: 52px; flex-shrink: 0; }
+  .ob-style-bar { height: 7px; border-radius: 100px; background: #e2e8f0; }
+  .ob-style-bar.brand { background: #6366f1; }
+  .ob-style-bar.half { width: 60%; }
+  .ob-style-info { flex: 1; }
+  .ob-style-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+  .ob-style-desc { font-size: 12px; color: #64748b; line-height: 1.4; margin-top: 1px; }
+  .ob-style-meta { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+  .ob-style-check { color: #6366f1; font-size: 18px; }
+
+  /* ─── Typography step ─── */
+  .ob-field { margin-bottom: 22px; }
+  .ob-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
+  .ob-select { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 9px; font-size: 14px; background: #fff; color: #0f172a; font-family: inherit; outline: none; cursor: pointer; }
+  .ob-select:focus { border-color: #6366f1; }
+  .ob-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+  .ob-pill { padding: 7px 14px; border-radius: 8px; border: 1.5px solid #e2e8f0; font-size: 13px; cursor: pointer; transition: all .15s; color: #475569; background: #fff; }
+  .ob-pill:hover { border-color: #a5b4fc; color: #4f46e5; }
+  .ob-pill.selected { border-color: #6366f1; background: #eef2ff; color: #4f46e5; font-weight: 600; }
+  .ob-type-sample { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+  .ob-type-sample-label { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: #94a3b8; margin-bottom: 10px; }
+  .ob-type-sample-h { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px; transition: font-family .2s; }
+  .ob-type-sample-p { font-size: 13.5px; color: #64748b; line-height: 1.65; transition: font-family .2s; }
+
+  /* ─── Review step ─── */
+  .ob-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .ob-review-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; }
+  .ob-review-key { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #94a3b8; margin-bottom: 5px; }
+  .ob-review-val { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 7px; }
+  .ob-review-sub { font-size: 11.5px; color: #64748b; margin-top: 2px; font-family: monospace; }
+  .ob-review-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .ob-comp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .ob-comp-tag { font-size: 12px; color: #4f46e5; background: #eef2ff; border-radius: 6px; padding: 4px 10px; font-weight: 500; }
+  .ob-next-steps { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 16px; }
+  .ob-next-steps-title { font-size: 13px; font-weight: 700; color: #166534; margin-bottom: 8px; }
+  .ob-next-steps-body { font-size: 13px; color: #15803d; line-height: 1.8; }
+  .ob-next-steps-body code { background: #dcfce7; padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+
+  /* ─── Preview panel ─── */
+  .ob-preview-panel { position: sticky; top: 72px; }
+  .ob-preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .ob-preview-label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; }
+  .ob-theme-toggle { display: flex; border: 1px solid #e2e8f0; border-radius: 7px; overflow: hidden; background: #f8fafc; }
+  .ob-theme-btn { padding: 5px 12px; font-size: 12px; cursor: pointer; border: none; background: transparent; color: #64748b; transition: all .15s; font-family: inherit; font-weight: 500; }
+  .ob-theme-btn.active { background: #0f172a; color: #fff; }
+
+  /* ─── Preview frame ─── */
+  .ob-preview-frame {
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(0,0,0,.1);
+    box-shadow: 0 4px 24px rgba(0,0,0,.09);
+    aspect-ratio: 4/3;
+    display: flex; flex-direction: column;
+    background: var(--bg-default);
+    transition: background .2s;
+    font-size: 11px;
+  }
+
+  /* Mock UI elements using design tokens */
+  .pv-topbar { height: 32px; display: flex; align-items: center; padding: 0 10px; gap: 6px; background: var(--bg-elevated); border-bottom: 1px solid var(--border-default); flex-shrink: 0; }
+  .pv-logo { width: 14px; height: 14px; border-radius: 3px; background: var(--bg-brand); flex-shrink: 0; }
+  .pv-bar { height: 5px; border-radius: 3px; background: var(--border-default); }
+  .pv-bar.accent { background: var(--bg-brand); }
+  .pv-avatar { width: 18px; height: 18px; border-radius: 50%; background: var(--bg-brand); margin-left: auto; flex-shrink: 0; }
+  .pv-body { display: flex; flex: 1; overflow: hidden; }
+  .pv-sidebar { width: 46px; border-right: 1px solid var(--border-default); padding: 6px 5px; display: flex; flex-direction: column; gap: 3px; background: var(--bg-subtle); flex-shrink: 0; }
+  .pv-nav { height: 16px; border-radius: 3px; }
+  .pv-nav.active { background: var(--bg-brand-subtle); }
+  .pv-nav.idle { background: var(--border-default); }
+  .pv-content { flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .pv-kpi-row { display: flex; gap: 5px; }
+  .pv-kpi { flex: 1; border-radius: 5px; padding: 6px; background: var(--bg-elevated); border: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 3px; }
+  .pv-kpi-num { height: 8px; border-radius: 2px; background: var(--fg-muted); width: 55%; }
+  .pv-kpi-lbl { height: 5px; border-radius: 2px; background: var(--border-default); width: 80%; }
+  .pv-table { border: 1px solid var(--border-default); border-radius: 5px; overflow: hidden; }
+  .pv-thead { height: 18px; background: var(--bg-subtle); border-bottom: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 6px; gap: 5px; }
+  .pv-tcol { height: 5px; border-radius: 2px; background: var(--border-muted); }
+  .pv-trow { height: 18px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; padding: 0 6px; gap: 5px; }
+  .pv-trow:last-child { border-bottom: none; }
+  .pv-cell { height: 6px; border-radius: 2px; background: var(--fg-muted); }
+  .pv-cell.muted { background: var(--border-default); }
+  .pv-badge { height: 13px; width: 32px; border-radius: 100px; }
+  .pv-badge.s { background: var(--bg-success-subtle); }
+  .pv-badge.b { background: var(--bg-brand-subtle); }
+  .pv-btn-sm { height: 14px; border-radius: var(--radius-sm); background: var(--bg-brand); }
+  .pv-chart-bars { display: flex; align-items: flex-end; gap: 2px; height: 42px; }
+  .pv-bar-c { flex: 1; border-radius: 2px 2px 0 0; background: var(--bg-brand-subtle); }
+  .pv-bar-c.hi { background: var(--bg-brand); }
+  .pv-input-mock { height: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-default); background: var(--bg-default); }
+  .pv-field-lbl { height: 5px; width: 46px; border-radius: 2px; background: var(--fg-muted); }
+  .pv-field { display: flex; flex-direction: column; gap: 3px; }
+  .pv-progress-bar { height: 4px; border-radius: 2px; background: var(--border-subtle); overflow: hidden; }
+  .pv-progress-fill { height: 100%; border-radius: 2px; background: var(--bg-brand); }
+  .pv-chip { width: 10px; height: 10px; border-radius: 2px; }
+
+  .ob-preview-components { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .ob-preview-comp { font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 5px; padding: 3px 8px; }
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="stb">
+  <a href="../index.html" class="stb-logo">
+    <span class="stb-mark">
+      <svg viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="1" width="5" height="5" rx="1" fill="white"/>
+        <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity=".5"/>
+        <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity=".5"/>
+        <rect x="8" y="8" width="5" height="5" rx="1" fill="white"/>
+      </svg>
+    </span>
+    Custom DS
+  </a>
+  <span class="stb-sep"></span>
+  <nav class="stb-links">
+    <a href="guide.html" class="stb-link">Guide</a>
+    <a href="index.html" class="stb-link">Components</a>
+    <a href="../configure/index.html" class="stb-link">Configurator</a>
+    <a href="../Whitelabel UI Kit.html" class="stb-link">UI Kit</a>
+    <a href="onboarding.html" class="stb-link stb-cur">Onboarding</a>
+  </nav>
+</header>
+
+<div class="ob-wrap">
+  <div class="ob-steps" id="ob-steps"></div>
+  <div class="ob-body">
+    <div class="ob-panel" id="ob-form-panel"></div>
+    <div class="ob-preview-panel" id="ob-preview-panel"></div>
+  </div>
+  <div class="ob-nav">
+    <button class="ob-btn ob-btn-back" id="ob-back">← Back</button>
+    <button class="ob-btn ob-btn-next" id="ob-next">Continue →</button>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const S = {
+  step: 1,
+  projectName: '',
+  siteType: '',
+  brand: 'indigo',
+  style: 'standard',
+  theme: 'light',
+  fontSize: 'md',
+  headingFont: 'default',
+  bodyFont: 'default',
+};
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const BRANDS = [
+  { id:'indigo',  hex:'#6366f1', name:'Indigo'  },
+  { id:'violet',  hex:'#7c3aed', name:'Violet'  },
+  { id:'fuchsia', hex:'#d946ef', name:'Fuchsia' },
+  { id:'pink',    hex:'#ec4899', name:'Pink'    },
+  { id:'rose',    hex:'#f43f5e', name:'Rose'    },
+  { id:'red',     hex:'#ef4444', name:'Red'     },
+  { id:'orange',  hex:'#f97316', name:'Orange'  },
+  { id:'amber',   hex:'#f59e0b', name:'Amber'   },
+  { id:'emerald', hex:'#10b981', name:'Emerald' },
+  { id:'teal',    hex:'#14b8a6', name:'Teal'    },
+  { id:'cyan',    hex:'#06b6d4', name:'Cyan'    },
+  { id:'blue',    hex:'#3b82f6', name:'Blue'    },
+];
+
+const STYLES = [
+  { id:'standard',   name:'Standard',   desc:'Clean modern web — rounded corners, subtle shadows', meta:'shadcn / Linear / Vercel' },
+  { id:'enterprise', name:'Enterprise', desc:'Formal B2B — IBM Plex Sans, compact, sharp borders', meta:'Atlassian / IBM Carbon / Salesforce' },
+  { id:'friendly',   name:'Friendly',   desc:'Warm SaaS — DM Sans, soft edges, generous whitespace', meta:'Notion / Front / Pitch' },
+  { id:'refined',    name:'Refined',    desc:'Premium craft — Geist, subtle depth, design-led', meta:'Stripe / Cursor / Arc' },
+  { id:'data-dense', name:'Data-dense', desc:'Power tools — tabular font, compact, screen-fills', meta:'Datadog / Linear compact' },
+];
+
+const SITE_TYPES = [
+  { id:'admin',     icon:'⚙️',  name:'Admin Console',       desc:'Sidebar nav, data tables, CRUD management screens', tags:['Sidebar','DataTable','Dialog','Command','Chart'] },
+  { id:'dashboard', icon:'📊',  name:'Analytics Dashboard', desc:'KPI cards, charts, date ranges, exec summaries',     tags:['Chart','DataTable','Progress','DateRange'] },
+  { id:'saas',      icon:'🚀',  name:'SaaS App',            desc:'Auth, settings, billing, feature screens — full product shell', tags:['AppShell','Sidebar','Forms','Toaster'] },
+  { id:'datatable', icon:'🗂️', name:'Data Table App',      desc:'Power grid — multi-sort, facets, bulk actions, export', tags:['DataTable','Checkbox','Pagination','Badge'] },
+  { id:'forms',     icon:'📝',  name:'Form-Heavy App',      desc:'Multi-step forms, diverse field types, live validation', tags:['Input','Select','DatePicker','Alert'] },
+  { id:'blank',     icon:'✨',  name:'Blank Starter',       desc:'Minimal setup — core primitives only, build freely', tags:['Button','Input','Card','Badge'] },
+];
+
+const FONT_OPTIONS = [
+  { id:'default',    name:'Style default (recommended)' },
+  { id:'inter',      name:'Inter — clean, versatile' },
+  { id:'geist',      name:'Geist — modern, minimal' },
+  { id:'dm-sans',    name:'DM Sans — friendly, round' },
+  { id:'ibm-plex',   name:'IBM Plex Sans — formal, structured' },
+  { id:'plus-jakarta', name:'Plus Jakarta Sans — contemporary' },
+  { id:'sora',       name:'Sora — geometric, bold' },
+];
+
+const STARTER_COMPONENTS = {
+  admin:     ['Sidebar','DataTable','Chart','Dialog','AlertDialog','Command','Field','Switch','Badge','Avatar','Toaster'],
+  dashboard: ['Chart','DataTable','Progress','Tabs','DateRangePicker','Badge','Avatar','Skeleton'],
+  saas:      ['AppShell','Sidebar','Input','Select','Switch','Dialog','Sheet','Toaster','Alert','Badge'],
+  datatable: ['DataTable','Checkbox','Badge','Avatar','Popover','Pagination','Tooltip','IconButton'],
+  forms:     ['Input','Textarea','Select','Checkbox','Radio','Switch','DatePicker','Alert','Progress','Button'],
+  blank:     ['Button','Input','Card','Badge','Alert','Avatar','Spinner'],
+};
+
+const STEPS = [
+  { n:1, label:'Project' },
+  { n:2, label:'Brand' },
+  { n:3, label:'Style' },
+  { n:4, label:'Typography' },
+  { n:5, label:'Generate' },
+];
+
+const FONT_CSS = {
+  inter:       "'Inter', -apple-system, sans-serif",
+  geist:       "'Geist', -apple-system, sans-serif",
+  'dm-sans':   "'DM Sans', sans-serif",
+  'ibm-plex':  "'IBM Plex Sans', sans-serif",
+  'plus-jakarta': "'Plus Jakarta Sans', sans-serif",
+  sora:        "'Sora', sans-serif",
+  default:     '',
+};
+
+// ─── Step indicator ───────────────────────────────────────────────────────────
+function renderSteps() {
+  document.getElementById('ob-steps').innerHTML = STEPS.map((s, i) => {
+    const cls = S.step > s.n ? 'done' : S.step === s.n ? 'active' : 'todo';
+    const lCls = S.step === s.n ? 'active' : '';
+    const icon = S.step > s.n ? '✓' : s.n;
+    const connCls = S.step > s.n ? 'done' : '';
+    return `${i > 0 ? `<div class="ob-step-connector ${connCls}"></div>` : ''}
+      <div class="ob-step-item">
+        <div class="ob-step-dot ${cls}">${icon}</div>
+        <span class="ob-step-label ${lCls}">${s.label}</span>
+      </div>`;
+  }).join('');
+}
+
+// ─── Preview ──────────────────────────────────────────────────────────────────
+function renderPreview() {
+  // Apply brand/style/theme to root so CSS tokens update the preview frame
+  const root = document.documentElement;
+  root.dataset.brand = S.brand;
+  root.dataset.style = S.style;
+  root.dataset.theme = S.theme;
+
+  const comps = (STARTER_COMPONENTS[S.siteType] || STARTER_COMPONENTS.blank).slice(0, 6);
+
+  document.getElementById('ob-preview-panel').innerHTML = `
+    <div class="ob-preview-header">
+      <span class="ob-preview-label">Live Preview</span>
+      <div class="ob-theme-toggle">
+        <button class="ob-theme-btn ${S.theme==='light'?'active':''}" onclick="pickTheme('light')">Light</button>
+        <button class="ob-theme-btn ${S.theme==='dark'?'active':''}" onclick="pickTheme('dark')">Dark</button>
+      </div>
+    </div>
+    <div class="ob-preview-frame">${getMockup()}</div>
+    <div class="ob-preview-components">
+      ${comps.map(c => `<span class="ob-preview-comp">${c}</span>`).join('')}
+      ${(STARTER_COMPONENTS[S.siteType]||[]).length > 6 ? `<span class="ob-preview-comp">+${(STARTER_COMPONENTS[S.siteType]||[]).length - 6} more</span>` : ''}
+    </div>`;
+}
+
+function pickTheme(t) { S.theme = t; renderPreview(); }
+
+function getMockup() {
+  const m = {
+    admin: mockAdmin, dashboard: mockDashboard, saas: mockSaas,
+    datatable: mockDataTable, forms: mockForms,
+  }[S.siteType] || mockBlank;
+  return m();
+}
+
+function mockAdmin() {
+  return `
+    <div class="pv-topbar">
+      <div class="pv-logo"></div>
+      <div class="pv-bar accent" style="width:36px"></div>
+      <div class="pv-bar" style="width:28px"></div>
+      <div class="pv-bar" style="width:24px"></div>
+      <div class="pv-avatar"></div>
+    </div>
+    <div class="pv-body">
+      <div class="pv-sidebar">
+        <div class="pv-nav active"></div>
+        <div class="pv-nav idle"></div>
+        <div class="pv-nav idle"></div>
+        <div class="pv-nav idle"></div>
+        <div style="flex:1"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-brand);margin:0 auto"></div>
+      </div>
+      <div class="pv-content">
+        <div class="pv-kpi-row">
+          <div class="pv-kpi"><div class="pv-kpi-num"></div><div class="pv-kpi-lbl"></div></div>
+          <div class="pv-kpi"><div class="pv-kpi-num" style="width:70%"></div><div class="pv-kpi-lbl"></div></div>
+          <div class="pv-kpi"><div class="pv-kpi-num" style="width:45%"></div><div class="pv-kpi-lbl"></div></div>
+        </div>
+        <div class="pv-table">
+          <div class="pv-thead">
+            <div class="pv-tcol" style="width:8px;height:8px;border-radius:2px;background:var(--border-default)"></div>
+            <div class="pv-tcol" style="width:55px"></div>
+            <div class="pv-tcol" style="width:38px"></div>
+            <div class="pv-tcol" style="width:42px;margin-left:auto"></div>
+          </div>
+          ${['70,s','55,b','80,s','65,b'].map(v => {
+            const [w,b] = v.split(',');
+            return `<div class="pv-trow">
+              <div class="pv-cell" style="width:${w}px"></div>
+              <div class="pv-badge ${b}" style="margin-left:auto"></div>
+              <div class="pv-btn-sm" style="width:34px"></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function mockDashboard() {
+  return `
+    <div class="pv-topbar">
+      <div class="pv-logo"></div>
+      <div class="pv-bar" style="width:48px;margin-left:6px"></div>
+      <div class="pv-bar accent" style="width:36px"></div>
+      <div style="margin-left:auto;display:flex;gap:5px;align-items:center">
+        <div style="height:16px;width:56px;border-radius:var(--radius-sm);border:1px solid var(--border-default);background:var(--bg-subtle)"></div>
+        <div class="pv-avatar"></div>
+      </div>
+    </div>
+    <div class="pv-content">
+      <div class="pv-kpi-row">
+        ${['50%','72%','38%','81%'].map(w => `<div class="pv-kpi"><div class="pv-kpi-num" style="width:${w}"></div><div class="pv-kpi-lbl"></div></div>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px;flex:1">
+        <div style="flex:2;border:1px solid var(--border-default);border-radius:5px;padding:8px;background:var(--bg-elevated)">
+          <div style="height:6px;width:52px;border-radius:2px;background:var(--fg-muted);margin-bottom:7px"></div>
+          <div class="pv-chart-bars">
+            ${[55,38,72,50,82,44,68,56,78,42,62,74].map((h,i) =>
+              `<div class="pv-bar-c ${i===10?'hi':''}" style="height:${h}%"></div>`
+            ).join('')}
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          ${[74,46,60,84].map(v => `
+            <div style="background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:5px;padding:6px">
+              <div style="height:5px;width:48px;border-radius:2px;background:var(--border-default);margin-bottom:5px"></div>
+              <div class="pv-progress-bar"><div class="pv-progress-fill" style="width:${v}%"></div></div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function mockSaas() {
+  return `
+    <div class="pv-topbar">
+      <div class="pv-logo"></div>
+      <div class="pv-bar" style="width:36px;margin-left:6px"></div>
+      <div class="pv-bar accent" style="width:32px"></div>
+      <div style="margin-left:auto;display:flex;gap:5px">
+        <div style="height:16px;width:40px;border-radius:var(--radius-md);background:var(--bg-brand)"></div>
+        <div class="pv-avatar"></div>
+      </div>
+    </div>
+    <div class="pv-body">
+      <div class="pv-sidebar">
+        ${['active','idle','idle','idle','idle'].map(c => `<div class="pv-nav ${c}"></div>`).join('')}
+        <div style="flex:1"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--bg-brand);margin:0 auto"></div>
+      </div>
+      <div class="pv-content">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${[0,1,2,3].map(i => `
+            <div style="background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:6px;padding:8px">
+              <div style="height:6px;width:40px;border-radius:2px;background:var(--fg-muted);margin-bottom:5px"></div>
+              <div style="height:5px;width:60px;border-radius:2px;background:var(--border-default);margin-bottom:7px"></div>
+              <div style="height:15px;width:38px;border-radius:var(--radius-md);background:var(--bg-brand)"></div>
+            </div>`).join('')}
+        </div>
+        <div class="pv-table">
+          <div class="pv-thead"><div class="pv-tcol" style="width:70px"></div></div>
+          ${[0,1,2].map(i => `<div class="pv-trow"><div class="pv-cell" style="width:65px"></div><div class="pv-badge ${i%2===0?'b':'s'}" style="margin-left:auto"></div></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function mockDataTable() {
+  return `
+    <div class="pv-topbar">
+      <div class="pv-logo"></div>
+      <div style="margin-left:auto;display:flex;gap:5px">
+        <div style="height:16px;width:52px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--bg-subtle)"></div>
+        <div style="height:16px;width:40px;border-radius:var(--radius-md);background:var(--bg-brand)"></div>
+      </div>
+    </div>
+    <div class="pv-content">
+      <div style="display:flex;gap:5px">
+        <div style="height:20px;flex:1;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--bg-default)"></div>
+        <div style="height:20px;width:56px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--bg-subtle)"></div>
+        <div style="height:20px;width:56px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--bg-subtle)"></div>
+      </div>
+      <div class="pv-table" style="flex:1">
+        <div class="pv-thead" style="height:20px">
+          <div class="pv-chip" style="border:1.5px solid var(--border-default)"></div>
+          ${['70px','52px','44px','44px'].map(w => `<div class="pv-tcol" style="width:${w}"></div>`).join('')}
+        </div>
+        ${[{w:'85px',b:'s',ch:1},{w:'70px',b:'b',ch:0},{w:'95px',b:'s',ch:1},{w:'75px',b:'b',ch:0},{w:'65px',b:'s',ch:0}].map(r => `
+          <div class="pv-trow">
+            <div class="pv-chip" style="${r.ch?'background:var(--bg-brand)':'border:1.5px solid var(--border-default)'}"></div>
+            <div class="pv-cell" style="width:${r.w}"></div>
+            <div class="pv-badge ${r.b}" style="margin-left:auto"></div>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding-top:2px">
+        <div style="height:6px;width:70px;border-radius:2px;background:var(--border-default)"></div>
+        <div style="margin-left:auto;display:flex;gap:3px">
+          ${[1,2,3,4].map(i => `<div style="width:16px;height:16px;border-radius:3px;background:${i===2?'var(--bg-brand)':'var(--bg-subtle)'}"></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function mockForms() {
+  return `
+    <div class="pv-topbar">
+      <div class="pv-logo"></div>
+      <div style="flex:1;display:flex;justify-content:center;gap:8px;align-items:center">
+        ${[0,1,2].map((i,idx) => `
+          <div style="display:flex;align-items:center;gap:4px">
+            <div style="width:14px;height:14px;border-radius:50%;${idx===0?'background:var(--bg-brand)':'background:var(--border-default)'}"></div>
+            <div style="height:5px;width:26px;border-radius:2px;background:var(--border-default)"></div>
+          </div>
+          ${idx<2?`<div style="width:14px;height:1px;background:var(--border-default)"></div>`:''}
+        `).join('')}
+      </div>
+      <div class="pv-avatar"></div>
+    </div>
+    <div class="pv-content" style="align-items:center">
+      <div style="width:100%;max-width:240px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px">
+        <div style="height:7px;width:80px;border-radius:2px;background:var(--fg-muted);margin-bottom:2px"></div>
+        ${[1,2].map(() => `<div class="pv-field"><div class="pv-field-lbl"></div><div class="pv-input-mock"></div></div>`).join('')}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${[1,2].map(() => `<div class="pv-field"><div class="pv-field-lbl"></div><div class="pv-input-mock"></div></div>`).join('')}
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <div style="width:12px;height:12px;border-radius:2px;background:var(--bg-brand)"></div>
+          <div style="height:5px;width:80px;border-radius:2px;background:var(--border-default)"></div>
+        </div>
+        <div style="height:22px;border-radius:var(--radius-md);background:var(--bg-brand)"></div>
+      </div>
+    </div>`;
+}
+
+function mockBlank() {
+  return `
+    <div class="pv-topbar">
+      <div class="pv-logo"></div>
+      <div class="pv-bar" style="width:36px;margin-left:6px"></div>
+      <div style="margin-left:auto;display:flex;gap:5px">
+        <div style="height:16px;width:40px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--bg-subtle)"></div>
+        <div style="height:16px;width:40px;border-radius:var(--radius-md);background:var(--bg-brand)"></div>
+      </div>
+    </div>
+    <div class="pv-content" style="align-items:center;justify-content:center">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+        <div style="width:40px;height:40px;border-radius:10px;background:var(--bg-brand-subtle);display:flex;align-items:center;justify-content:center">
+          <div style="width:20px;height:20px;border-radius:5px;background:var(--bg-brand)"></div>
+        </div>
+        <div style="height:9px;width:100px;border-radius:3px;background:var(--fg-muted)"></div>
+        <div style="height:6px;width:130px;border-radius:2px;background:var(--border-default)"></div>
+        <div style="height:6px;width:110px;border-radius:2px;background:var(--border-default)"></div>
+        <div style="display:flex;gap:7px;margin-top:4px">
+          <div style="height:22px;width:68px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:var(--bg-subtle)"></div>
+          <div style="height:22px;width:68px;border-radius:var(--radius-md);background:var(--bg-brand)"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ─── Step renderers ───────────────────────────────────────────────────────────
+function renderStep1() {
+  const typeGrid = SITE_TYPES.map(t => `
+    <div class="ob-type-card ${S.siteType===t.id?'selected':''}" onclick="pickType('${t.id}')">
+      <div class="ob-type-icon">${t.icon}</div>
+      <div class="ob-type-name">${t.name}</div>
+      <div class="ob-type-desc">${t.desc}</div>
+      <div class="ob-type-tags">${t.tags.map(g => `<span class="ob-type-tag">${g}</span>`).join('')}</div>
+    </div>`).join('');
+
+  return `
+    <div class="ob-step-num">Step 1 of 5</div>
+    <h2 class="ob-panel-title">What are you building?</h2>
+    <p class="ob-panel-sub">Choose the app type — it sets your starter template and pre-selects the components you'll need.</p>
+    <label class="ob-name-label">Project name</label>
+    <input class="ob-name-input" id="name-inp" type="text" placeholder="My App" value="${S.projectName}" oninput="S.projectName=this.value">
+    <div class="ob-type-grid">${typeGrid}</div>`;
+}
+
+function pickType(id) { S.siteType = id; renderFormPanel(); renderPreview(); updateNav(); }
+
+function renderStep2() {
+  const brand = BRANDS.find(b => b.id === S.brand) || BRANDS[0];
+  return `
+    <div class="ob-step-num">Step 2 of 5</div>
+    <h2 class="ob-panel-title">Choose your brand color</h2>
+    <p class="ob-panel-sub">Your primary accent for buttons, links, and focus rings. Change anytime via <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px">data-brand</code> — no rebuild needed.</p>
+    <div class="ob-brand-grid">
+      ${BRANDS.map(b => `<div class="ob-swatch ${S.brand===b.id?'selected':''}" style="background:${b.hex}" title="${b.name}" onclick="pickBrand('${b.id}')"></div>`).join('')}
+    </div>
+    <div class="ob-brand-selected-info">
+      <div class="ob-brand-swatch-lg" style="background:${brand.hex}"></div>
+      <div>
+        <div class="ob-brand-name">${brand.name}</div>
+        <div class="ob-brand-code">data-brand="${brand.id}"</div>
+      </div>
+    </div>`;
+}
+
+function pickBrand(id) { S.brand = id; renderFormPanel(); renderPreview(); }
+
+function renderStep3() {
+  return `
+    <div class="ob-step-num">Step 3 of 5</div>
+    <h2 class="ob-panel-title">Pick a visual style</h2>
+    <p class="ob-panel-sub">Styles change font, radius, and shadow depth. All 5 work with every brand and theme — switching is always safe.</p>
+    <div class="ob-style-list">
+      ${STYLES.map(s => `
+        <div class="ob-style-card ${S.style===s.id?'selected':''}" onclick="pickStyle('${s.id}')">
+          <div class="ob-style-vis">
+            <div class="ob-style-bar brand"></div>
+            <div class="ob-style-bar half"></div>
+            <div class="ob-style-bar"></div>
+          </div>
+          <div class="ob-style-info">
+            <div class="ob-style-name">${s.name}</div>
+            <div class="ob-style-desc">${s.desc}</div>
+            <div class="ob-style-meta">${s.meta}</div>
+          </div>
+          ${S.style===s.id ? '<div class="ob-style-check">✓</div>' : ''}
+        </div>`).join('')}
+    </div>`;
+}
+
+function pickStyle(id) { S.style = id; renderFormPanel(); renderPreview(); }
+
+function renderStep4() {
+  const hStyle = FONT_CSS[S.headingFont] ? `font-family:${FONT_CSS[S.headingFont]}` : '';
+  const bStyle = FONT_CSS[S.bodyFont] ? `font-family:${FONT_CSS[S.bodyFont]}` : '';
+  const sizeMap = { xs:'12px', sm:'13px', md:'14px · Default', lg:'15px' };
+
+  return `
+    <div class="ob-step-num">Step 4 of 5</div>
+    <h2 class="ob-panel-title">Typography &amp; density</h2>
+    <p class="ob-panel-sub">The style preset sets sensible defaults — override only if your brand needs a specific typeface.</p>
+    <div class="ob-field">
+      <label class="ob-label">Base font size</label>
+      <div class="ob-pills">
+        ${['xs','sm','md','lg'].map(s => `
+          <div class="ob-pill ${S.fontSize===s?'selected':''}" onclick="S.fontSize='${s}';renderFormPanel()">${sizeMap[s]}</div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="ob-field">
+      <label class="ob-label">Heading font</label>
+      <select class="ob-select" onchange="S.headingFont=this.value;renderFormPanel()">
+        ${FONT_OPTIONS.map(f => `<option value="${f.id}" ${S.headingFont===f.id?'selected':''}>${f.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="ob-field">
+      <label class="ob-label">Body font</label>
+      <select class="ob-select" onchange="S.bodyFont=this.value;renderFormPanel()">
+        ${FONT_OPTIONS.map(f => `<option value="${f.id}" ${S.bodyFont===f.id?'selected':''}>${f.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="ob-divider"></div>
+    <div class="ob-type-sample">
+      <div class="ob-type-sample-label">Type sample</div>
+      <div class="ob-type-sample-h" style="${hStyle}">The quick brown fox jumps</div>
+      <div class="ob-type-sample-p" style="${bStyle}">Over the lazy dog. Build production-grade UIs with the design system's 50+ components, semantic tokens, and five style presets.</div>
+    </div>`;
+}
+
+function renderStep5() {
+  const brand  = BRANDS.find(b => b.id === S.brand) || BRANDS[0];
+  const style  = STYLES.find(s => s.id === S.style) || STYLES[0];
+  const type   = SITE_TYPES.find(t => t.id === S.siteType) || SITE_TYPES[5];
+  const comps  = STARTER_COMPONENTS[S.siteType] || STARTER_COMPONENTS.blank;
+
+  return `
+    <div class="ob-step-num">Step 5 of 5</div>
+    <h2 class="ob-panel-title">Ready to generate</h2>
+    <p class="ob-panel-sub">Review your choices. Click Generate to download a <strong>starter.html</strong> pre-wired with your brand, style, and components.</p>
+    <div class="ob-review-grid">
+      <div class="ob-review-card">
+        <div class="ob-review-key">Site type</div>
+        <div class="ob-review-val">${type.icon} ${type.name}</div>
+        <div class="ob-review-sub"></div>
+      </div>
+      <div class="ob-review-card">
+        <div class="ob-review-key">Brand color</div>
+        <div class="ob-review-val"><span class="ob-review-dot" style="background:${brand.hex}"></span>${brand.name}</div>
+        <div class="ob-review-sub">data-brand="${brand.id}"</div>
+      </div>
+      <div class="ob-review-card">
+        <div class="ob-review-key">Visual style</div>
+        <div class="ob-review-val">${style.name}</div>
+        <div class="ob-review-sub">data-style="${style.id}"</div>
+      </div>
+      <div class="ob-review-card">
+        <div class="ob-review-key">Theme / Size</div>
+        <div class="ob-review-val">${S.theme.charAt(0).toUpperCase()+S.theme.slice(1)} / ${S.fontSize.toUpperCase()}</div>
+        <div class="ob-review-sub">data-theme="${S.theme}"</div>
+      </div>
+    </div>
+    <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:8px">Components included</div>
+    <div class="ob-comp-tags">${comps.map(c => `<span class="ob-comp-tag">${c}</span>`).join('')}</div>
+    <div class="ob-next-steps">
+      <div class="ob-next-steps-title">After generating</div>
+      <div class="ob-next-steps-body">
+        1. Save <code>starter.html</code> to your project root<br>
+        2. Run <code>python3 -m http.server 3333</code><br>
+        3. Open <code>http://localhost:3333/starter.html</code><br>
+        4. Tell Claude Code: <em>"Build me a [screen] using src/whitelabel/"</em>
+      </div>
+    </div>`;
+}
+
+// ─── Starter generator ────────────────────────────────────────────────────────
+function generateStarter() {
+  const name  = S.projectName || 'My App';
+  const brand = S.brand;
+  const style = S.style;
+  const theme = S.theme;
+  const hFont = FONT_CSS[S.headingFont] || '';
+  const bFont = FONT_CSS[S.bodyFont] || '';
+  const fontOverride = (hFont || bFont) ? `
+  <style>
+    ${hFont ? `h1,h2,h3,h4,h5,h6 { font-family: ${hFont}; }` : ''}
+    ${bFont ? `body { font-family: ${bFont}; }` : ''}
+  </style>` : '';
+
+  const generators = {
+    admin: genAdmin, dashboard: genDashboard, saas: genSaas,
+    datatable: genDataTable, forms: genForms, blank: genBlank,
+  };
+  const html = (generators[S.siteType] || genBlank)(name, brand, style, theme, fontOverride);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), { href: url, download: 'starter.html' });
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+const CDN = {
+  react:    'https://unpkg.com/react@18.3.1/umd/react.development.js',
+  reactdom: 'https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js',
+  babel:    'https://unpkg.com/@babel/standalone@7.29.0/babel.min.js',
+  lucide:   'https://unpkg.com/lucide@latest',
+};
+function cdnScripts() {
+  return Object.values(CDN).map(u => `  <sc` + `ript src="${u}" crossorigin></sc` + `ript>`).join('\n');
+}
+function libScripts(files) {
+  return files.map(f => `  <sc` + `ript type="text/babel" src="src/whitelabel/${f}.jsx"></sc` + `ript>`).join('\n');
+}
+
+function head(name, brand, style, theme, fontOverride, extraStyle='') {
+  return `<!doctype html>
+<html lang="en" data-theme="${theme}" data-brand="${brand}" data-style="${style}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${name}</title>
+  <link rel="stylesheet" href="src/whitelabel/tokens.css">
+${cdnScripts()}${fontOverride}
+  <style>html,body{margin:0;min-height:100%;background:var(--bg-default);color:var(--fg-default);}${extraStyle}</style>
+</head>
+<body>
+  <div id="root"></div>`;
+}
+
+function foot(code) {
+  return `
+  <sc` + `ript type="text/babel">
+${code}
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </sc` + `ript>
+</body>
+</html>`;
+}
+
+function genAdmin(name, brand, style, theme, fontOverride) {
+  return head(name, brand, style, theme, fontOverride, '') +
+'\n' + libScripts(['Primitives','Display','Overlays','Small','Sidebar','Complex']) +
+'\n' + `  <sc` + `ript type="text/babel" src="examples/console/AppShell.jsx"></sc` + `ript>
+  <sc` + `ript type="text/babel" src="examples/console/Screens.jsx"></sc` + `ript>` +
+foot(`
+    const { useState, useEffect } = React;
+    const { Command, Toaster } = window;
+    const TITLES = { dashboard:"Dashboard", members:"Members", billing:"Billing", settings:"Settings" };
+
+    function App() {
+      const [page, setPage]   = useState("dashboard");
+      const [theme, setTheme] = useState("${theme}");
+      const [brand, setBrand] = useState("${brand}");
+      const [style, setStyle] = useState("${style}");
+      const [cmd, setCmd]     = useState(false);
+
+      useEffect(() => {
+        const r = document.documentElement;
+        r.dataset.theme = theme; r.dataset.brand = brand; r.dataset.style = style;
+      }, [theme, brand, style]);
+
+      useEffect(() => {
+        const h = e => { if ((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k') { e.preventDefault(); setCmd(o=>!o); } };
+        window.addEventListener('keydown', h);
+        return () => window.removeEventListener('keydown', h);
+      }, []);
+
+      const screen = {
+        dashboard: <window.DashboardScreen />,
+        members:   <window.MembersScreen />,
+        billing:   <window.BillingScreen />,
+        settings:  <window.SettingsScreen />,
+      }[page];
+
+      return (
+        <>
+          <window.ConsoleShell page={page} onNavigate={setPage}
+            theme={theme} brand={brand} style={style}
+            onTheme={setTheme} onBrand={setBrand} onStyle={setStyle}
+            onOpenCommand={() => setCmd(true)} title={TITLES[page]}>
+            {screen}
+          </window.ConsoleShell>
+          <Command open={cmd} onClose={() => setCmd(false)}
+            sections={[{section:"Navigate",commands:[
+              {id:"dashboard",label:"Go to Dashboard",icon:"layout-dashboard",onSelect:()=>setPage("dashboard")},
+              {id:"members",  label:"Go to Members",  icon:"users",           onSelect:()=>setPage("members")},
+              {id:"billing",  label:"Go to Billing",  icon:"credit-card",     onSelect:()=>setPage("billing")},
+              {id:"settings", label:"Go to Settings", icon:"settings",        onSelect:()=>setPage("settings")},
+            ]}]}
+            placeholder="Search or jump to…" />
+          <Toaster position="bottom-right" />
+        </>
+      );
+    }
+`);
+}
+
+function genDashboard(name, brand, style, theme, fontOverride) {
+  return head(name, brand, style, theme, fontOverride, '') +
+'\n' + libScripts(['Primitives','Display','Overlays','Small','Complex','Gaps']) +
+foot(`
+    const { useState } = React;
+    const { Card, Badge, Progress, Tabs, Button, Skeleton, Toaster } = window;
+
+    const KPI_DATA = [
+      { label:'Total revenue',  value:'$48,295', delta:'+12.5%', up:true  },
+      { label:'Active users',   value:'3,842',   delta:'+8.2%',  up:true  },
+      { label:'Conversion',     value:'4.6%',    delta:'-0.3%',  up:false },
+      { label:'Avg session',    value:'3m 42s',  delta:'+22s',   up:true  },
+    ];
+
+    function KPICard({ label, value, delta, up }) {
+      return (
+        <Card style={{padding:'18px 20px'}}>
+          <div style={{fontSize:13,color:'var(--fg-muted)',marginBottom:6}}>{label}</div>
+          <div style={{fontSize:26,fontWeight:700,marginBottom:4}}>{value}</div>
+          <span style={{fontSize:12,fontWeight:600,color:up?'var(--fg-success)':'var(--fg-danger)'}}>
+            {delta} vs last month
+          </span>
+        </Card>
+      );
+    }
+
+    function App() {
+      const { Toaster } = window;
+      return (
+        <div style={{padding:'24px 32px',maxWidth:1100,margin:'0 auto'}}>
+          <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginBottom:24}}>
+            <h1 style={{fontSize:22,fontWeight:700}}>${name} Dashboard</h1>
+            <Button variant="outline" leading="calendar">Last 30 days</Button>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
+            {KPI_DATA.map(k => <KPICard key={k.label} {...k} />)}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:14}}>
+            <Card style={{padding:20}}>
+              <div style={{fontWeight:600,marginBottom:16}}>Revenue over time</div>
+              <div style={{height:180,display:'flex',alignItems:'flex-end',gap:6,padding:'0 4px',borderBottom:'1px solid var(--border-default)'}}>
+                {[42,58,38,72,65,80,55,70,60,84,74,90].map((h,i) => (
+                  <div key={i} style={{flex:1,height:h+'%',borderRadius:'3px 3px 0 0',background:i===11?'var(--bg-brand)':'var(--bg-brand-subtle)',transition:'height .3s'}} />
+                ))}
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',marginTop:8}}>
+                {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => (
+                  <span key={m} style={{fontSize:10,color:'var(--fg-muted)',flex:1,textAlign:'center'}}>{m}</span>
+                ))}
+              </div>
+            </Card>
+            <Card style={{padding:20,display:'flex',flexDirection:'column',gap:14}}>
+              <div style={{fontWeight:600}}>Top channels</div>
+              {[{label:'Organic search',pct:42},{label:'Direct',pct:28},{label:'Social',pct:18},{label:'Referral',pct:12}].map(c => (
+                <div key={c.label}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:4}}>
+                    <span>{c.label}</span><span style={{fontWeight:600}}>{c.pct}%</span>
+                  </div>
+                  <Progress value={c.pct} />
+                </div>
+              ))}
+            </Card>
+          </div>
+          <Toaster position="bottom-right" />
+        </div>
+      );
+    }
+`);
+}
+
+function genSaas(name, brand, style, theme, fontOverride) {
+  return head(name, brand, style, theme, fontOverride, 'html,body{height:100%;}') +
+'\n' + libScripts(['Primitives','Display','Overlays','Small','Sidebar','Gaps','Gaps2']) +
+foot(`
+    const { useState, useEffect } = React;
+    const { Button, Input, Card, Badge, Alert, Switch, Toaster, Dialog, toast } = window;
+
+    const PAGES = {
+      home:     <HomePage />,
+      settings: <SettingsPage />,
+      billing:  <BillingPage />,
+    };
+
+    function Sidebar({ page, setPage }) {
+      const NAV = [
+        { id:'home',     label:'Home',     icon:'home' },
+        { id:'settings', label:'Settings', icon:'settings' },
+        { id:'billing',  label:'Billing',  icon:'credit-card' },
+      ];
+      return (
+        <nav style={{width:220,borderRight:'1px solid var(--border-default)',height:'100%',padding:'20px 12px',display:'flex',flexDirection:'column',gap:2,background:'var(--bg-subtle)'}}>
+          <div style={{fontWeight:700,fontSize:16,padding:'8px 10px',marginBottom:8,color:'var(--fg-default)'}}>${name}</div>
+          {NAV.map(n => (
+            <div key={n.id} onClick={() => setPage(n.id)} style={{
+              padding:'8px 12px',borderRadius:'var(--radius-md)',cursor:'pointer',fontSize:14,fontWeight:page===n.id?600:400,
+              background:page===n.id?'var(--bg-brand-subtle)':'transparent',
+              color:page===n.id?'var(--fg-brand)':'var(--fg-muted)',
+            }}>{n.label}</div>
+          ))}
+        </nav>
+      );
+    }
+
+    function HomePage() {
+      const { Card, Button, Badge, Alert } = window;
+      return (
+        <div style={{padding:32,maxWidth:720}}>
+          <h1 style={{fontSize:28,fontWeight:700,marginBottom:6}}>${name}</h1>
+          <p style={{color:'var(--fg-muted)',marginBottom:24,fontSize:15}}>Your app dashboard. Start building your home screen here.</p>
+          <Alert variant="info" title="Getting started">
+            Ask Claude Code: "Build me a [feature] screen using the components in src/whitelabel/"
+          </Alert>
+        </div>
+      );
+    }
+
+    function SettingsPage() {
+      const { Card, Input, Switch, Button } = window;
+      return (
+        <div style={{padding:32,maxWidth:560}}>
+          <h2 style={{fontSize:20,fontWeight:700,marginBottom:24}}>Settings</h2>
+          <Card style={{padding:24,display:'flex',flexDirection:'column',gap:20}}>
+            <Input label="Display name" placeholder="Jane Smith" />
+            <Input label="Email" placeholder="jane@example.com" leading="mail" />
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <div>
+                <div style={{fontWeight:600,fontSize:14}}>Email notifications</div>
+                <div style={{color:'var(--fg-muted)',fontSize:13}}>Receive updates via email</div>
+              </div>
+              <Switch />
+            </div>
+            <Button variant="primary" style={{alignSelf:'flex-start'}}>Save changes</Button>
+          </Card>
+        </div>
+      );
+    }
+
+    function BillingPage() {
+      const { Card, Button, Badge } = window;
+      return (
+        <div style={{padding:32,maxWidth:560}}>
+          <h2 style={{fontSize:20,fontWeight:700,marginBottom:24}}>Billing</h2>
+          <Card style={{padding:24}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+              <div>
+                <div style={{fontWeight:600}}>Pro plan</div>
+                <div style={{color:'var(--fg-muted)',fontSize:13}}>$49 / month</div>
+              </div>
+              <Badge variant="success">Active</Badge>
+            </div>
+            <Button variant="outline">Manage subscription</Button>
+          </Card>
+        </div>
+      );
+    }
+
+    function App() {
+      const [page, setPage] = useState('home');
+      const { Toaster } = window;
+      return (
+        <div style={{display:'flex',height:'100vh'}}>
+          <Sidebar page={page} setPage={setPage} />
+          <main style={{flex:1,overflow:'auto'}}>{PAGES[page]}</main>
+          <Toaster position="bottom-right" />
+        </div>
+      );
+    }
+`);
+}
+
+function genDataTable(name, brand, style, theme, fontOverride) {
+  return head(name, brand, style, theme, fontOverride, '') +
+'\n' + libScripts(['Primitives','Display','Overlays','Small']) +
+'\n' + `  <sc` + `ript type="text/babel" src="examples/datatable/DataTableKit.jsx"></sc` + `ript>` +
+foot(`
+    function App() {
+      const { Toaster } = window;
+      return (
+        <>
+          <window.DataTableKit />
+          <Toaster position="bottom-right" />
+        </>
+      );
+    }
+`);
+}
+
+function genForms(name, brand, style, theme, fontOverride) {
+  return head(name, brand, style, theme, fontOverride, '') +
+'\n' + libScripts(['Primitives','Overlays','Small','Complex','Gaps','Gaps2']) +
+foot(`
+    const { useState } = React;
+    const { Button, Input, Textarea, Select, Checkbox, Switch, Alert, Progress, Card, Toaster, toast } = window;
+
+    const STEPS = ['Details','Preferences','Review'];
+
+    function Step1({ data, setData }) {
+      return (
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          <Input label="Full name" placeholder="Jane Smith" required value={data.name||''} onValueChange={v=>setData(d=>({...d,name:v}))} />
+          <Input label="Email address" placeholder="jane@example.com" leading="mail" required value={data.email||''} onValueChange={v=>setData(d=>({...d,email:v}))} />
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            <Input label="Company" placeholder="Acme Inc." value={data.company||''} onValueChange={v=>setData(d=>({...d,company:v}))} />
+            <Select label="Role" placeholder="Select role…" options={['Engineer','Designer','Manager','Other']} value={data.role||''} onChange={v=>setData(d=>({...d,role:v}))} />
+          </div>
+        </div>
+      );
+    }
+
+    function Step2({ data, setData }) {
+      return (
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          <Select label="Plan" placeholder="Choose a plan…" options={['Free','Pro ($49/mo)','Team ($99/mo)']} value={data.plan||''} onChange={v=>setData(d=>({...d,plan:v}))} />
+          <Textarea label="How did you hear about us?" placeholder="Tell us more…" value={data.source||''} onValueChange={v=>setData(d=>({...d,source:v}))} rows={3} />
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 0',borderTop:'1px solid var(--border-default)'}}>
+            <div>
+              <div style={{fontWeight:600,fontSize:14}}>Marketing emails</div>
+              <div style={{fontSize:13,color:'var(--fg-muted)'}}>Product news and tips</div>
+            </div>
+            <Switch checked={!!data.marketing} onCheckedChange={v=>setData(d=>({...d,marketing:v}))} />
+          </div>
+        </div>
+      );
+    }
+
+    function Step3({ data }) {
+      const rows = [['Name',data.name],['Email',data.email],['Role',data.role],['Plan',data.plan]].filter(r=>r[1]);
+      return (
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          <Alert variant="info" title="Almost done">Review your details before submitting.</Alert>
+          <div style={{background:'var(--bg-subtle)',borderRadius:'var(--radius-md)',padding:16,display:'flex',flexDirection:'column',gap:8}}>
+            {rows.map(([k,v]) => (
+              <div key={k} style={{display:'flex',justifyContent:'space-between',fontSize:14}}>
+                <span style={{color:'var(--fg-muted)'}}>{k}</span>
+                <span style={{fontWeight:500}}>{v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    const STEP_COMPONENTS = [Step1, Step2, Step3];
+
+    function App() {
+      const [step, setStep]   = useState(0);
+      const [data, setData]   = useState({});
+      const [done, setDone]   = useState(false);
+      const { Toaster } = window;
+
+      function submit() {
+        setDone(true);
+        toast({ title:'Submitted!', description:'We'll be in touch soon.', variant:'success' });
+      }
+
+      if (done) return (
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>
+          <Card style={{padding:40,textAlign:'center',maxWidth:420}}>
+            <div style={{fontSize:48,marginBottom:16}}>🎉</div>
+            <h2 style={{fontSize:22,fontWeight:700,marginBottom:8}}>All done!</h2>
+            <p style={{color:'var(--fg-muted)'}}>Thanks for signing up. We'll be in touch soon.</p>
+          </Card>
+          <Toaster position="bottom-right" />
+        </div>
+      );
+
+      const StepComp = STEP_COMPONENTS[step];
+      return (
+        <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',padding:24}}>
+          <Card style={{width:'100%',maxWidth:520,padding:32}}>
+            <div style={{marginBottom:24}}>
+              <div style={{display:'flex',gap:8,marginBottom:16}}>
+                {STEPS.map((s,i) => (
+                  <div key={s} style={{display:'flex',alignItems:'center',gap:6,flex:i<STEPS.length-1?1:'initial'}}>
+                    <div style={{
+                      width:24,height:24,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',
+                      fontSize:11,fontWeight:700,flexShrink:0,
+                      background:i<step?'var(--bg-brand)':i===step?'var(--bg-brand)':'var(--bg-subtle)',
+                      color:i<=step?'var(--fg-on-brand)':'var(--fg-muted)',
+                    }}>{i < step ? '✓' : i+1}</div>
+                    <span style={{fontSize:13,fontWeight:i===step?600:400,color:i===step?'var(--fg-default)':'var(--fg-muted)'}}>{s}</span>
+                    {i < STEPS.length-1 && <div style={{flex:1,height:1,background:'var(--border-default)'}}></div>}
+                  </div>
+                ))}
+              </div>
+              <Progress value={((step+1)/STEPS.length)*100} />
+            </div>
+            <h2 style={{fontSize:20,fontWeight:700,marginBottom:6}}>{STEPS[step]}</h2>
+            <p style={{color:'var(--fg-muted)',fontSize:14,marginBottom:20}}>
+              {['Tell us about yourself.','Set your preferences.','Review and submit.'][step]}
+            </p>
+            <StepComp data={data} setData={setData} />
+            <div style={{display:'flex',justifyContent:'space-between',marginTop:24,paddingTop:20,borderTop:'1px solid var(--border-default)'}}>
+              <Button variant="ghost" onClick={() => setStep(s=>s-1)} style={{visibility:step===0?'hidden':'visible'}}>← Back</Button>
+              {step < STEPS.length-1
+                ? <Button variant="primary" onClick={() => setStep(s=>s+1)}>Continue →</Button>
+                : <Button variant="primary" onClick={submit}>Submit</Button>}
+            </div>
+          </Card>
+          <Toaster position="bottom-right" />
+        </div>
+      );
+    }
+`);
+}
+
+function genBlank(name, brand, style, theme, fontOverride) {
+  return head(name, brand, style, theme, fontOverride, '') +
+'\n' + libScripts(['Primitives','Overlays']) +
+foot(`
+    const { Button, Input, Card, Badge, Alert } = window;
+
+    function App() {
+      return (
+        <div style={{maxWidth:640,margin:'80px auto',padding:'0 24px'}}>
+          <h1 style={{fontSize:32,fontWeight:700,marginBottom:8}}>${name}</h1>
+          <p style={{color:'var(--fg-muted)',fontSize:15,marginBottom:32,lineHeight:1.6}}>
+            Your project is ready. Open this file and ask Claude Code what to build.
+          </p>
+          <Alert variant="info" title="How to start">
+            Tell Claude Code: <em>"Build me a [screen description] using the components in src/whitelabel/"</em>
+          </Alert>
+          <div style={{marginTop:32,display:'flex',gap:12}}>
+            <Button variant="primary" leading="plus">Create something</Button>
+            <Button variant="outline" leading="book-open">Browse components</Button>
+          </div>
+        </div>
+      );
+    }
+`);
+}
+
+// ─── Form panel ───────────────────────────────────────────────────────────────
+function renderFormPanel() {
+  const renderers = [null, renderStep1, renderStep2, renderStep3, renderStep4, renderStep5];
+  document.getElementById('ob-form-panel').innerHTML = renderers[S.step]();
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function canAdvance() {
+  return S.step !== 1 || S.siteType !== '';
+}
+
+function updateNav() {
+  const back = document.getElementById('ob-back');
+  const next = document.getElementById('ob-next');
+  back.style.visibility = S.step === 1 ? 'hidden' : 'visible';
+  next.disabled = !canAdvance();
+
+  if (S.step === 5) {
+    next.textContent = '⬇ Download starter.html';
+    next.className = 'ob-btn ob-btn-generate';
+    next.onclick = generateStarter;
+  } else {
+    next.textContent = 'Continue →';
+    next.className = 'ob-btn ob-btn-next';
+    next.onclick = advance;
+  }
+}
+
+function advance() { if (canAdvance()) { S.step++; render(); } }
+function back()    { if (S.step > 1) { S.step--; render(); } }
+
+function render() {
+  renderSteps();
+  renderFormPanel();
+  renderPreview();
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('ob-back').onclick = back;
+document.getElementById('ob-next').onclick = advance;
+
+render();
+</script>
+</body>
+</html>

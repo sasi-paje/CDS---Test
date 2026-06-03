@@ -9,7 +9,7 @@
   /* ─── Reset ─── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 15px; }
-  body { font-family: -apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif; background: #f4f5f7; color: #0f172a; min-height: 100vh; }
+  body { font-family: -apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif; background: var(--wiz-bg); color: var(--wiz-text); min-height: 100vh; }
 
   /* ─── Topbar ─── */
   .stb { position: sticky; top: 0; z-index: 100; height: 56px; display: flex; align-items: center; padding: 0 24px; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,.08); }
@@ -206,6 +206,102 @@
 
   .ob-preview-components { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px; }
   .ob-preview-comp { font-size: 11px; color: #64748b; background: #f1f5f9; border-radius: 5px; padding: 3px 8px; }
+
+  /* ─── Wizard color tokens (used by inline styles in JS) ─── */
+  :root {
+    --wiz-bg: #f4f5f7; --wiz-surface: #ffffff; --wiz-surface-2: #f8fafc;
+    --wiz-surface-3: #f1f5f9; --wiz-border: #e2e8f0;
+    --wiz-text: #0f172a; --wiz-text-2: #374151; --wiz-text-3: #475569;
+    --wiz-text-muted: #64748b; --wiz-text-subtle: #94a3b8;
+    --wiz-code-bg: #f1f5f9;
+  }
+  [data-theme="dark"] {
+    --wiz-bg: #0c0e14; --wiz-surface: #161920; --wiz-surface-2: #13161f;
+    --wiz-surface-3: #1c1f2a; --wiz-border: #252b3b;
+    --wiz-text: #e8eaf0; --wiz-text-2: #d1d5db; --wiz-text-3: #9ca3af;
+    --wiz-text-muted: #8b98b8; --wiz-text-subtle: #64748b;
+    --wiz-code-bg: #1e2130;
+  }
+
+  /* ─── Dark mode overrides ─── */
+  [data-theme="dark"] body { background: #0c0e14; color: #e8eaf0; }
+  [data-theme="dark"] .stb { background: rgba(10,12,18,.92); border-color: rgba(255,255,255,.07); }
+  [data-theme="dark"] .stb-logo { color: #e8eaf0; }
+  [data-theme="dark"] .stb-mark { background: #4f46e5; }
+  [data-theme="dark"] .stb-sep { background: rgba(255,255,255,.1); }
+  [data-theme="dark"] .stb-link { color: #8b98b8; }
+  [data-theme="dark"] .stb-link:hover { background: rgba(255,255,255,.06); color: #e8eaf0; }
+  [data-theme="dark"] .stb-cur { color: #818cf8 !important; }
+  [data-theme="dark"] .ob-step-dot.todo { background: #161920; border-color: #252b3b; color: #64748b; }
+  [data-theme="dark"] .ob-step-dot.active { background: #161920; border-color: #818cf8; color: #818cf8; box-shadow: 0 0 0 4px #1a1d36; }
+  [data-theme="dark"] .ob-step-dot.done { background: #4f46e5; }
+  [data-theme="dark"] .ob-step-label { color: #64748b; }
+  [data-theme="dark"] .ob-step-label.active { color: #e8eaf0; }
+  [data-theme="dark"] .ob-step-connector { background: #252b3b; }
+  [data-theme="dark"] .ob-step-connector.done { background: #4f46e5; }
+  [data-theme="dark"] .ob-panel { background: #161920; border-color: #252b3b; }
+  [data-theme="dark"] .ob-step-num { color: #818cf8; }
+  [data-theme="dark"] .ob-panel-title { color: #e8eaf0; }
+  [data-theme="dark"] .ob-panel-sub { color: #8b98b8; }
+  [data-theme="dark"] .ob-panel-sub code { background: #1e2130; }
+  [data-theme="dark"] .ob-divider { background: #252b3b; }
+  [data-theme="dark"] .ob-btn-back { background: #1c1f2a; color: #9ca3af; }
+  [data-theme="dark"] .ob-btn-back:hover { background: #252b3b; }
+  [data-theme="dark"] .ob-btn-next { background: #4f46e5; }
+  [data-theme="dark"] .ob-btn-next:hover { background: #4338ca; }
+  [data-theme="dark"] .ob-btn-generate { background: #059669; }
+  [data-theme="dark"] .ob-name-label { color: #d1d5db; }
+  [data-theme="dark"] .ob-name-input { background: #0f1117; border-color: #252b3b; color: #e8eaf0; }
+  [data-theme="dark"] .ob-name-input:focus { border-color: #818cf8; box-shadow: 0 0 0 3px #1a1d36; }
+  [data-theme="dark"] .ob-type-card { background: #161920; border-color: #252b3b; }
+  [data-theme="dark"] .ob-type-card:hover { background: #1c1f2a; border-color: #4f46e5; }
+  [data-theme="dark"] .ob-type-card.selected { background: #1a1d36; border-color: #818cf8; }
+  [data-theme="dark"] .ob-type-name { color: #e8eaf0; }
+  [data-theme="dark"] .ob-type-desc { color: #8b98b8; }
+  [data-theme="dark"] .ob-type-tag { background: #252b3b; color: #8b98b8; }
+  [data-theme="dark"] .ob-type-card.selected .ob-type-tag { background: #1e2248; color: #818cf8; }
+  [data-theme="dark"] .ob-swatch.selected { border-color: #161920; box-shadow: 0 0 0 3px #818cf8; }
+  [data-theme="dark"] .ob-brand-selected-info { background: #13161f; border-color: #252b3b; }
+  [data-theme="dark"] .ob-brand-name { color: #e8eaf0; }
+  [data-theme="dark"] .ob-brand-code { color: #8b98b8; }
+  [data-theme="dark"] .ob-custom-row { background: #13161f; border-color: #252b3b; }
+  [data-theme="dark"] .ob-custom-row:hover { border-color: #4f46e5; }
+  [data-theme="dark"] .ob-custom-row.selected { background: #1a1d36; border-color: #818cf8; }
+  [data-theme="dark"] .ob-custom-hex-input { background: #0f1117; border-color: #252b3b; color: #e8eaf0; }
+  [data-theme="dark"] .ob-style-card { background: #161920; border-color: #252b3b; }
+  [data-theme="dark"] .ob-style-card:hover { background: #1c1f2a; border-color: #4f46e5; }
+  [data-theme="dark"] .ob-style-card.selected { background: #1a1d36; border-color: #818cf8; }
+  [data-theme="dark"] .ob-style-bar { background: #252b3b; }
+  [data-theme="dark"] .ob-style-bar.brand { background: #818cf8; }
+  [data-theme="dark"] .ob-style-name { color: #e8eaf0; }
+  [data-theme="dark"] .ob-style-desc { color: #8b98b8; }
+  [data-theme="dark"] .ob-style-meta { color: #64748b; }
+  [data-theme="dark"] .ob-style-check { color: #818cf8; }
+  [data-theme="dark"] .ob-label { color: #d1d5db; }
+  [data-theme="dark"] .ob-select { background: #0f1117; border-color: #252b3b; color: #e8eaf0; }
+  [data-theme="dark"] .ob-select:focus { border-color: #818cf8; }
+  [data-theme="dark"] .ob-pill { background: #161920; border-color: #252b3b; color: #9ca3af; }
+  [data-theme="dark"] .ob-pill:hover { border-color: #4f46e5; color: #818cf8; }
+  [data-theme="dark"] .ob-pill.selected { background: #1a1d36; border-color: #818cf8; color: #818cf8; }
+  [data-theme="dark"] .ob-type-sample { background: #13161f; border-color: #252b3b; }
+  [data-theme="dark"] .ob-type-sample-label { color: #64748b; }
+  [data-theme="dark"] .ob-type-sample-h { color: #e8eaf0; }
+  [data-theme="dark"] .ob-type-sample-p { color: #8b98b8; }
+  [data-theme="dark"] .ob-review-card { background: #13161f; border-color: #252b3b; }
+  [data-theme="dark"] .ob-review-key { color: #64748b; }
+  [data-theme="dark"] .ob-review-val { color: #e8eaf0; }
+  [data-theme="dark"] .ob-review-sub { color: #8b98b8; }
+  [data-theme="dark"] .ob-comp-tag { background: #1a1d36; color: #818cf8; }
+  [data-theme="dark"] .ob-next-steps { background: #0c1f14; border-color: #166534; }
+  [data-theme="dark"] .ob-next-steps-title { color: #4ade80; }
+  [data-theme="dark"] .ob-next-steps-body { color: #86efac; }
+  [data-theme="dark"] .ob-next-steps-body code { background: #14532d; }
+  [data-theme="dark"] .ob-preview-label { color: #64748b; }
+  [data-theme="dark"] .ob-theme-toggle { border-color: #252b3b; background: #161920; }
+  [data-theme="dark"] .ob-theme-btn { color: #8b98b8; }
+  [data-theme="dark"] .ob-theme-btn.active { background: #e8eaf0; color: #0c0e14; }
+  [data-theme="dark"] .ob-preview-comp { background: #1c1f2a; color: #8b98b8; }
+  [data-theme="dark"] .ob-preview-frame { border-color: rgba(255,255,255,.1); }
   </style>
 </head>
 <body>
@@ -663,7 +759,7 @@ function renderStep2() {
   return `
     <div class="ob-step-num">Step 2 of 5</div>
     <h2 class="ob-panel-title">Choose your brand color</h2>
-    <p class="ob-panel-sub">Your primary accent for buttons, links, and focus rings. Pick one of 12 presets or enter any custom hex.</p>
+    <p class="ob-panel-sub">Your primary accent for buttons, links, and focus rings. Pick one of 12 presets or enter any custom hex. Change anytime via <code style="background:var(--wiz-code-bg);padding:1px 5px;border-radius:4px;font-size:12px">data-brand</code>.</p>
     <div class="ob-brand-grid">
       ${BRANDS.map(b => `<div class="ob-swatch ${S.brand===b.id?'selected':''}" style="background:${b.hex}" title="${b.name}" onclick="pickBrand('${b.id}')"></div>`).join('')}
     </div>
@@ -671,8 +767,8 @@ function renderStep2() {
       <input id="ob-color-input" class="ob-custom-color-input" type="color" value="${S.customHex}"
         oninput="pickCustomBrand(this.value)" onclick="event.stopPropagation()">
       <div style="flex:1">
-        <div style="font-size:13.5px;font-weight:600;color:#0f172a">Custom color</div>
-        <div style="font-size:12px;color:#64748b">Pick any color for your client's exact brand</div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--wiz-text)">Custom color</div>
+        <div style="font-size:12px;color:var(--wiz-text-muted)">Pick any color for your client's exact brand</div>
       </div>
       <input id="ob-hex-input" class="ob-custom-hex-input" style="width:90px" type="text"
         value="${S.customHex}" placeholder="#6366f1" maxlength="7"
@@ -783,29 +879,29 @@ function renderStep5() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
       <div>
         <label class="ob-name-label" style="margin-bottom:6px">File name</label>
-        <div style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff;transition:border-color .15s" id="fn-wrap">
-          <input style="flex:1;padding:10px 12px;border:none;outline:none;font-size:14px;font-family:inherit;color:#0f172a;background:transparent"
+        <div style="display:flex;align-items:center;border:1.5px solid var(--wiz-border);border-radius:9px;overflow:hidden;background:var(--wiz-surface);transition:border-color .15s" id="fn-wrap">
+          <input style="flex:1;padding:10px 12px;border:none;outline:none;font-size:14px;font-family:inherit;color:var(--wiz-text);background:transparent"
             type="text" placeholder="${slugify(S.projectName||'starter')}"
             value="${S.fileName}"
             oninput="S.fileName=this.value;document.getElementById('fn-ext').textContent=getDownloadName();document.getElementById('fn-preview').textContent=getDownloadName()"
             onfocus="document.getElementById('fn-wrap').style.borderColor='#6366f1'"
-            onblur="document.getElementById('fn-wrap').style.borderColor='#e2e8f0'">
-          <span style="padding:0 12px;color:#94a3b8;font-size:13px;font-family:monospace;border-left:1px solid #e2e8f0;height:100%;display:flex;align-items:center;background:#f8fafc">.html</span>
+            onblur="document.getElementById('fn-wrap').style.borderColor=''">
+          <span style="padding:0 12px;color:var(--wiz-text-subtle);font-size:13px;font-family:monospace;border-left:1px solid var(--wiz-border);height:100%;display:flex;align-items:center;background:var(--wiz-surface-2)">.html</span>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;justify-content:flex-end">
-        <div style="background:#f1f5f9;border-radius:8px;padding:9px 12px;font-size:12.5px;color:#475569;display:flex;align-items:center;gap:6px">
+        <div style="background:var(--wiz-surface-3);border-radius:8px;padding:9px 12px;font-size:12.5px;color:var(--wiz-text-3);display:flex;align-items:center;gap:6px">
           <span style="opacity:.6">⬇</span>
-          <span id="fn-preview" style="font-family:monospace;font-weight:600;color:#0f172a">${downloadAs}</span>
+          <span id="fn-preview" style="font-family:monospace;font-weight:600;color:var(--wiz-text)">${downloadAs}</span>
         </div>
       </div>
     </div>
 
     <div style="margin-bottom:20px">
-      <label class="ob-name-label" style="margin-bottom:6px">Project description <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
-      <textarea style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;color:#0f172a;resize:vertical;outline:none;min-height:72px;transition:border-color .15s"
+      <label class="ob-name-label" style="margin-bottom:6px">Project description <span style="font-weight:400;color:var(--wiz-text-subtle)">(optional)</span></label>
+      <textarea style="width:100%;padding:10px 14px;border:1.5px solid var(--wiz-border);border-radius:9px;font-size:14px;font-family:inherit;color:var(--wiz-text);background:var(--wiz-surface);resize:vertical;outline:none;min-height:72px;transition:border-color .15s"
         placeholder="A brief description of what this project does — shown in the starter's header"
-        onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"
+        onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor=''"
         oninput="S.projectDesc=this.value">${S.projectDesc}</textarea>
     </div>
 
@@ -832,7 +928,7 @@ function renderStep5() {
         <div class="ob-review-sub">data-theme="${S.theme}"</div>
       </div>
     </div>
-    <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:8px">Components included</div>
+    <div style="font-size:13px;font-weight:600;color:var(--wiz-text-2);margin-bottom:8px">Components included</div>
     <div class="ob-comp-tags">${comps.map(c => `<span class="ob-comp-tag">${c}</span>`).join('')}</div>
     <div class="ob-next-steps">
       <div class="ob-next-steps-title">After generating</div>

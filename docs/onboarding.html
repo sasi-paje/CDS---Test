@@ -250,6 +250,8 @@
 const S = {
   step: 1,
   projectName: '',
+  projectDesc: '',
+  fileName: '',
   siteType: '',
   brand: 'indigo',
   customHex: '#6366f1',
@@ -770,10 +772,44 @@ function renderStep5() {
   const type   = SITE_TYPES.find(t => t.id === S.siteType) || SITE_TYPES[5];
   const comps  = STARTER_COMPONENTS[S.siteType] || STARTER_COMPONENTS.blank;
 
+  const fileNameVal = S.fileName || slugify(S.projectName || 'starter');
+  const downloadAs  = fileNameVal.endsWith('.html') ? fileNameVal : fileNameVal + '.html';
+
   return `
     <div class="ob-step-num">Step 5 of 5</div>
-    <h2 class="ob-panel-title">Ready to generate</h2>
-    <p class="ob-panel-sub">Review your choices. Click Generate to download a <strong>starter.html</strong> pre-wired with your brand, style, and components.</p>
+    <h2 class="ob-panel-title">Name &amp; generate</h2>
+    <p class="ob-panel-sub">Give your starter a filename and description, then download it.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div>
+        <label class="ob-name-label" style="margin-bottom:6px">File name</label>
+        <div style="display:flex;align-items:center;border:1.5px solid #e2e8f0;border-radius:9px;overflow:hidden;background:#fff;transition:border-color .15s" id="fn-wrap">
+          <input style="flex:1;padding:10px 12px;border:none;outline:none;font-size:14px;font-family:inherit;color:#0f172a;background:transparent"
+            type="text" placeholder="${slugify(S.projectName||'starter')}"
+            value="${S.fileName}"
+            oninput="S.fileName=this.value;document.getElementById('fn-ext').textContent=getDownloadName();document.getElementById('fn-preview').textContent=getDownloadName()"
+            onfocus="document.getElementById('fn-wrap').style.borderColor='#6366f1'"
+            onblur="document.getElementById('fn-wrap').style.borderColor='#e2e8f0'">
+          <span style="padding:0 12px;color:#94a3b8;font-size:13px;font-family:monospace;border-left:1px solid #e2e8f0;height:100%;display:flex;align-items:center;background:#f8fafc">.html</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end">
+        <div style="background:#f1f5f9;border-radius:8px;padding:9px 12px;font-size:12.5px;color:#475569;display:flex;align-items:center;gap:6px">
+          <span style="opacity:.6">⬇</span>
+          <span id="fn-preview" style="font-family:monospace;font-weight:600;color:#0f172a">${downloadAs}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <label class="ob-name-label" style="margin-bottom:6px">Project description <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+      <textarea style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;color:#0f172a;resize:vertical;outline:none;min-height:72px;transition:border-color .15s"
+        placeholder="A brief description of what this project does — shown in the starter's header"
+        onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"
+        oninput="S.projectDesc=this.value">${S.projectDesc}</textarea>
+    </div>
+
+    <div class="ob-divider"></div>
     <div class="ob-review-grid">
       <div class="ob-review-card">
         <div class="ob-review-key">Site type</div>
@@ -802,11 +838,20 @@ function renderStep5() {
       <div class="ob-next-steps-title">After generating</div>
       <div class="ob-next-steps-body">
         1. Make sure <code>python3 -m http.server 3333</code> is running<br>
-        2. Open <code>starter.html</code> from <strong>anywhere</strong> — it loads assets via localhost<br>
-        3. Or move it to your project root and open <code>http://localhost:3333/starter.html</code><br>
+        2. Open <code id="fn-ext">${downloadAs}</code> from <strong>anywhere</strong> — assets load via localhost<br>
+        3. Or move it to your project root and open <code>http://localhost:3333/${downloadAs}</code><br>
         4. Tell Claude Code: <em>"Build me a [screen] using src/whitelabel/"</em>
       </div>
     </div>`;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function slugify(str) {
+  return str.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'starter';
+}
+function getDownloadName() {
+  const base = S.fileName.trim() || slugify(S.projectName || 'starter');
+  return base.endsWith('.html') ? base : base + '.html';
 }
 
 // ─── Starter generator ────────────────────────────────────────────────────────
@@ -814,6 +859,7 @@ const BASE = 'http://localhost:3333';
 
 function generateStarter() {
   const name  = S.projectName || 'My App';
+  const desc  = S.projectDesc || '';
   const brand = S.brand === 'custom' ? 'indigo' : S.brand;
   const style = S.style;
   const theme = S.theme;
@@ -847,10 +893,10 @@ function generateStarter() {
     admin: genAdmin, dashboard: genDashboard, saas: genSaas,
     datatable: genDataTable, forms: genForms, blank: genBlank,
   };
-  const html = (generators[S.siteType] || genBlank)(name, brand, style, theme, customBrandCSS + fontOverride);
+  const html = (generators[S.siteType] || genBlank)(name, desc, brand, style, theme, customBrandCSS + fontOverride);
   const blob = new Blob([html], { type: 'text/html' });
   const url  = URL.createObjectURL(blob);
-  const a    = Object.assign(document.createElement('a'), { href: url, download: 'starter.html' });
+  const a    = Object.assign(document.createElement('a'), { href: url, download: getDownloadName() });
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -868,12 +914,13 @@ function libScripts(files) {
   return files.map(f => `  <sc` + `ript type="text/babel" src="${BASE}/src/whitelabel/${f}.jsx"></sc` + `ript>`).join('\n');
 }
 
-function head(name, brand, style, theme, fontOverride, extraStyle='') {
+function head(name, desc, brand, style, theme, fontOverride, extraStyle='') {
+  const metaDesc = desc ? `\n  <meta name="description" content="${desc.replace(/"/g,"'")}">` : '';
   return `<!doctype html>
 <html lang="en" data-theme="${theme}" data-brand="${brand}" data-style="${style}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">${metaDesc}
   <title>${name}</title>
   <link rel="stylesheet" href="${BASE}/src/whitelabel/tokens.css">
 ${cdnScripts()}${fontOverride}
@@ -893,8 +940,8 @@ ${code}
 </html>`;
 }
 
-function genAdmin(name, brand, style, theme, fontOverride) {
-  return head(name, brand, style, theme, fontOverride, '') +
+function genAdmin(name, desc, brand, style, theme, fontOverride) {
+  return head(name, desc, brand, style, theme, fontOverride, '') +
 '\n' + libScripts(['Primitives','Display','Overlays','Small','Sidebar','Complex']) +
 '\n' + `  <sc` + `ript type="text/babel" src="${BASE}/examples/console/AppShell.jsx"></sc` + `ript>
   <sc` + `ript type="text/babel" src="${BASE}/examples/console/Screens.jsx"></sc` + `ript>` +
@@ -951,8 +998,8 @@ foot(`
 `);
 }
 
-function genDashboard(name, brand, style, theme, fontOverride) {
-  return head(name, brand, style, theme, fontOverride, '') +
+function genDashboard(name, desc, brand, style, theme, fontOverride) {
+  return head(name, desc, brand, style, theme, fontOverride, '') +
 '\n' + libScripts(['Primitives','Display','Overlays','Small','Complex','Gaps']) +
 foot(`
     const { useState } = React;
@@ -1021,8 +1068,8 @@ foot(`
 `);
 }
 
-function genSaas(name, brand, style, theme, fontOverride) {
-  return head(name, brand, style, theme, fontOverride, 'html,body{height:100%;}') +
+function genSaas(name, desc, brand, style, theme, fontOverride) {
+  return head(name, desc, brand, style, theme, fontOverride, 'html,body{height:100%;}') +
 '\n' + libScripts(['Primitives','Display','Overlays','Small','Sidebar','Gaps','Gaps2']) +
 foot(`
     const { useState, useEffect } = React;
@@ -1059,7 +1106,7 @@ foot(`
       return (
         <div style={{padding:32,maxWidth:720}}>
           <h1 style={{fontSize:28,fontWeight:700,marginBottom:6}}>${name}</h1>
-          <p style={{color:'var(--fg-muted)',marginBottom:24,fontSize:15}}>Your app dashboard. Start building your home screen here.</p>
+          <p style={{color:'var(--fg-muted)',marginBottom:24,fontSize:15}}>${desc||'Your app dashboard. Start building your home screen here.'}</p>
           <Alert variant="info" title="Getting started">
             Ask Claude Code: "Build me a [feature] screen using the components in src/whitelabel/"
           </Alert>
@@ -1121,8 +1168,8 @@ foot(`
 `);
 }
 
-function genDataTable(name, brand, style, theme, fontOverride) {
-  return head(name, brand, style, theme, fontOverride, '') +
+function genDataTable(name, desc, brand, style, theme, fontOverride) {
+  return head(name, desc, brand, style, theme, fontOverride, '') +
 '\n' + libScripts(['Primitives','Display','Overlays','Small']) +
 '\n' + `  <sc` + `ript type="text/babel" src="${BASE}/examples/datatable/DataTableKit.jsx"></sc` + `ript>` +
 foot(`
@@ -1138,8 +1185,8 @@ foot(`
 `);
 }
 
-function genForms(name, brand, style, theme, fontOverride) {
-  return head(name, brand, style, theme, fontOverride, '') +
+function genForms(name, desc, brand, style, theme, fontOverride) {
+  return head(name, desc, brand, style, theme, fontOverride, '') +
 '\n' + libScripts(['Primitives','Overlays','Small','Complex','Gaps','Gaps2']) +
 foot(`
     const { useState } = React;
@@ -1257,8 +1304,9 @@ foot(`
 `);
 }
 
-function genBlank(name, brand, style, theme, fontOverride) {
-  return head(name, brand, style, theme, fontOverride, '') +
+function genBlank(name, desc, brand, style, theme, fontOverride) {
+  const subtitle = desc || 'Your project is ready. Open this file and tell Claude Code what to build.';
+  return head(name, desc, brand, style, theme, fontOverride, '') +
 '\n' + libScripts(['Primitives','Overlays']) +
 foot(`
     const { Button, Input, Card, Badge, Alert } = window;
@@ -1268,7 +1316,7 @@ foot(`
         <div style={{maxWidth:640,margin:'80px auto',padding:'0 24px'}}>
           <h1 style={{fontSize:32,fontWeight:700,marginBottom:8}}>${name}</h1>
           <p style={{color:'var(--fg-muted)',fontSize:15,marginBottom:32,lineHeight:1.6}}>
-            Your project is ready. Open this file and ask Claude Code what to build.
+            ${subtitle}
           </p>
           <Alert variant="info" title="How to start">
             Tell Claude Code: <em>"Build me a [screen description] using the components in src/whitelabel/"</em>

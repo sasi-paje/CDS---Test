@@ -223,6 +223,35 @@
     --wiz-code-bg: #1e2130;
   }
 
+  /* ─── Contrast checker ─── */
+  .ob-contrast { margin-top: 16px; background: var(--wiz-surface-2); border: 1px solid var(--wiz-border); border-radius: 12px; padding: 16px 18px; }
+  .ob-contrast-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--wiz-text-subtle); margin-bottom: 14px; }
+  .ob-contrast-hero { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .ob-contrast-swatches { display: flex; align-items: center; gap: 6px; }
+  .ob-contrast-swatch { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; flex-shrink: 0; }
+  .ob-contrast-arrow { font-size: 12px; color: var(--wiz-text-subtle); }
+  .ob-contrast-ratio-val { font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: var(--wiz-text); line-height: 1; }
+  .ob-contrast-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+  .ob-contrast-badge { padding: 3px 9px; border-radius: 100px; font-size: 11.5px; font-weight: 700; }
+  .ob-contrast-badge.pass { background: #dcfce7; color: #166534; }
+  .ob-contrast-badge.fail { background: #fee2e2; color: #991b1b; }
+  .ob-contrast-badge.warn { background: #fef9c3; color: #854d0e; }
+  .ob-contrast-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .ob-contrast-table th { color: var(--wiz-text-subtle); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 0 0 7px; border-bottom: 1px solid var(--wiz-border); }
+  .ob-contrast-table th:not(:first-child) { text-align: center; }
+  .ob-contrast-table td { padding: 8px 0; border-bottom: 1px solid var(--wiz-border); color: var(--wiz-text); font-size: 13px; }
+  .ob-contrast-table tr:last-child td { border-bottom: none; }
+  .ob-contrast-table td:not(:first-child) { text-align: center; }
+  .ob-cr-pass { color: #10b981; font-weight: 600; }
+  .ob-cr-fail { color: #ef4444; font-weight: 600; }
+  .ob-cr-na { color: var(--wiz-text-subtle); font-size: 12px; }
+  .ob-contrast-min { font-size: 10.5px; color: var(--wiz-text-subtle); display: block; margin-top: 1px; }
+  [data-theme="dark"] .ob-contrast-badge.pass { background: #14532d; color: #4ade80; }
+  [data-theme="dark"] .ob-contrast-badge.fail { background: #450a0a; color: #f87171; }
+  [data-theme="dark"] .ob-contrast-badge.warn { background: #422006; color: #fbbf24; }
+  [data-theme="dark"] .ob-cr-pass { color: #4ade80; }
+  [data-theme="dark"] .ob-cr-fail { color: #f87171; }
+
   /* ─── Dark mode overrides ─── */
   [data-theme="dark"] body { background: #0c0e14; color: #e8eaf0; }
   [data-theme="dark"] .stb { background: rgba(10,12,18,.92); border-color: rgba(255,255,255,.07); }
@@ -481,6 +510,91 @@ function applyCustomBrand(hex) {
 function clearCustomBrand() {
   ['--bg-brand','--bg-brand-subtle','--fg-brand','--fg-on-brand','--border-brand','--bg-brand-hover']
     .forEach(v => document.documentElement.style.removeProperty(v));
+}
+
+// ─── WCAG contrast checker ───────────────────────────────────────────────────
+function getLuminance(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const lin = c => c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+  return 0.2126*lin(r) + 0.7152*lin(g) + 0.0722*lin(b);
+}
+function contrastRatio(hex1, hex2) {
+  const L1 = getLuminance(hex1), L2 = getLuminance(hex2);
+  return (Math.max(L1,L2)+0.05) / (Math.min(L1,L2)+0.05);
+}
+function wcagBadge(ratio) {
+  if (ratio >= 7)   return `<span class="ob-contrast-badge pass">AAA</span><span class="ob-contrast-badge pass">AA</span>`;
+  if (ratio >= 4.5) return `<span class="ob-contrast-badge pass">AA</span><span class="ob-contrast-badge fail">AAA Fail</span>`;
+  if (ratio >= 3)   return `<span class="ob-contrast-badge warn">AA Large only</span><span class="ob-contrast-badge fail">AA Fail</span>`;
+  return `<span class="ob-contrast-badge fail">Fail</span>`;
+}
+function crCell(ratio, threshold, minLabel) {
+  const result = ratio >= threshold
+    ? `<span class="ob-cr-pass">✓ Pass</span>`
+    : `<span class="ob-cr-fail">✗ Fail</span>`;
+  return `<td>${result}<span class="ob-contrast-min">${minLabel}</span></td>`;
+}
+function contrastChecker(brandHex) {
+  const WHITE = '#ffffff', DARK = '#0f172a';
+  const rWhite = contrastRatio(brandHex, WHITE);
+  const rDark  = contrastRatio(brandHex, DARK);
+  // determine readable text on brand (for button label preview)
+  const textOnBrand = rWhite >= rDark ? WHITE : DARK;
+  const rMain = contrastRatio(brandHex, WHITE); // primary check: brand vs white bg
+
+  return `<div class="ob-contrast">
+    <div class="ob-contrast-title">WCAG 2.1 Contrast Analysis</div>
+    <div class="ob-contrast-hero">
+      <div class="ob-contrast-swatches">
+        <div class="ob-contrast-swatch" style="background:${brandHex};color:${textOnBrand};border:1px solid rgba(0,0,0,.08)">Aa</div>
+        <div class="ob-contrast-arrow">↔</div>
+        <div class="ob-contrast-swatch" style="background:#fff;color:${brandHex};border:1px solid var(--wiz-border)">Aa</div>
+      </div>
+      <div>
+        <div class="ob-contrast-ratio-val">${rMain.toFixed(2)}<span style="font-size:16px;font-weight:600;color:var(--wiz-text-muted)">:1</span></div>
+        <div style="font-size:11.5px;color:var(--wiz-text-muted);margin-top:2px">brand vs white background</div>
+      </div>
+      <div class="ob-contrast-badges">${wcagBadge(rMain)}</div>
+    </div>
+    <table class="ob-contrast-table">
+      <thead>
+        <tr>
+          <th style="text-align:left">Criterion</th>
+          <th>AA<span class="ob-contrast-min">threshold</span></th>
+          <th>AAA<span class="ob-contrast-min">threshold</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Large text <span style="font-size:11px;color:var(--wiz-text-subtle)">(18pt / 14pt bold)</span></td>
+          ${crCell(rMain,3,'≥ 3:1')}
+          ${crCell(rMain,4.5,'≥ 4.5:1')}
+        </tr>
+        <tr>
+          <td>Normal text</td>
+          ${crCell(rMain,4.5,'≥ 4.5:1')}
+          ${crCell(rMain,7,'≥ 7:1')}
+        </tr>
+        <tr>
+          <td>Graphics &amp; UI components</td>
+          ${crCell(rMain,3,'≥ 3:1')}
+          <td><span class="ob-cr-na">N/A</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--wiz-border);display:flex;align-items:center;gap:8px">
+      <div class="ob-contrast-swatches">
+        <div class="ob-contrast-swatch" style="background:#0f172a;color:${brandHex};border:1px solid rgba(255,255,255,.08);font-size:13px">Aa</div>
+        <div class="ob-contrast-arrow">↔</div>
+        <div class="ob-contrast-swatch" style="background:${brandHex};color:#fff;border:1px solid rgba(0,0,0,.08);font-size:13px">Aa</div>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--wiz-text)">${rDark.toFixed(2)}<span style="font-size:13px;color:var(--wiz-text-muted)">:1</span></div>
+        <div style="font-size:11.5px;color:var(--wiz-text-muted)">brand vs dark mode bg</div>
+      </div>
+      <div class="ob-contrast-badges" style="margin-left:auto">${wcagBadge(rDark)}</div>
+    </div>
+  </div>`;
 }
 
 // ─── Preview ──────────────────────────────────────────────────────────────────
@@ -780,7 +894,8 @@ function renderStep2() {
         <div class="ob-brand-name">${displayName}</div>
         <div class="ob-brand-code">${displayCode}</div>
       </div>
-    </div>`;
+    </div>
+    ${S.brand === 'custom' ? contrastChecker(S.customHex) : ''}`;
 }
 
 function pickBrand(id) {
